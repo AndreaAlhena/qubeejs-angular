@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-The next release is **4.0.0**. The package is renamed, the framework-agnostic half moves into `@qubeejs/core`, RxJS is gone, and lists can keep their state in the URL. A migration table closes the section.
+## [4.0.0] - 2026-10-22
+
+The package is renamed, the framework-agnostic half moves into `@qubeejs/core`, RxJS is gone, and lists can keep their state in the URL. A migration table closes the section.
 
 ### Breaking
 
