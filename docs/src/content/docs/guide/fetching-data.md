@@ -297,3 +297,8 @@ export class UserClient {
 ```
 
 Each navigation calls `_fetch()` explicitly; there is no long-lived stream to leak, and a root-scoped client is safe here because nothing reacts to the shared `uri` signal on its own. For PostgREST, WordPress and Ransack, request `{ observe: 'response' }` and pass `response.headers` as the second argument of `paginate()`.
+
+## Recipes
+
+- [Backends that paginate with headers](/recipes/header-pagination/)
+- [A list scoped by a route parameter](/recipes/route-scoped-list/)

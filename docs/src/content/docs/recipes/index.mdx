@@ -1,0 +1,65 @@
+---
+title: Recipes
+description: Complete, copy-pasteable solutions to common list, pagination and fetching tasks with @qubeejs/angular.
+sidebar:
+  label: Overview
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The guide explains each part of the adapter on its own. A recipe puts the parts together to solve one task end to end: the problem, the code, and why it works. Every sample on these pages is compiled against the published package before it ships.
+
+## Scoping state
+
+<CardGrid>
+  <LinkCard
+    title="Two independent lists on one page"
+    description="Give each component its own query builder, so a filter in one never re-fetches the other."
+    href="/recipes/independent-lists/"
+  />
+  <LinkCard
+    title="One builder per feature service"
+    description="Root-scoped services that each keep a private builder, paginator and store."
+    href="/recipes/feature-services/"
+  />
+</CardGrid>
+
+## Lists in the URL
+
+<CardGrid>
+  <LinkCard
+    title="A debounced search box"
+    description="Type into the URL without a navigation, or a request, per keystroke."
+    href="/recipes/debounced-search/"
+  />
+  <LinkCard
+    title="Pagination controls"
+    description="Page numbers with gaps, previous and next, and a “21–34 of 34” label."
+    href="/recipes/pagination-controls/"
+  />
+  <LinkCard
+    title="Sortable table headers"
+    description="Column headers that toggle the sort, with the right aria-sort."
+    href="/recipes/sortable-headers/"
+  />
+  <LinkCard
+    title="A list scoped by a route parameter"
+    description="A project's tasks at /projects/:id/tasks: a typed list input from the route."
+    href="/recipes/route-scoped-list/"
+  />
+</CardGrid>
+
+## Fetching and testing
+
+<CardGrid>
+  <LinkCard
+    title="Backends that paginate with headers"
+    description="WordPress, Ransack and PostgREST ranges, with qubeeHttpResource() or HttpClient."
+    href="/recipes/header-pagination/"
+  />
+  <LinkCard
+    title="Testing a list component"
+    description="Drive a list with the memory adapter and assert its requests."
+    href="/recipes/testing-lists/"
+  />
+</CardGrid>

@@ -90,3 +90,8 @@ import {
 ```
 
 These are what `provideQubee()` registers. You can override any of them at any injector level, though the high-level helpers cover nearly every case. `QUBEE_LIST_ADAPTER`, the token [lists](/guide/lists/#writing-an-adapter) read their URL through, is provided separately, by the adapter providers.
+
+## Recipes
+
+- [Two independent lists on one page](/recipes/independent-lists/)
+- [One builder per feature service](/recipes/feature-services/)

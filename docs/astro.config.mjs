@@ -139,6 +139,20 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Recipes',
+          items: [
+            { label: 'Overview', slug: 'recipes' },
+            { label: 'Two independent lists on one page', slug: 'recipes/independent-lists' },
+            { label: 'One builder per feature service', slug: 'recipes/feature-services' },
+            { label: 'A debounced search box', slug: 'recipes/debounced-search' },
+            { label: 'Pagination controls', slug: 'recipes/pagination-controls' },
+            { label: 'Sortable table headers', slug: 'recipes/sortable-headers' },
+            { label: 'A list scoped by a route parameter', slug: 'recipes/route-scoped-list' },
+            { label: 'Backends that paginate with headers', slug: 'recipes/header-pagination' },
+            { label: 'Testing a list component', slug: 'recipes/testing-lists' },
+          ],
+        },
+        {
           label: 'API',
           collapsed: true,
           items: [

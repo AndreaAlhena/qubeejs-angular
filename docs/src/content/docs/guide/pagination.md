@@ -101,3 +101,8 @@ For every other driver it is `null`, so spreading it into a request's headers is
 | `InvalidLimitError` | `setLimit(n)` | The active driver does not accept `n` |
 
 Every error carries a machine-readable `code` — `'PAGINATION_NOT_SYNCED'`, `'INVALID_PAGE_NUMBER'`, … — so you can branch without matching on message text.
+
+## Recipes
+
+- [Pagination controls](/recipes/pagination-controls/)
+- [Backends that paginate with headers](/recipes/header-pagination/)

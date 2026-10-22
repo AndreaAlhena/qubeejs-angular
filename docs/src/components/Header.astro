@@ -29,6 +29,8 @@ const prefix = version ? `/${version.slug}` : '';
 const SECTIONS = [
   { href: `${prefix}/guide/getting-started/`, label: 'Guide', match: '/guide/' },
   { href: `${prefix}/api/`, label: 'API', match: '/api/' },
+  // Current version only, like the changelog: the 3.8 archive has no recipes.
+  { href: '/recipes/', label: 'Recipes', match: '/recipes/' },
   { href: '/changelog/', label: 'Changelog', match: '/changelog' },
 ];
 

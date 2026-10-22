@@ -284,3 +284,11 @@ providers: [{ provide: QUBEE_LIST_ADAPTER, useValue: adapter }]
 ```
 
 `navigate()` may return a promise; the list reports `isPending` until it settles, and drops its draft if the URL did not reach the target by then.
+
+## Recipes
+
+- [A debounced search box](/recipes/debounced-search/)
+- [Pagination controls](/recipes/pagination-controls/)
+- [Sortable table headers](/recipes/sortable-headers/)
+- [A list scoped by a route parameter](/recipes/route-scoped-list/)
+- [Testing a list component](/recipes/testing-lists/)
