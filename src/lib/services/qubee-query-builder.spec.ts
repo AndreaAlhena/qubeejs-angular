@@ -9,6 +9,7 @@ import {
   POSTGREST_DRIVER,
   PaginationModeEnum,
   PaginationNotSyncedError,
+  ParamCollisionError,
   SPATIE_DRIVER,
   SortEnum,
   UnselectableModelError,
@@ -162,6 +163,42 @@ describe('QubeeQueryBuilder (Spatie)', () => {
       service.addIncludes('settings');
 
       expect(service.uri()).toContain('fields[settings]=field1');
+    });
+  });
+
+  describe('setParam / deleteParams', () => {
+    it('should append a param after the driver\'s own, values joined with a comma', () => {
+      service.setResource('users').setParam('ids', 'a,b', 'c');
+
+      expect(service.generateUri()).toBe('/users?limit=15&page=1&ids=a%2Cb,c');
+    });
+
+    it('should reset the page to 1', () => {
+      service.setResource('users').setPage(3).setParam('status', 'failed');
+
+      expect(service.currentPage()).toBe(1);
+
+      service.setPage(3).deleteParams('status');
+
+      expect(service.currentPage()).toBe(1);
+    });
+
+    it('should remove a param', () => {
+      service.setResource('users').setParam('status', 'failed').deleteParams('status');
+
+      expect(service.uri()).toBe('/users?limit=15&page=1');
+    });
+
+    it('should throw ParamCollisionError for a key the driver emits', () => {
+      service.setResource('users').setParam('page', 4);
+
+      expect(() => service.generateUri()).toThrowError(ParamCollisionError);
+    });
+
+    it('should be cleared by reset()', () => {
+      service.setResource('users').setParam('status', 'failed').reset();
+
+      expect(service.state().params).toEqual({});
     });
   });
 

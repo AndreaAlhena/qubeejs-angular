@@ -380,6 +380,20 @@ export class QubeeQueryBuilder {
   }
 
   /**
+   * Remove extra query parameters set with {@link setParam} (all drivers)
+   *
+   * Resets the page to 1. Calling it with no keys is a no-op.
+   *
+   * @param keys - Parameter keys to remove
+   * @returns {this}
+   */
+  public deleteParams(...keys: string[]): this {
+    this._builder.deleteParams(...keys);
+
+    return this;
+  }
+
+  /**
    * Remove the search term from the state
    *
    * Resets the page to 1.
@@ -546,6 +560,35 @@ export class QubeeQueryBuilder {
    */
   public setPage(page: number): this {
     this._builder.setPage(page);
+
+    return this;
+  }
+
+  /**
+   * Set a query parameter no driver models (all drivers)
+   *
+   * For what a backend accepts beyond the driver's own parameters — a
+   * top-level `status`, an `include` on a driver without includes. Appended
+   * after the driver's parameters, so it works with every driver and is not
+   * gated by capabilities:
+   *
+   * ```
+   * qb.setParam('status', 'failed');  // → status=failed
+   * qb.setParam('ids', 'a,b', 'c');   // → ids=a%2Cb,c
+   * ```
+   *
+   * The key is emitted verbatim — never build one from end-user input — and
+   * each value is percent-encoded like a filter value. Setting a key again
+   * replaces its values; calling it with no values is a no-op. Resets the page
+   * to 1.
+   *
+   * @param key - The parameter name, emitted verbatim
+   * @param values - The value(s), joined with `,`
+   * @returns {this}
+   * @throws {ParamCollisionError} From {@link generateUri} and {@link uri}, when the key collides with a parameter the driver emits
+   */
+  public setParam(key: string, ...values: (string | number | boolean)[]): this {
+    this._builder.setParam(key, ...values);
 
     return this;
   }
