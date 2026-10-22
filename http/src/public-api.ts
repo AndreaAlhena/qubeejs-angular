@@ -6,3 +6,4 @@
  */
 
 export * from './qubee-http-resource';
+export type * from './types/qubee-http-resource.type';
