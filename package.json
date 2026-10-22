@@ -8,10 +8,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AndreaAlhena/ng-qubee.git"
+    "url": "git+https://github.com/AndreaAlhena/qubeejs-angular.git"
   },
   "bugs": {
-    "url": "https://github.com/AndreaAlhena/ng-qubee/issues"
+    "url": "https://github.com/AndreaAlhena/qubeejs-angular/issues"
   },
   "homepage": "https://ng-qubee.andreatantimonaco.me",
   "keywords": [
