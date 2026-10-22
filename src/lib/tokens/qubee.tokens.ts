@@ -1,0 +1,53 @@
+import { InjectionToken } from '@angular/core';
+
+import type {
+  DriverDefinition,
+  IRequestStrategy,
+  IResponseStrategy,
+  QueryBuilderOptions,
+  ResponseOptions
+} from '@qubeejs/core';
+
+/**
+ * Injection token for the active driver definition
+ *
+ * Provided by `provideQubee()` / `QubeeModule.forRoot()` from the
+ * user-supplied `QubeeConfig.driver` — `STRAPI_DRIVER`, say. Read
+ * `.id` for the driver's identifier (`'strapi'`).
+ */
+export const QUBEE_DRIVER = new InjectionToken<DriverDefinition>('QUBEE_DRIVER');
+
+/**
+ * Injection token for the resolved request URI strategy
+ *
+ * Provided by `provideQubee()` / `QubeeModule.forRoot()` based on the
+ * active driver. Used by `QubeeQueryBuilder` to build request URIs.
+ */
+export const QUBEE_REQUEST_STRATEGY = new InjectionToken<IRequestStrategy>('QUBEE_REQUEST_STRATEGY');
+
+/**
+ * Injection token for the resolved request query-parameter key options
+ *
+ * Provided as a fully-built `QueryBuilderOptions` instance. `provideQubee()`
+ * constructs it from `QubeeConfig.request`; consumers don't interact with this
+ * token directly.
+ */
+export const QUBEE_REQUEST_OPTIONS = new InjectionToken<QueryBuilderOptions>('QUBEE_REQUEST_OPTIONS');
+
+/**
+ * Injection token for the resolved response parsing strategy
+ *
+ * Provided by `provideQubee()` / `QubeeModule.forRoot()` based on the
+ * active driver. Used by `QubeePaginator` to parse paginated responses.
+ */
+export const QUBEE_RESPONSE_STRATEGY = new InjectionToken<IResponseStrategy>('QUBEE_RESPONSE_STRATEGY');
+
+/**
+ * Injection token for the resolved response field-key options
+ *
+ * Provided as a fully-built `ResponseOptions` instance (or a driver-specific
+ * subclass like `JsonApiResponseOptions` / `NestjsResponseOptions`).
+ * `provideQubee()` constructs the correct variant from `QubeeConfig.response`.
+ */
+export const QUBEE_RESPONSE_OPTIONS = new InjectionToken<ResponseOptions>('QUBEE_RESPONSE_OPTIONS');
+
