@@ -88,10 +88,15 @@
     "test": "ng test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "lint-staged": {
-    "{src,router,http}/**/*.ts": [
+    "*": [
+      "prettier --write --ignore-unknown"
+    ],
+    "*.{js,mjs,ts}": [
       "eslint --fix"
     ]
   },

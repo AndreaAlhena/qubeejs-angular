@@ -1,0 +1,21 @@
+{
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "jsonRecursiveSort": true,
+  "overrides": [
+    {
+      "files": "package.json",
+      "options": {
+        "jsonRecursiveSort": false,
+        "parser": "json"
+      }
+    }
+  ],
+  "plugins": ["prettier-plugin-sort-json"],
+  "printWidth": 100,
+  "semi": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5"
+}
