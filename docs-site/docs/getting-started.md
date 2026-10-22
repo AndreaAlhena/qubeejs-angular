@@ -24,6 +24,7 @@ The [changelog](https://github.com/AndreaAlhena/qubeejs-angular/blob/master/CHAN
 | Angular | `>=17.0.0` |
 | `@qubeejs/core` | `^1.6.0` |
 | `@angular/router` | `>=17.0.0`, only for `@qubeejs/angular/router` |
+| Angular 19.2+ | only for `@qubeejs/angular/http`, which is built on `httpResource()` |
 
 **Why 17 is the floor.** The library is built on `signal()` and `computed()`, which left developer preview in Angular 17; it uses nothing newer than that — `inject()`, `DestroyRef`, `untracked()` and `makeEnvironmentProviders()` are older still. `effect()` and `httpResource()` appear only in the docs examples, never in the library, so Angular 17 applications use the `HttpClient` shape shown in [Fetching data](./fetching-data.md#alternative-httpclient-angular-17-to-191).
 
