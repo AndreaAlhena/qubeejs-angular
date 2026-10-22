@@ -7,7 +7,6 @@ package-lock.json
 
 # The docs site is a separate workspace with its own toolchain.
 docs/
-docs-site/
 
 # Release history: rewrapping it would rewrite every past entry.
 CHANGELOG.md

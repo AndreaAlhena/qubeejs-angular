@@ -1,9 +1,0 @@
-> `const` **NG\_QUBEE\_DRIVER**: `InjectionToken`\<[`DriverEnum`](../enumerations/DriverEnum.md)\>
-
-Defined in: [src/lib/tokens/ng-qubee.tokens.ts:16](https://github.com/AndreaAlhena/ng-qubee/blob/005cbeb73dc9b7703fe7424818735afcf9938d65/src/lib/tokens/ng-qubee.tokens.ts#L16)
-
-Injection token for the active pagination driver
-
-Provided by `provideNgQubee()` / `NgQubeeModule.forRoot()` from the
-user-supplied `IConfig.driver`. Services read it to gate driver-specific
-behavior (e.g. `NgQubeeService._assertDriver`).
