@@ -5,7 +5,7 @@ title: Query Builder API
 
 # Query Builder API
 
-Every fluent method on `NgQubeeService`. All methods that mutate state return `this` for chaining; capability methods return values without mutating.
+Every fluent method on `QubeeQueryBuilder`. Mutators return `this` for chaining. Readers — the URI, the state and the pagination flags — are computed signals, covered under [Lifecycle](#lifecycle) below and in [Pagination](./pagination.md).
 
 Driver compatibility is gated at runtime — calling an unsupported method throws an `Unsupported*Error`. The per-driver pages list which methods each driver accepts.
 
@@ -62,7 +62,7 @@ Triggers auto-reset.
 Filters with explicit comparison operators. Supported by API Platform, Directus, Feathers, json-server, NestJS, @nestjsx/crud, OData, Payload, PocketBase, PostgREST, Sieve, Strapi, and DRF.
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('age', FilterOperatorEnum.GTE, 18);
 qb.addFilterOperator('id', FilterOperatorEnum.IN, 1, 2, 3);
@@ -77,7 +77,7 @@ Triggers auto-reset.
 ### `addSort(field, order)` / `deleteSorts(...fields)`
 
 ```typescript
-import { SortEnum } from 'ng-qubee';
+import { SortEnum } from '@qubeejs/angular';
 
 qb.addSort('created_at', SortEnum.DESC);
 qb.addSort('name', SortEnum.ASC);
@@ -170,13 +170,29 @@ Methods that change record *shape* (`addFields`, `addIncludes`, `addSelect`, `se
 
 ### `generateUri()`
 
-Returns an `Observable<string>` that emits the composed URI:
+Returns the composed URI, synchronously, as a `string`:
 
 ```typescript
-qb.generateUri().subscribe(uri => /* … */);
+const uri = qb.generateUri();
 ```
 
-URIs do not auto-emit on state mutations — call `generateUri()` explicitly when you want the next URI.
+Throws when the state cannot be built for the active driver — most commonly before `setResource()` has been called, or `UnselectableModelError` when `addFields` names a model that is neither the resource nor included.
+
+### `uri`
+
+The same URI as a computed signal, re-evaluated on every state change:
+
+```typescript
+qb.uri();                                          // string | undefined
+effect(() => console.log(qb.uri()));                // logs on every mutation
+users = httpResource<RawResponse>(() => qb.uri()); // re-fetches on every mutation
+```
+
+`uri()` is `undefined` until a resource is set — the idle sentinel `httpResource()` understands — and otherwise equals `generateUri()`, including the throw on an invalid state. See [Fetching data](./fetching-data.md).
+
+### `state`
+
+The complete query-builder state as a signal, `Signal<QueryBuilderState>`. The snapshot is deeply frozen: read it freely, mutate it never.
 
 ### `reset()`
 
@@ -188,4 +204,4 @@ qb.reset();
 
 ## Pagination navigation
 
-See [Pagination](./pagination.md) for `nextPage`, `previousPage`, `firstPage`, `lastPage`, `goToPage`, `currentPage`, `totalPages`, `isFirstPage`, `isLastPage`, `hasNextPage`, `hasPreviousPage`, `paginationHeaders`.
+See [Pagination](./pagination.md) for the navigation helpers `nextPage`, `previousPage`, `firstPage`, `lastPage`, `goToPage`, and the signals `currentPage`, `totalPages`, `isFirstPage`, `isLastPage`, `hasNextPage`, `hasPreviousPage`, `paginationHeaders`.
