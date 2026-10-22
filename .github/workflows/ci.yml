@@ -149,15 +149,35 @@ jobs:
           cat > src/main.ts <<'TS'
           import { Component, inject } from '@angular/core';
           import { bootstrapApplication } from '@angular/platform-browser';
-          import { QubeeQueryBuilder, provideQubee, SPATIE_DRIVER } from '@qubeejs/angular';
+          import { provideRouter } from '@angular/router';
+          import {
+            QubeeQueryBuilder,
+            SPATIE_DRIVER,
+            defineList,
+            injectQubeeList,
+            integerParam,
+            provideQubee
+          } from '@qubeejs/angular';
+          import { provideQubeeRouterAdapter } from '@qubeejs/angular/router';
+
+          const userList = defineList({
+            params: { page: integerParam('page', { default: 1, min: 1 }) },
+            qubee: { driver: SPATIE_DRIVER },
+            resource: 'users'
+          });
 
           @Component({
             selector: 'app-root',
             standalone: true,
-            template: '<pre>{{ qb.uri() }}</pre>'
+            template: `
+              <pre>{{ qb.uri() }}</pre>
+              <pre>{{ list.request().uri }}</pre>
+              <button (click)="list.setPage(2)">2</button>
+            `
           })
           export class AppRoot {
             protected readonly qb = inject(QubeeQueryBuilder);
+            protected readonly list = injectQubeeList(userList);
 
             constructor() {
               this.qb
@@ -169,7 +189,11 @@ jobs:
           }
 
           bootstrapApplication(AppRoot, {
-            providers: [provideQubee({ driver: SPATIE_DRIVER })]
+            providers: [
+              provideQubee({ driver: SPATIE_DRIVER }),
+              provideRouter([]),
+              provideQubeeRouterAdapter()
+            ]
           });
           TS
         working-directory: consumer
@@ -186,6 +210,12 @@ jobs:
             exit 1
           fi
           echo "Library code present in $BUNDLE"
+
+          if ! grep -rq 'found no adapter' dist; then
+            echo "injectQubeeList was tree-shaken out — the lists API was not exercised"
+            exit 1
+          fi
+          echo "Lists API and the router entry point present"
 
           if grep -rq 'ngDeclare' dist; then
             echo "Residual partial declarations found — the Angular ${{ matrix.angular }} linker did not process them"
