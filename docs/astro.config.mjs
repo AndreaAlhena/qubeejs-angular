@@ -3,16 +3,77 @@ import { defineConfig } from 'astro/config';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightVersions from 'starlight-versions';
 
+import { LEGACY_API } from './src/legacy-api.mjs';
 import { ARCHIVED, CURRENT } from './src/versions.mjs';
 
 const REPO = 'https://github.com/AndreaAlhena/qubeejs-angular';
 const SITE = 'https://qubeejs-angular.andreatantimonaco.me';
 const CORE = 'https://qubeejs.andreatantimonaco.me';
 
-/** An archived version's root has no page of its own; it opens that version's guide. */
-const redirects = Object.fromEntries(
-  ARCHIVED.map((version) => [`/${version.slug}`, `/${version.slug}/guide/getting-started/`])
-);
+/** Drivers moved to the core docs in 4.0; their old adapter pages point there. */
+const DRIVERS = [
+  'api-platform', 'directus', 'drf', 'fastapi', 'feathers', 'json-api', 'json-server', 'laravel', 'nestjs',
+  'nestjsx-crud', 'odata', 'payload', 'pocketbase', 'postgrest', 'ransack', 'sieve', 'spatie', 'spring', 'strapi',
+  'wordpress',
+];
+
+const GUIDE = ['fetching-data', 'getting-started', 'lists', 'pagination', 'per-component-instances', 'query-builder'];
+
+/**
+ * The releases Docusaurus served under `/docs/<version>/`. The newest (3.8.0)
+ * was served at `/docs/` itself, and the unreleased docs at `/docs/next/`, so
+ * `/docs/3.8.0/` never existed. 3.x minors were additive, so every one of
+ * these versions maps onto the 3.8 archive.
+ */
+const LEGACY_VERSIONS = ['3.3.0', '3.4.0', '3.5.0', '3.6.0', '3.7.0'];
+
+/**
+ * The TypeDoc API pages under a legacy prefix. Docusaurus generated them from
+ * 3.x, so they map to the 3.8 archive's API whatever the prefix, including
+ * `/docs/api/`: the 4.0 API shares none of those symbols.
+ *
+ * @param {string} prefix - `/docs`, `/docs/next` or `/docs/<version>`
+ * @returns {Array<[string, string]>} Redirect pairs
+ */
+const legacyApi = (prefix) => [
+  [`${prefix}/api`, '/3.8/api/'],
+  ...LEGACY_API.map(([from, to]) => [`${prefix}/api/${from}`, `/3.8/api/${to}/`]),
+];
+
+/**
+ * Keep the Docusaurus URLs working.
+ *
+ * - The README and old links point at `/docs/<page>` and `/docs/next/<page>`.
+ *   Those served the latest docs, so they go to the current guide, and a
+ *   driver page goes to the core's page for that driver.
+ * - `/docs/<3.3.0–3.7.0>/…` go to the same page in the 3.8 archive.
+ * - The API pages go to the 3.8 archive's API under every prefix, by their
+ *   exact old (case-sensitive) names.
+ */
+const redirects = Object.fromEntries([
+  ['/docs', '/guide/getting-started/'],
+  ['/drivers', `${CORE}/drivers/`],
+  ...DRIVERS.map((d) => [`/drivers/${d}`, `${CORE}/drivers/reference/${d}/`]),
+  ...['/docs', '/docs/next'].flatMap((prefix) => [
+    ...GUIDE.map((page) => [`${prefix}/${page}`, `/guide/${page}/`]),
+    ...DRIVERS.map((d) => [`${prefix}/drivers/${d}`, `${CORE}/drivers/reference/${d}/`]),
+  ]),
+  ...['/docs', '/docs/next'].flatMap(legacyApi),
+  ...LEGACY_VERSIONS.flatMap((version) => {
+    const prefix = `/docs/${version}`;
+
+    return [
+      [prefix, '/3.8/guide/getting-started/'],
+      ...GUIDE.filter((page) => page !== 'lists').map((page) => [`${prefix}/${page}`, `/3.8/guide/${page}/`]),
+      ...DRIVERS.filter((d) => d !== 'fastapi' && d !== 'ransack').map((d) => [
+        `${prefix}/drivers/${d}`,
+        `/3.8/drivers/${d}/`,
+      ]),
+      ...legacyApi(prefix),
+    ];
+  }),
+  ...ARCHIVED.map((version) => [`/${version.slug}`, `/${version.slug}/guide/getting-started/`]),
+]);
 
 /** A link out to the core docs, marked as such in the sidebar. */
 const core = (label, path) => ({ attrs: { rel: 'noopener', target: '_blank' }, label: `${label} ↗`, link: `${CORE}${path}` });
