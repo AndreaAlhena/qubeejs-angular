@@ -29,6 +29,10 @@
           "options": {
             "karmaConfig": "karma.conf.js",
             "main": "src/test.ts",
+            "include": [
+              "**/*.spec.ts",
+              "../router/**/*.spec.ts"
+            ],
             "tsConfig": "tsconfig.spec.json",
             "polyfills": [
               "zone.js",
