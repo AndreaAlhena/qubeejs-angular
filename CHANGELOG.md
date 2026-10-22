@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+The next release is **4.0.0**. The package is renamed, the framework-agnostic half moves into `@qubeejs/core`, and RxJS is gone. A migration table closes the section.
+
+### Breaking
+
+- **Package renamed to `@qubeejs/angular`**: the Angular adapter now lives beside `@qubeejs/core` under the `@qubeejs` scope. `ng-qubee@3.x` stays on npm unchanged. The build output moves to `dist/qubeejs/angular`; CI, coverage and publish paths follow.
+- **Built on `@qubeejs/core`** (`^1.0.0`, new peer dependency): every driver, strategy, enum, error, model and type that used to live in this repository is now imported from the core and re-exported unchanged, so `import { StrapiRequestStrategy, SortEnum, UnsupportedFilterError } from '@qubeejs/angular'` keeps resolving. The core is verified byte-for-byte against `ng-qubee@3.8.0` across all eighteen drivers, so generated URIs are identical. The duplicated drivers, strategies, models, enums, errors and their specs leave this repository; the core's own suite covers them, and the specs kept here cover the Angular surface — DI wiring, signals, scoping.
+- **RxJS removed**: no longer a peer dependency, no longer imported anywhere. `QubeeQueryBuilder.generateUri()` returns the URI **synchronously as a `string`** and throws on an invalid state, instead of returning an `Observable<string>`; the `uri$` Observable is replaced by the `uri` signal (see Added).
+- **Driver definitions replace `DriverEnum` in the config**: `provideQubee({ driver: STRAPI_DRIVER })` instead of `{ driver: DriverEnum.STRAPI }`, mirroring the core's `createQubee()`. Importing one definition lets the other seventeen drivers tree-shake out of the bundle — a single driver is 2.5 kB gzipped against 9.5 kB for the whole registry. For a backend chosen at runtime, `provideQubee({ driver: DRIVERS[id] })` keeps working and makes the cost visible at the import site. `IConfig` becomes the core's `QubeeConfig`; the `QUBEE_DRIVER` token now holds the `DriverDefinition` (read `.id` for the identifier).
+- **The `Ng` prefix and the `Service` suffix are gone**: `NgQubeeService` → `QubeeQueryBuilder`, `PaginationService` → `QubeePaginator`, `NestService` → `QubeeSignalStore`, `NgQubeeModule` → `QubeeModule`, `provideNgQubee` → `provideQubee`, `provideNgQubeeInstance` → `provideQubeeInstance`, `buildNgQubeeProviders` → `buildQubeeProviders`, `NG_QUBEE_*` → `QUBEE_*`. Each Angular class is named after the core class it wraps, with the brand as prefix, so the rule is short: unprefixed is the core (`QueryBuilder`, `Paginator`, `QubeeStore`), `Qubee`-prefixed is the Angular injectable with signals. Dropping `Service` follows the current Angular style guide.
+- **`NestService` replaced by `QubeeSignalStore`**: an `@Injectable()` subclass of the core `QubeeStore` whose single addition is `state: Signal<QueryBuilderState>`. The `nest` signal becomes `state`. Snapshots are deeply frozen by the core, which closes #81 — mutating what `state()` returns now throws instead of silently corrupting later reads.
+- **Pagination readers are computed signals** (#70): `currentPage`, `totalPages`, `isFirstPage`, `isLastPage`, `hasNextPage`, `hasPreviousPage` and `paginationHeaders` are `Signal`s on `QubeeQueryBuilder`. They are still read as `qb.hasNextPage()`, so call sites compile unchanged, but they now re-evaluate only when the state changes and are tracked by templates, `computed()`, `effect()` and `httpResource()`. `totalPages()` returns `undefined` until a response has synced the bounds, where the 3.x method threw `PaginationNotSyncedError`; `lastPage()` keeps throwing, for imperative navigation.
+- **Type names lose the `I` prefix** — `IFields` → `Fields`, `IQueryBuilderState` → `QueryBuilderState`, `IPaginationConfig` → `PaginationConfig`, and so on — following the core's convention that `I` marks only interfaces a class implements (`IRequestStrategy` and `IResponseStrategy`, both unchanged). `IPaginatedObject` becomes `PaginatedObject`, and `paginate()` accepts the core's `RawResponse` (`Record<string, unknown> | readonly unknown[]`), which finally types the bare-array bodies PostgREST and WordPress return.
+- **`qs` dropped**: the core ships its own serialiser, verified against `qs` case by case. `@qubeejs/angular` has no runtime dependency beyond `tslib`.
+- **Errors carry a `code`, `context` and `cause`** (from the core's `QubeeError` base), and the `Unsupported*Error` messages now name the active driver — *"The 'laravel' driver does not support filters."* — instead of the previously hardcoded, and by now factually wrong, driver lists.
+
+### Added
+
+- **`uri: Signal<string | undefined>`** on `QubeeQueryBuilder`: the URI for the current state, recomputed on every mutation, `undefined` until a resource is set. `undefined` is the idle sentinel `httpResource()` understands, so `httpResource(() => qb.uri())` stays idle until `setResource()` and re-fetches on every filter, sort or page change with no glue code.
+- **`state: Signal<QueryBuilderState>`** on both `QubeeSignalStore` and `QubeeQueryBuilder`.
+- **`createQubeeInstance(injector?)`** (#69): a factory returning an isolated `{ builder, paginator, store }` — the Angular counterpart of the core's `createQubee()` — for root-scoped services that cannot use `provideQubeeInstance()`. The three objects are created in a child injector, so they inherit the driver, strategies and options from `provideQubee()` while owning private state; two root services that each call it never see each other's filters or pages. Defaults to the current injection context, accepts an explicit `Injector` from anywhere else, and needs no teardown. The return type is exported as `QubeeInstance`.
+- **Change-aware signals**: the store's `state` signal compares snapshots structurally and `paginationHeaders` compares header maps by value, so a write that leaves the state unchanged — `paginate()` re-syncing the page it was asked for, say — notifies nothing. This is what keeps an `httpResource()` bound to `uri()` or `paginationHeaders()` from re-fetching after every parsed response.
+
+### Changed
+
+- **Angular peer range opened upward** to `>=17.0.0`, from `>=17.0.0 <23.0.0`. The floor stays at 17 because the library is built on `signal()` and `computed()`, stable since that release, and uses nothing newer — `inject()`, `InjectionToken` and `makeEnvironmentProviders()` predate it; `effect()` and `httpResource()` appear only in the docs. The ceiling goes because the package ships in partial compilation mode, so the consuming application links the declarations at its own version, and the 3.x cap only ever produced an `ERESOLVE` on each new Angular major until a widening release shipped (3.8.0 was exactly that). In its place the CI matrix keeps verifying the floor (17), the middle (20) and the current stable (22) by installing the packed artifact into a freshly scaffolded application and building it, and gains an `experimental` leg on Angular's `next` prerelease that reports early and never blocks. Verified for this release by installing the packed artifact into a freshly scaffolded Angular 17.3.12 / TypeScript 5.4.5 application on Node 20 and an Angular 22.1.5 / TypeScript 6.0.3 application on Node 24, and building both — the second one compiling the `httpResource()` services from the Fetching data page verbatim.
+- **Repository renamed to `AndreaAlhena/qubeejs-angular`**, matching the package. Badges, `package.json` metadata, the docs-site edit links, the security policy and the changelog comparison links point at the new URL; GitHub redirects the old one. The docs site stays at `ng-qubee.andreatantimonaco.me`.
+- **Docs rewritten for signals**: Getting Started, Fetching data (now built on `httpResource()` + `effect()`, with an `HttpClient` variant for Angular 17 to 19.1), Query Builder API, Pagination and Per-component instances, plus the configure block on all eighteen driver pages and the header-driven parsing examples on the PostgREST and WordPress pages. The docs-site README documents the TypeDoc build and the version-snapshot step.
+- **CI compat consumer** rewritten against the v4 API; artifact and coverage paths follow the rename.
+
+### Migrating from ng-qubee 3.x
+
+| 3.x | 4.0 |
+|---|---|
+| `npm i ng-qubee` | `npm i @qubeejs/angular @qubeejs/core` |
+| `import { … } from 'ng-qubee'` | `import { … } from '@qubeejs/angular'` |
+| `provideNgQubee({ driver: DriverEnum.STRAPI })` | `provideQubee({ driver: STRAPI_DRIVER })` |
+| `NgQubeeModule.forRoot({ driver: DriverEnum.STRAPI })` | `QubeeModule.forRoot({ driver: STRAPI_DRIVER })` |
+| `provideNgQubeeInstance()` | `provideQubeeInstance()` |
+| `inject(NgQubeeService)` | `inject(QubeeQueryBuilder)` |
+| `inject(PaginationService)` | `inject(QubeePaginator)` |
+| `NG_QUBEE_DRIVER` (a `DriverEnum`), `NG_QUBEE_REQUEST_STRATEGY`, … | `QUBEE_DRIVER` (a `DriverDefinition`), `QUBEE_REQUEST_STRATEGY`, … |
+| driver chosen at runtime | `provideQubee({ driver: DRIVERS[id] })` |
+| `qb.generateUri().subscribe(uri => …)` | `const uri = qb.generateUri();` — or read `qb.uri()` |
+| `qb.uri$` | `qb.uri` (signal; `undefined` until a resource is set) |
+| `qb.uri$.pipe(switchMap(uri => http.get(uri)))` | `httpResource(() => qb.uri())` |
+| `inject(NestService).nest()` | `inject(QubeeSignalStore).state()` or `qb.state()` |
+| `@angular/core` peer `>=17.0.0 <23.0.0` | `>=17.0.0` |
+| `qb.totalPages()` throwing before sync | returns `undefined` before sync |
+| `IConfig` | `QubeeConfig` |
+| `IFields`, `IFilters`, `ISort`, `IOperatorFilter`, `IQueryBuilderState`, `IQueryBuilderConfig`, `IPaginationConfig`, `INormalized`, `IPaginatedObject`, `IStrategyCapabilities` | the same names without the `I` |
+| `rxjs` in `peerDependencies` | not required by the library (Angular itself still peers it) |
+
+Everything else — the fluent mutators, `paginate()`, `PaginatedCollection`, the enums, the errors and the strategies — keeps its name and behaviour.
+
 ## [3.8.0] - 2026-07-31
 
 ### Added
@@ -433,8 +487,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.2] - Previous Release
 
-[3.0.0]: https://github.com/AndreaAlhena/ng-qubee/compare/v2.1.0...v3.0.0
-[2.1.0]: https://github.com/AndreaAlhena/ng-qubee/compare/v2.0.5...v2.1.0
-[2.0.5]: https://github.com/AndreaAlhena/ng-qubee/compare/v2.0.4...v2.0.5
-[2.0.4]: https://github.com/AndreaAlhena/ng-qubee/compare/v2.0.3...v2.0.4
-[2.0.3]: https://github.com/AndreaAlhena/ng-qubee/releases/tag/v2.0.3
+[3.0.0]: https://github.com/AndreaAlhena/qubeejs-angular/compare/v2.1.0...v3.0.0
+[2.1.0]: https://github.com/AndreaAlhena/qubeejs-angular/compare/v2.0.5...v2.1.0
+[2.0.5]: https://github.com/AndreaAlhena/qubeejs-angular/compare/v2.0.4...v2.0.5
+[2.0.4]: https://github.com/AndreaAlhena/qubeejs-angular/compare/v2.0.3...v2.0.4
+[2.0.3]: https://github.com/AndreaAlhena/qubeejs-angular/releases/tag/v2.0.3
