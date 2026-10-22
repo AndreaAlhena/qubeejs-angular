@@ -43,13 +43,14 @@ Instead, please use [GitHub's private vulnerability reporting](https://github.co
 
 This security policy applies to:
 
-- The ng-qubee npm package
+- The `@qubeejs/angular` npm package (and `ng-qubee`, its name before 4.0)
 - This GitHub repository
 
 ### Out of Scope
 
 - Vulnerabilities in dependencies (report to the respective maintainers)
-- Issues in applications using ng-qubee (unless caused by ng-qubee itself)
+- Issues in applications using `@qubeejs/angular` (unless caused by the library itself)
+- Issues in `@qubeejs/core` — report them to [qubeejs-core](https://github.com/AndreaAlhena/qubeejs-core/security)
 
 ## Security Best Practices
 
