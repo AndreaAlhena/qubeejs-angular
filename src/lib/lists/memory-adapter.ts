@@ -1,7 +1,8 @@
-import { Provider, signal } from '@angular/core';
-import { toSearchParams } from '@qubeejs/core';
-
+import type { Provider} from '@angular/core';
 import type { ListLocation, SearchParamsInput } from '@qubeejs/core';
+
+import { signal } from '@angular/core';
+import { toSearchParams } from '@qubeejs/core';
 
 import type { QubeeListAdapter } from '../types/qubee-list-adapter.type';
 

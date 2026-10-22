@@ -1,10 +1,17 @@
-import { ModuleWithProviders, NgModule } from '@angular/core';
-
+import type { ModuleWithProviders} from '@angular/core';
 import type { QubeeConfig } from '@qubeejs/core';
+
+import { NgModule } from '@angular/core';
 
 import { buildQubeeProviders } from './provide-qubee';
 
 // @dynamic
+/**
+ * NgModule entry point for applications that still bootstrap with modules
+ *
+ * Standalone applications use `provideQubee()` instead; both register the
+ * same providers.
+ */
 @NgModule({})
 export class QubeeModule {
 

@@ -1,8 +1,10 @@
-import { Component, EnvironmentProviders, inject } from '@angular/core';
+import type { EnvironmentProviders} from '@angular/core';
+
+import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  DRIVERS,
   DriverEnum,
+  DRIVERS,
   PaginationModeEnum,
   POSTGREST_DRIVER,
   QueryBuilderOptions,
@@ -14,9 +16,9 @@ import {
 
 import { createQubeeInstance } from './create-qubee-instance';
 import { provideQubee, provideQubeeInstance } from './provide-qubee';
+import { QubeePaginator } from './services/qubee-paginator';
 import { QubeeQueryBuilder } from './services/qubee-query-builder';
 import { QubeeSignalStore } from './services/qubee-signal-store';
-import { QubeePaginator } from './services/qubee-paginator';
 import {
   QUBEE_BASE_URL,
   QUBEE_DRIVER,
@@ -123,7 +125,7 @@ describe('provideQubee', () => {
 
     const qb = TestBed.inject(QubeeQueryBuilder);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     TestBed.inject(QubeePaginator).paginate({ data: [], current_page: 2, last_page: 9 });
 
     expect(qb.currentPage()).toBe(2);
@@ -143,9 +145,9 @@ describe('provideQubeeInstance', () => {
       providers: [...provideQubeeInstance()]
     })
     class DedicatedComponent {
+      public readonly pagination = inject(QubeePaginator);
       public readonly qb = inject(QubeeQueryBuilder);
       public readonly store = inject(QubeeSignalStore);
-      public readonly pagination = inject(QubeePaginator);
     }
 
     TestBed.configureTestingModule({
@@ -171,8 +173,8 @@ describe('provideQubeeInstance', () => {
       providers: [...provideQubeeInstance()]
     })
     class IsolatedComponent {
-      public readonly qb = inject(QubeeQueryBuilder);
       public readonly pagination = inject(QubeePaginator);
+      public readonly qb = inject(QubeeQueryBuilder);
     }
 
     TestBed.configureTestingModule({
@@ -185,7 +187,7 @@ describe('provideQubeeInstance', () => {
 
     const component = TestBed.createComponent(IsolatedComponent).componentInstance;
     component.qb.setResource('component-resource').setLimit(10);
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     component.pagination.paginate({ data: [], current_page: 1, last_page: 7 });
 
     expect(rootQb.uri()).toBe('/root-resource?limit=50&page=1');
@@ -211,7 +213,7 @@ describe('provideQubeeInstance', () => {
 
     const component = TestBed.createComponent(InheritedComponent).componentInstance;
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     expect(component.qb.setResource('users').paginationHeaders()).toEqual({ 'Range-Unit': 'items', Range: '0-14' });
   });
 });

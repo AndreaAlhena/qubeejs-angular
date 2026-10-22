@@ -1,13 +1,13 @@
+import type { QubeeConfig } from '@qubeejs/core';
+
 import { HttpHeaders } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { NESTJS_DRIVER, PaginatedCollection, SPATIE_DRIVER, WORDPRESS_DRIVER } from '@qubeejs/core';
 
-import type { QubeeConfig } from '@qubeejs/core';
-
 import { provideQubee } from '../provide-qubee';
+import { QubeePaginator } from './qubee-paginator';
 import { QubeeQueryBuilder } from './qubee-query-builder';
 import { QubeeSignalStore } from './qubee-signal-store';
-import { QubeePaginator } from './qubee-paginator';
 
 type User = { id: number; name: string };
 
@@ -29,7 +29,7 @@ describe('QubeePaginator (Spatie)', () => {
   });
 
   it('should paginate with the minimum required data', () => {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     const collection = service.paginate({ data: [], current_page: 1 });
 
     expect(collection).toBeInstanceOf(PaginatedCollection);
@@ -38,7 +38,7 @@ describe('QubeePaginator (Spatie)', () => {
   });
 
   it('should paginate a full Laravel-style envelope', () => {
-    /* eslint-disable @typescript-eslint/naming-convention */
+     
     const collection = service.paginate<User>({
       data: [{ id: 1, name: 'Ada' }],
       current_page: 1,
@@ -53,7 +53,7 @@ describe('QubeePaginator (Spatie)', () => {
       to: 15,
       total: 30
     });
-    /* eslint-enable @typescript-eslint/naming-convention */
+     
 
     expect(collection.data[0].name).toBe('Ada');
     expect(collection.page).toBe(1);
@@ -73,7 +73,7 @@ describe('QubeePaginator (Spatie)', () => {
       const store = TestBed.inject(QubeeSignalStore);
       const qb = TestBed.inject(QubeeQueryBuilder);
 
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+       
       service.paginate({ data: [], current_page: 2, last_page: 4 });
 
       expect(store.state().page).toBe(2);
@@ -87,7 +87,7 @@ describe('QubeePaginator (Spatie)', () => {
     it('should leave the bounds unknown when lastPage is absent', () => {
       const qb = TestBed.inject(QubeeQueryBuilder);
 
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+       
       service.paginate({ data: [], current_page: 1 });
 
       expect(qb.totalPages()).toBeUndefined();
@@ -96,7 +96,7 @@ describe('QubeePaginator (Spatie)', () => {
     it('should leave the bounds unknown when lastPage is 0', () => {
       const qb = TestBed.inject(QubeeQueryBuilder);
 
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+       
       service.paginate({ data: [], current_page: 1, last_page: 0 });
 
       expect(qb.totalPages()).toBeUndefined();
@@ -106,7 +106,7 @@ describe('QubeePaginator (Spatie)', () => {
       const qb = TestBed.inject(QubeeQueryBuilder);
 
       qb.setResource('users');
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+       
       service.paginate({ data: [], current_page: 1, last_page: 3 });
 
       expect(qb.lastPage().generateUri()).toContain('page=3');
@@ -163,7 +163,7 @@ describe('QubeePaginator (WordPress, header-driven)', () => {
   });
 
   it('should read the totals from Angular HttpHeaders', () => {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     const headers = new HttpHeaders({ 'X-WP-Total': '57', 'X-WP-TotalPages': '4' });
 
     const collection = service.paginate<User>([{ id: 1, name: 'Ada' }], headers);
@@ -175,7 +175,7 @@ describe('QubeePaginator (WordPress, header-driven)', () => {
   });
 
   it('should read the totals from a plain header record', () => {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     const collection = service.paginate([{ id: 1 }], { 'X-WP-Total': '3', 'X-WP-TotalPages': '1' });
 
     expect(collection.total).toBe(3);

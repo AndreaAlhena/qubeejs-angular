@@ -1,6 +1,6 @@
-import { toSearchParams } from '@qubeejs/core';
-
 import type { ListLocation } from '@qubeejs/core';
+
+import { toSearchParams } from '@qubeejs/core';
 
 /**
  * Split an href — a path plus query, as `buildListHref()` writes it — into

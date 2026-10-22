@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { fakeAsync, flushMicrotasks, TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { QUBEE_LIST_ADAPTER, SPATIE_DRIVER, defineList, injectQubeeList, integerParam, stringParam } from '@qubeejs/angular';
+import { defineList, injectQubeeList, integerParam, QUBEE_LIST_ADAPTER, SPATIE_DRIVER, stringParam } from '@qubeejs/angular';
 
 import { provideQubeeRouterAdapter } from './provide-qubee-router-adapter';
 
@@ -30,7 +30,7 @@ const setup = async (url: string): Promise<RouterTestingHarness> => {
     providers: [
       provideRouter([
         { component: ArticlesComponent, path: 'articles' },
-        { canActivate: [() => false], component: HomeComponent, path: 'locked' },
+        { canActivate: [(): boolean => false], component: HomeComponent, path: 'locked' },
         { component: HomeComponent, path: 'home' }
       ]),
       provideQubeeRouterAdapter()
@@ -94,7 +94,7 @@ describe('provideQubeeRouterAdapter', () => {
   it('should drive a list end to end', fakeAsync(() => {
     let harness: RouterTestingHarness | undefined;
 
-    setup('/articles?q=react').then((created) => (harness = created));
+    void setup('/articles?q=react').then((created) => (harness = created));
     flushMicrotasks();
 
     const component = harness?.routeDebugElement?.componentInstance as ArticlesComponent;

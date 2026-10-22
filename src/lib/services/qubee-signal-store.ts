@@ -1,7 +1,8 @@
-import { Injectable, Signal, inject, signal } from '@angular/core';
-import { QubeeStore } from '@qubeejs/core';
-
+import type { Signal} from '@angular/core';
 import type { QueryBuilderState } from '@qubeejs/core';
+
+import { inject, Injectable, signal } from '@angular/core';
+import { QubeeStore } from '@qubeejs/core';
 
 import { QUBEE_BASE_URL } from '../tokens/qubee.tokens';
 import { deepEqual } from '../utils/deep-equal';
@@ -52,6 +53,10 @@ export class QubeeSignalStore extends QubeeStore {
    */
   public readonly state: Signal<QueryBuilderState> = this._stateSignal.asReadonly();
 
+  /**
+   * Create the store, mirror every write into `state`, and apply the
+   * configured base URL
+   */
   constructor() {
     super();
 

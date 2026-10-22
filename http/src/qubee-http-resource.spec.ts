@@ -1,21 +1,21 @@
+import type { ListRequest } from '@qubeejs/angular';
+
 import { HttpContext, HttpContextToken, HttpErrorResponse, HttpHeaders, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { EnvironmentInjector, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  POSTGREST_DRIVER,
-  PaginationModeEnum,
-  SPATIE_DRIVER,
   buildListRequest,
   createQubeeMemoryAdapter,
   defineList,
   injectQubeeList,
   integerParam,
+  PaginationModeEnum,
+  POSTGREST_DRIVER,
   readListState,
+  SPATIE_DRIVER,
   stringParam
 } from '@qubeejs/angular';
-
-import type { ListRequest } from '@qubeejs/angular';
 
 import { qubeeHttpResource } from './qubee-http-resource';
 
@@ -41,7 +41,7 @@ const rangeList = defineList({
   resource: 'articles'
 });
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
+ 
 const spatiePage = (ids: number[], page: number): object => ({ data: ids.map((id) => ({ id })), current_page: page, last_page: 3 });
 
 /**
@@ -162,7 +162,7 @@ describe('qubeeHttpResource', () => {
   it('should send the list\'s headers and parse the response\'s', async () => {
     const articles = TestBed.runInInjectionContext(() => qubeeHttpResource<Article>(
       () => buildListRequest(rangeList, readListState(rangeList, '?page=2')),
-      // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header names
+       
       { init: { headers: { 'Prefer': 'count=exact', 'Range': 'overridden' } } }
     ));
 
@@ -173,7 +173,7 @@ describe('qubeeHttpResource', () => {
     expect(call.request.headers.get('Prefer')).toBe('count=exact');
     expect(call.request.headers.get('Range')).toBe('15-29');
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header names
+     
     call.flush(Array.from({ length: 15 }, (_, index) => ({ id: index + 16 })), { headers: { 'Content-Range': '15-29/31' } });
     await settle();
 
@@ -186,7 +186,7 @@ describe('qubeeHttpResource', () => {
 
     TestBed.runInInjectionContext(() => qubeeHttpResource<Article>(
       () => buildListRequest(rangeList, readListState(rangeList, '')),
-      // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header names
+       
       { init: { context: new HttpContext().set(token, 'tag'), headers: new HttpHeaders({ 'X-App': 'qubee' }), withCredentials: true } }
     ));
 
@@ -204,7 +204,7 @@ describe('qubeeHttpResource', () => {
   it('should leave the caller\'s headers alone for a list that sends none', async () => {
     TestBed.runInInjectionContext(() => qubeeHttpResource<Article>(
       () => buildListRequest(articleList, readListState(articleList, '')),
-      // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header names
+       
       { init: { headers: { 'X-App': 'qubee' } } }
     ));
 

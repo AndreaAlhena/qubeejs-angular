@@ -1,7 +1,8 @@
-import { DOCUMENT } from '@angular/common';
-import { DestroyRef, Provider, inject, signal } from '@angular/core';
-
+import type { Provider} from '@angular/core';
 import type { ListLocation } from '@qubeejs/core';
+
+import { DOCUMENT } from '@angular/common';
+import { DestroyRef, inject, signal } from '@angular/core';
 
 import type { QubeeListAdapter, QubeeListNavigateOptions } from '../types/qubee-list-adapter.type';
 

@@ -1,4 +1,4 @@
-import { Injector, inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 
 import type { QubeeInstance } from './types/qubee-instance.type';
 

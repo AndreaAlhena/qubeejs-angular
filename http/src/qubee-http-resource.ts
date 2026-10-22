@@ -1,8 +1,9 @@
-import { HttpHeaders, httpResource } from '@angular/common/http';
-import { Injector, Signal, assertInInjectionContext, computed, effect, inject, signal } from '@angular/core';
-
 import type { HttpResourceRef, HttpResourceRequest } from '@angular/common/http';
+import type { Signal} from '@angular/core';
 import type { ListRequest, PaginatedCollection, PaginatedObject, RawResponse } from '@qubeejs/angular';
+
+import { HttpHeaders, httpResource } from '@angular/common/http';
+import { assertInInjectionContext, computed, effect, inject, Injector, signal } from '@angular/core';
 
 /**
  * Options of {@link qubeeHttpResource}
@@ -124,7 +125,7 @@ export function qubeeHttpResource<T extends PaginatedObject>(
     const current = request();
 
     return current && resource.hasValue()
-      ? current.paginate<T>(resource.value() as RawResponse, resource.headers())
+      ? current.paginate<T>(resource.value(), resource.headers())
       : undefined;
   });
 

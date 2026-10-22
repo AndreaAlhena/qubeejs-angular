@@ -1,5 +1,3 @@
-import { InjectionToken } from '@angular/core';
-
 import type {
   DriverDefinition,
   IRequestStrategy,
@@ -7,6 +5,8 @@ import type {
   QueryBuilderOptions,
   ResponseOptions
 } from '@qubeejs/core';
+
+import { InjectionToken } from '@angular/core';
 
 import type { QubeeListAdapter } from '../types/qubee-list-adapter.type';
 
@@ -18,7 +18,7 @@ import type { QubeeListAdapter } from '../types/qubee-list-adapter.type';
  * `QubeeSignalStore` starts from it, as the core's `createQubee()` does, so
  * `setBaseUrl()` overrides it for one instance and `reset()` clears it.
  */
-export const QUBEE_BASE_URL = new InjectionToken<string>('QUBEE_BASE_URL', { factory: () => '' });
+export const QUBEE_BASE_URL = new InjectionToken<string>('QUBEE_BASE_URL', { factory: (): string => '' });
 
 /**
  * Injection token for the active driver definition

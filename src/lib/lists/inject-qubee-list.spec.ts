@@ -1,19 +1,19 @@
+import type { ListLocation } from '@qubeejs/core';
+
 import { DOCUMENT } from '@angular/common';
-import { EnvironmentInjector, createEnvironmentInjector, signal } from '@angular/core';
-import { TestBed, fakeAsync, flushMicrotasks, tick } from '@angular/core/testing';
+import { createEnvironmentInjector, EnvironmentInjector, signal } from '@angular/core';
+import { fakeAsync, flushMicrotasks, TestBed, tick } from '@angular/core/testing';
 import {
-  POSTGREST_DRIVER,
-  PaginationModeEnum,
-  SPATIE_DRIVER,
-  SortEnum,
   defineList,
   enumParam,
   integerParam,
+  PaginationModeEnum,
+  POSTGREST_DRIVER,
+  SortEnum,
   sortParam,
+  SPATIE_DRIVER,
   stringParam
 } from '@qubeejs/core';
-
-import type { ListLocation } from '@qubeejs/core';
 
 import type { QubeeListAdapter, QubeeListNavigateOptions } from '../types/qubee-list-adapter.type';
 
@@ -423,7 +423,7 @@ describe('injectQubeeList', () => {
     it('should parse a response with the list\'s paginator', () => {
       const { adapter } = fakeAdapter();
       const list = TestBed.runInInjectionContext(() => injectQubeeList(articleList, { adapter }));
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+       
       const page = list.request().paginate<{ id: number }>({ data: [{ id: 1 }], meta: { current_page: 1, last_page: 4 } });
 
       expect(page.data).toEqual([{ id: 1 }]);

@@ -1,8 +1,9 @@
-import { DestroyRef, Provider, inject, signal } from '@angular/core';
+import type { Provider} from '@angular/core';
+import type { ListLocation, QubeeListAdapter, QubeeListNavigateOptions } from '@qubeejs/angular';
+
+import { DestroyRef, inject, signal } from '@angular/core';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationSkipped, ResolveEnd, Router } from '@angular/router';
 import { QUBEE_LIST_ADAPTER, toSearchParams } from '@qubeejs/angular';
-
-import type { ListLocation, QubeeListAdapter, QubeeListNavigateOptions } from '@qubeejs/angular';
 
 /**
  * Provide an adapter that reads and writes the URL through the Angular Router

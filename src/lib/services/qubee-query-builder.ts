@@ -1,11 +1,12 @@
-import { Injectable, Signal, computed, inject } from '@angular/core';
-import { QueryBuilder } from '@qubeejs/core';
-
+import type { Signal} from '@angular/core';
 import type { Fields, FilterOperatorEnum, QueryBuilderState, SortEnum } from '@qubeejs/core';
 
-import { QubeeSignalStore } from './qubee-signal-store';
+import { computed, inject, Injectable } from '@angular/core';
+import { QueryBuilder } from '@qubeejs/core';
+
 import { QUBEE_DRIVER, QUBEE_REQUEST_OPTIONS, QUBEE_REQUEST_STRATEGY } from '../tokens/qubee.tokens';
 import { deepEqual } from '../utils/deep-equal';
+import { QubeeSignalStore } from './qubee-signal-store';
 
 /**
  * The query builder, as an Angular service
@@ -51,9 +52,9 @@ import { deepEqual } from '../utils/deep-equal';
 export class QubeeQueryBuilder {
 
   /**
-   * The store shared with `QubeePaginator` in this injector scope
+   * Resolved query parameter key name options
    */
-  private readonly _store = inject(QubeeSignalStore);
+  private readonly _options = inject(QUBEE_REQUEST_OPTIONS);
 
   /**
    * The request strategy that builds URIs for the active driver
@@ -61,9 +62,9 @@ export class QubeeQueryBuilder {
   private readonly _requestStrategy = inject(QUBEE_REQUEST_STRATEGY);
 
   /**
-   * Resolved query parameter key name options
+   * The store shared with `QubeePaginator` in this injector scope
    */
-  private readonly _options = inject(QUBEE_REQUEST_OPTIONS);
+  private readonly _store = inject(QubeeSignalStore);
 
   /**
    * The core builder every mutator delegates to
@@ -81,6 +82,76 @@ export class QubeeQueryBuilder {
    * The snapshot is deeply frozen: read it freely, mutate it never.
    */
   public readonly state: Signal<QueryBuilderState> = this._store.state;
+
+  /**
+   * The current page number
+   */
+  public readonly currentPage: Signal<number> = computed(() => this.state().page);
+
+  /**
+   * Whether a next page exists
+   *
+   * `true` until a paginated response has synced the bounds (conservative
+   * default), then `page < lastPage`.
+   */
+  public readonly hasNextPage: Signal<boolean> = computed(() => {
+    const state = this.state();
+
+    return !state.isLastPageKnown || state.page < state.lastPage;
+  });
+
+  /**
+   * Whether a previous page exists (`page > 1`)
+   */
+  public readonly hasPreviousPage: Signal<boolean> = computed(() => this.state().page > 1);
+
+  /**
+   * Whether the current page is the first page
+   */
+  public readonly isFirstPage: Signal<boolean> = computed(() => this.state().page === 1);
+
+  /**
+   * Whether the current page is the last page
+   *
+   * `false` until a paginated response has synced the bounds, so a "Next"
+   * button bound to it stays enabled before the first fetch.
+   */
+  public readonly isLastPage: Signal<boolean> = computed(() => {
+    const state = this.state();
+
+    return state.isLastPageKnown && state.page === state.lastPage;
+  });
+
+  /**
+   * HTTP request headers the active driver wants applied to the request
+   *
+   * `null` for drivers that pass all pagination metadata on the URL — every
+   * driver except PostgREST configured with `PaginationModeEnum.RANGE`, which
+   * yields `{ 'Range-Unit': 'items', 'Range': 'from-to' }`. Safe to spread
+   * into a headers map unconditionally.
+   *
+   * Compared by value, so a state change that leaves the range untouched —
+   * a synced `lastPage`, say — does not re-trigger an `httpResource()` whose
+   * request spreads these headers.
+   */
+  public readonly paginationHeaders: Signal<Record<string, string> | null> = computed(
+    () => this._requestStrategy.buildPaginationHeaders?.(this.state()) ?? null,
+    { equal: deepEqual }
+  );
+
+  /**
+   * The total number of pages reported by the most recent paginated response,
+   * or `undefined` until `QubeePaginator.paginate()` has synced one
+   *
+   * The 3.x method threw `PaginationNotSyncedError` here; a signal is read in
+   * templates, where `undefined` is the useful answer. `lastPage()` keeps the
+   * throwing behaviour for imperative navigation.
+   */
+  public readonly totalPages: Signal<number | undefined> = computed(() => {
+    const state = this.state();
+
+    return state.isLastPageKnown ? state.lastPage : undefined;
+  });
 
   /**
    * The URI for the current state, or `undefined` until a resource is set
@@ -105,76 +176,6 @@ export class QubeeQueryBuilder {
 
     return this._builder.generateUri();
   });
-
-  /**
-   * The current page number
-   */
-  public readonly currentPage: Signal<number> = computed(() => this.state().page);
-
-  /**
-   * The total number of pages reported by the most recent paginated response,
-   * or `undefined` until `QubeePaginator.paginate()` has synced one
-   *
-   * The 3.x method threw `PaginationNotSyncedError` here; a signal is read in
-   * templates, where `undefined` is the useful answer. `lastPage()` keeps the
-   * throwing behaviour for imperative navigation.
-   */
-  public readonly totalPages: Signal<number | undefined> = computed(() => {
-    const state = this.state();
-
-    return state.isLastPageKnown ? state.lastPage : undefined;
-  });
-
-  /**
-   * Whether the current page is the first page
-   */
-  public readonly isFirstPage: Signal<boolean> = computed(() => this.state().page === 1);
-
-  /**
-   * Whether the current page is the last page
-   *
-   * `false` until a paginated response has synced the bounds, so a "Next"
-   * button bound to it stays enabled before the first fetch.
-   */
-  public readonly isLastPage: Signal<boolean> = computed(() => {
-    const state = this.state();
-
-    return state.isLastPageKnown && state.page === state.lastPage;
-  });
-
-  /**
-   * Whether a next page exists
-   *
-   * `true` until a paginated response has synced the bounds (conservative
-   * default), then `page < lastPage`.
-   */
-  public readonly hasNextPage: Signal<boolean> = computed(() => {
-    const state = this.state();
-
-    return !state.isLastPageKnown || state.page < state.lastPage;
-  });
-
-  /**
-   * Whether a previous page exists (`page > 1`)
-   */
-  public readonly hasPreviousPage: Signal<boolean> = computed(() => this.state().page > 1);
-
-  /**
-   * HTTP request headers the active driver wants applied to the request
-   *
-   * `null` for drivers that pass all pagination metadata on the URL — every
-   * driver except PostgREST configured with `PaginationModeEnum.RANGE`, which
-   * yields `{ 'Range-Unit': 'items', 'Range': 'from-to' }`. Safe to spread
-   * into a headers map unconditionally.
-   *
-   * Compared by value, so a state change that leaves the range untouched —
-   * a synced `lastPage`, say — does not re-trigger an `httpResource()` whose
-   * request spreads these headers.
-   */
-  public readonly paginationHeaders: Signal<Record<string, string> | null> = computed(
-    () => this._requestStrategy.buildPaginationHeaders?.(this.state()) ?? null,
-    { equal: deepEqual }
-  );
 
   /**
    * Add an embedded resource to the select statement (PostgREST, OData, Directus)

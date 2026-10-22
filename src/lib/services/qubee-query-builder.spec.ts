@@ -1,3 +1,5 @@
+import type { QubeeConfig } from '@qubeejs/core';
+
 import { computed } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
@@ -6,19 +8,17 @@ import {
   InvalidPageNumberError,
   LARAVEL_DRIVER,
   NESTJS_DRIVER,
-  POSTGREST_DRIVER,
   PaginationModeEnum,
   PaginationNotSyncedError,
   ParamCollisionError,
-  SPATIE_DRIVER,
+  POSTGREST_DRIVER,
   SortEnum,
+  SPATIE_DRIVER,
   UnselectableModelError,
   UnsupportedFilterError,
   UnsupportedSearchError,
   UnsupportedSortError
 } from '@qubeejs/core';
-
-import type { QubeeConfig } from '@qubeejs/core';
 
 import { provideQubee } from '../provide-qubee';
 import { QubeeQueryBuilder } from './qubee-query-builder';
@@ -215,24 +215,24 @@ describe('QubeeQueryBuilder (Spatie)', () => {
       service.setResource('users');
 
       const calls: (() => QubeeQueryBuilder)[] = [
-        () => service.setBaseUrl('https://api.example.com'),
-        () => service.setLimit(20),
-        () => service.setPage(2),
-        () => service.addFilter('status', 'active'),
-        () => service.deleteFilters('status'),
-        () => service.addSort('name', SortEnum.ASC),
-        () => service.deleteSorts('name'),
-        () => service.addFields('users', ['id']),
-        () => service.deleteFields({ users: ['id'] }),
-        () => service.addFields('users', ['id']),
-        () => service.deleteFieldsByModel('users', 'id'),
-        () => service.addIncludes('profile'),
-        () => service.deleteIncludes('profile'),
-        () => service.firstPage(),
-        () => service.nextPage(),
-        () => service.previousPage(),
-        () => service.goToPage(1),
-        () => service.reset()
+        (): QubeeQueryBuilder => service.setBaseUrl('https://api.example.com'),
+        (): QubeeQueryBuilder => service.setLimit(20),
+        (): QubeeQueryBuilder => service.setPage(2),
+        (): QubeeQueryBuilder => service.addFilter('status', 'active'),
+        (): QubeeQueryBuilder => service.deleteFilters('status'),
+        (): QubeeQueryBuilder => service.addSort('name', SortEnum.ASC),
+        (): QubeeQueryBuilder => service.deleteSorts('name'),
+        (): QubeeQueryBuilder => service.addFields('users', ['id']),
+        (): QubeeQueryBuilder => service.deleteFields({ users: ['id'] }),
+        (): QubeeQueryBuilder => service.addFields('users', ['id']),
+        (): QubeeQueryBuilder => service.deleteFieldsByModel('users', 'id'),
+        (): QubeeQueryBuilder => service.addIncludes('profile'),
+        (): QubeeQueryBuilder => service.deleteIncludes('profile'),
+        (): QubeeQueryBuilder => service.firstPage(),
+        (): QubeeQueryBuilder => service.nextPage(),
+        (): QubeeQueryBuilder => service.previousPage(),
+        (): QubeeQueryBuilder => service.goToPage(1),
+        (): QubeeQueryBuilder => service.reset()
       ];
 
       calls.forEach(call => expect(call()).toBe(service));
@@ -392,13 +392,13 @@ describe('QubeeQueryBuilder paginationHeaders', () => {
 
     service.setResource('users').setLimit(10);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     expect(service.paginationHeaders()).toEqual({ 'Range-Unit': 'items', Range: '0-9' });
     expect(service.generateUri()).not.toContain('limit=');
 
     service.setPage(3);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     expect(service.paginationHeaders()).toEqual({ 'Range-Unit': 'items', Range: '20-29' });
   });
 

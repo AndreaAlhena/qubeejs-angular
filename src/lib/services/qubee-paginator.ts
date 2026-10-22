@@ -1,10 +1,10 @@
-import { Injectable, inject } from '@angular/core';
-import { Paginator } from '@qubeejs/core';
-
 import type { HeaderBag, PaginatedCollection, PaginatedObject, RawResponse } from '@qubeejs/core';
 
-import { QubeeSignalStore } from './qubee-signal-store';
+import { inject, Injectable } from '@angular/core';
+import { Paginator } from '@qubeejs/core';
+
 import { QUBEE_RESPONSE_OPTIONS, QUBEE_RESPONSE_STRATEGY } from '../tokens/qubee.tokens';
+import { QubeeSignalStore } from './qubee-signal-store';
 
 /**
  * Parses backend responses into typed `PaginatedCollection`s and syncs the

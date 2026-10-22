@@ -1,7 +1,3 @@
-import { DOCUMENT } from '@angular/common';
-import { DestroyRef, Injector, assertInInjectionContext, computed, inject, signal, untracked } from '@angular/core';
-import { buildListHref, buildListRequest, readListState, toggleSort } from '@qubeejs/core';
-
 import type {
   ListDefinition,
   ListInput,
@@ -13,6 +9,10 @@ import type {
   Sort,
   ToggleSortOptions
 } from '@qubeejs/core';
+
+import { DOCUMENT } from '@angular/common';
+import { assertInInjectionContext, computed, DestroyRef, inject, Injector, signal, untracked } from '@angular/core';
+import { buildListHref, buildListRequest, readListState, toggleSort } from '@qubeejs/core';
 
 import type { QubeeList, QubeeListArgs, QubeeListInput, QubeeListSetOptions } from '../types/qubee-list.type';
 
@@ -171,6 +171,9 @@ export function injectQubeeList<TList extends ListDefinition<ListParams, NonNull
         return buildListRequest(loose, listState);
       }
 
+      // Not redundant: with TList generic, `typeof === 'function'` narrows to a
+      // union that is not callable, and dropping the cast makes `value` an error type.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const value = typeof input === 'function' ? (input as () => ListInput<TList> | null)() : input;
 
       return value === null || value === undefined ? null : buildListRequest(wide, listState, value);

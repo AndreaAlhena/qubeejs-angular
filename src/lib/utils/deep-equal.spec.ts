@@ -31,7 +31,7 @@ describe('deepEqual', () => {
 
   it('should distinguish arrays from objects', () => {
     expect(deepEqual([], {})).toBeFalse();
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     expect(deepEqual({ 0: 'a', length: 1 }, ['a'])).toBeFalse();
   });
 
