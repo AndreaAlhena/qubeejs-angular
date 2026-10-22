@@ -28,7 +28,7 @@ This README is intentionally minimal. For everything beyond install + a ten-line
 ## Requirements
 
 - **Angular** `>=17.0.0` (built on Signals; every major from 17 is verified in CI, see [Requirements](https://qubeejs-angular.andreatantimonaco.me/docs/getting-started#requirements))
-- **@qubeejs/core** `^1.6.0` (peer dependency)
+- **@qubeejs/core** `^1.6.1` (peer dependency)
 - **@angular/router** `>=17.0.0`, only if you import `@qubeejs/angular/router`
 - **Angular 19.2+**, only if you import `@qubeejs/angular/http` (it is built on `httpResource()`)
 
