@@ -9,6 +9,7 @@ title: Getting Started
 
 - **Signals all the way down** — the URI, the query state and every pagination flag are Angular Signals. No RxJS.
 - **Pagination ready** — typed `PaginatedCollection<T>`, fluent navigation, auto-sync from response to query state
+- **Lists in the URL** — `injectQubeeList()` keeps filters, sorts and the page in the address bar as typed signals ([Lists in the URL](./lists.md))
 - **Tree-shakeable drivers** — import the one definition you use; the other seventeen stay out of your bundle
 - **Multi-driver:** API Platform (Symfony), Directus, Django REST Framework, FeathersJS, JSON:API, json-server, Laravel (pagination-only), Spatie Query Builder, NestJS (nestjs-paginate), @nestjsx/crud, OData, Payload CMS, PocketBase, PostgREST / Supabase, Sieve (.NET), Spring Data REST, Strapi, WordPress REST
 
@@ -22,8 +23,9 @@ The [changelog](https://github.com/AndreaAlhena/qubeejs-angular/blob/master/CHAN
 |---|---|
 | Angular | `>=17.0.0` |
 | `@qubeejs/core` | `^1.6.0` |
+| `@angular/router` | `>=17.0.0`, only for `@qubeejs/angular/router` |
 
-**Why 17 is the floor.** The library is built on `signal()` and `computed()`, which left developer preview in Angular 17; it uses nothing newer than that — `inject()`, `InjectionToken` and `makeEnvironmentProviders()` are older still. `effect()` and `httpResource()` appear only in the docs examples, never in the library, so Angular 17 applications use the `HttpClient` shape shown in [Fetching data](./fetching-data.md#alternative-httpclient-angular-17-to-191).
+**Why 17 is the floor.** The library is built on `signal()` and `computed()`, which left developer preview in Angular 17; it uses nothing newer than that — `inject()`, `DestroyRef`, `untracked()` and `makeEnvironmentProviders()` are older still. `effect()` and `httpResource()` appear only in the docs examples, never in the library, so Angular 17 applications use the `HttpClient` shape shown in [Fetching data](./fetching-data.md#alternative-httpclient-angular-17-to-191).
 
 **Why there is no ceiling.** The package is published in Angular's partial compilation mode, so the *consuming* application's compiler links the declarations at its own version — the version the library was built with does not constrain the version it runs on. The 3.x line capped the range at the current major and paid for it on every Angular release with an `ERESOLVE` install failure until a widening release shipped. 4.x leaves the range open and instead verifies every supported major in CI — the floor (17), the middle (20), the current release (22) and Angular's `next` prerelease as an early warning — by installing the packed artifact into a freshly scaffolded application and building it. RxJS is not a dependency: the URI and the pagination state are exposed as signals, not Observables.
 
