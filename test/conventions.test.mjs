@@ -23,12 +23,14 @@ const ENTRY_DIRS = ['src', 'router', 'http'];
 const read = (dir) =>
   globSync('**/*.ts', { cwd: join(rootDir, dir) }).map((p) => {
     const text = readFileSync(join(rootDir, dir, p), 'utf8');
+    // globSync returns `\`-separated paths on Windows.
+    const rel = p.replaceAll('\\', '/');
     const declarations = [...text.matchAll(DECL)].map((m) => ({
       exported: Boolean(m[1]),
       kind: m[2].replace('abstract class', 'class'),
       name: m[3],
     }));
-    return { declarations, name: p.split('/').pop(), path: `${dir}/${p}`, text };
+    return { declarations, name: rel.split('/').pop(), path: `${dir}/${rel}`, text };
   });
 
 /** Every TypeScript file in the package, specs included. */
