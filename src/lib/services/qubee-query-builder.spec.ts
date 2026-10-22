@@ -1,3 +1,5 @@
+import type { QubeeConfig } from '@qubeejs/core';
+
 import { computed } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
@@ -6,19 +8,17 @@ import {
   InvalidPageNumberError,
   LARAVEL_DRIVER,
   NESTJS_DRIVER,
-  POSTGREST_DRIVER,
   PaginationModeEnum,
   PaginationNotSyncedError,
   ParamCollisionError,
-  SPATIE_DRIVER,
+  POSTGREST_DRIVER,
   SortEnum,
+  SPATIE_DRIVER,
   UnselectableModelError,
   UnsupportedFilterError,
   UnsupportedSearchError,
-  UnsupportedSortError
+  UnsupportedSortError,
 } from '@qubeejs/core';
-
-import type { QubeeConfig } from '@qubeejs/core';
 
 import { provideQubee } from '../provide-qubee';
 import { QubeeQueryBuilder } from './qubee-query-builder';
@@ -68,7 +68,8 @@ describe('QubeeQueryBuilder (Spatie)', () => {
     });
 
     it('should generate a URI with fields and includes', () => {
-      service.setResource('users')
+      service
+        .setResource('users')
         .addFields('users', ['email', 'name'])
         .addIncludes('settings')
         .addFields('settings', ['field1']);
@@ -174,7 +175,7 @@ describe('QubeeQueryBuilder (Spatie)', () => {
   });
 
   describe('setParam / deleteParams', () => {
-    it('should append a param after the driver\'s own, values joined with a comma', () => {
+    it("should append a param after the driver's own, values joined with a comma", () => {
       service.setResource('users').setParam('ids', 'a,b', 'c');
 
       expect(service.generateUri()).toBe('/users?limit=15&page=1&ids=a%2Cb,c');
@@ -215,27 +216,27 @@ describe('QubeeQueryBuilder (Spatie)', () => {
       service.setResource('users');
 
       const calls: (() => QubeeQueryBuilder)[] = [
-        () => service.setBaseUrl('https://api.example.com'),
-        () => service.setLimit(20),
-        () => service.setPage(2),
-        () => service.addFilter('status', 'active'),
-        () => service.deleteFilters('status'),
-        () => service.addSort('name', SortEnum.ASC),
-        () => service.deleteSorts('name'),
-        () => service.addFields('users', ['id']),
-        () => service.deleteFields({ users: ['id'] }),
-        () => service.addFields('users', ['id']),
-        () => service.deleteFieldsByModel('users', 'id'),
-        () => service.addIncludes('profile'),
-        () => service.deleteIncludes('profile'),
-        () => service.firstPage(),
-        () => service.nextPage(),
-        () => service.previousPage(),
-        () => service.goToPage(1),
-        () => service.reset()
+        (): QubeeQueryBuilder => service.setBaseUrl('https://api.example.com'),
+        (): QubeeQueryBuilder => service.setLimit(20),
+        (): QubeeQueryBuilder => service.setPage(2),
+        (): QubeeQueryBuilder => service.addFilter('status', 'active'),
+        (): QubeeQueryBuilder => service.deleteFilters('status'),
+        (): QubeeQueryBuilder => service.addSort('name', SortEnum.ASC),
+        (): QubeeQueryBuilder => service.deleteSorts('name'),
+        (): QubeeQueryBuilder => service.addFields('users', ['id']),
+        (): QubeeQueryBuilder => service.deleteFields({ users: ['id'] }),
+        (): QubeeQueryBuilder => service.addFields('users', ['id']),
+        (): QubeeQueryBuilder => service.deleteFieldsByModel('users', 'id'),
+        (): QubeeQueryBuilder => service.addIncludes('profile'),
+        (): QubeeQueryBuilder => service.deleteIncludes('profile'),
+        (): QubeeQueryBuilder => service.firstPage(),
+        (): QubeeQueryBuilder => service.nextPage(),
+        (): QubeeQueryBuilder => service.previousPage(),
+        (): QubeeQueryBuilder => service.goToPage(1),
+        (): QubeeQueryBuilder => service.reset(),
       ];
 
-      calls.forEach(call => expect(call()).toBe(service));
+      calls.forEach((call) => expect(call()).toBe(service));
     });
   });
 
@@ -247,7 +248,11 @@ describe('QubeeQueryBuilder (Spatie)', () => {
     });
 
     it('should keep the page on a shape-only mutation', () => {
-      service.setResource('users').setPage(3).addIncludes('profile').setBaseUrl('https://api.example.com');
+      service
+        .setResource('users')
+        .setPage(3)
+        .addIncludes('profile')
+        .setBaseUrl('https://api.example.com');
 
       expect(service.currentPage()).toBe(3);
     });
@@ -266,15 +271,16 @@ describe('QubeeQueryBuilder custom request keys (Spatie)', () => {
         includes: 'inc',
         limit: 'lmt',
         page: 'p',
-        sort: 'srt'
-      }
+        sort: 'srt',
+      },
     });
 
     service.setResource('users');
   });
 
   it('should honour the custom keys', () => {
-    service.addFields('users', ['email', 'name'])
+    service
+      .addFields('users', ['email', 'name'])
       .addFilter('id', 1, 2, 3)
       .addIncludes('model1', 'model2')
       .addSort('f', SortEnum.ASC)
@@ -302,7 +308,10 @@ describe('QubeeQueryBuilder capability errors (Laravel)', () => {
   });
 
   it('should throw UnsupportedFilterError naming the driver', () => {
-    expect(() => service.addFilter('status', 'active')).toThrowError(UnsupportedFilterError, /'laravel' driver does not support filters/);
+    expect(() => service.addFilter('status', 'active')).toThrowError(
+      UnsupportedFilterError,
+      /'laravel' driver does not support filters/
+    );
   });
 
   it('should carry the driver and capability on the error', () => {
@@ -392,13 +401,11 @@ describe('QubeeQueryBuilder paginationHeaders', () => {
 
     service.setResource('users').setLimit(10);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     expect(service.paginationHeaders()).toEqual({ 'Range-Unit': 'items', Range: '0-9' });
     expect(service.generateUri()).not.toContain('limit=');
 
     service.setPage(3);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     expect(service.paginationHeaders()).toEqual({ 'Range-Unit': 'items', Range: '20-29' });
   });
 
@@ -422,7 +429,11 @@ describe('QubeeQueryBuilder paginationHeaders', () => {
   it('should support embedded resources', () => {
     const service = setup({ driver: POSTGREST_DRIVER });
 
-    const uri = service.setResource('posts').addEmbedded('author', 'id', 'name').addSelect('title').generateUri();
+    const uri = service
+      .setResource('posts')
+      .addEmbedded('author', 'id', 'name')
+      .addSelect('title')
+      .generateUri();
 
     expect(uri).toContain('select=title,author(id,name)');
 

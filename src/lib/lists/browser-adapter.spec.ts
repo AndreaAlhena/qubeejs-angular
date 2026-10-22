@@ -19,7 +19,10 @@ describe('provideQubeeBrowserAdapter', () => {
   it('should read the address bar', () => {
     window.history.replaceState(null, '', '/articles?q=react');
 
-    expect(TestBed.inject(QUBEE_LIST_ADAPTER).location()).toEqual({ pathname: '/articles', search: '?q=react' });
+    expect(TestBed.inject(QUBEE_LIST_ADAPTER).location()).toEqual({
+      pathname: '/articles',
+      search: '?q=react',
+    });
   });
 
   it('should push a history entry, or replace one', () => {
@@ -60,7 +63,10 @@ describe('provideQubeeBrowserAdapter', () => {
   it('should do nothing without a window', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideQubeeBrowserAdapter(), { provide: DOCUMENT, useValue: { defaultView: null } }]
+      providers: [
+        provideQubeeBrowserAdapter(),
+        { provide: DOCUMENT, useValue: { defaultView: null } },
+      ],
     });
 
     const adapter = TestBed.inject(QUBEE_LIST_ADAPTER);

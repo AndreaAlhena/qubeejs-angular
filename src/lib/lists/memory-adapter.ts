@@ -1,7 +1,8 @@
-import { Provider, signal } from '@angular/core';
-import { toSearchParams } from '@qubeejs/core';
-
+import type { Provider } from '@angular/core';
 import type { ListLocation, SearchParamsInput } from '@qubeejs/core';
+
+import { signal } from '@angular/core';
+import { toSearchParams } from '@qubeejs/core';
 
 import type { QubeeListAdapter } from '../types/qubee-list-adapter.type';
 
@@ -37,7 +38,7 @@ export function createQubeeMemoryAdapter(initialSearch: SearchParamsInput = ''):
 
   return {
     location: location.asReadonly(),
-    navigate: (href: string): void => location.set(parseHref(href))
+    navigate: (href: string): void => location.set(parseHref(href)),
   };
 }
 
@@ -59,5 +60,7 @@ export function createQubeeMemoryAdapter(initialSearch: SearchParamsInput = ''):
  * @returns The provider for `QUBEE_LIST_ADAPTER`
  */
 export function provideQubeeMemoryAdapter(initialSearch?: SearchParamsInput): Provider[] {
-  return [{ provide: QUBEE_LIST_ADAPTER, useFactory: () => createQubeeMemoryAdapter(initialSearch) }];
+  return [
+    { provide: QUBEE_LIST_ADAPTER, useFactory: () => createQubeeMemoryAdapter(initialSearch) },
+  ];
 }

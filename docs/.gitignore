@@ -1,0 +1,10 @@
+dist/
+node_modules/
+.astro/
+.typedoc.json
+
+# Generated from source — see scripts/
+src/content/docs/api/
+
+# Generated from CHANGELOG.md
+src/content/docs/changelog.mdx

@@ -1,18 +1,19 @@
-import { EnvironmentProviders, Provider, makeEnvironmentProviders } from '@angular/core';
-import { PaginationModeEnum, QueryBuilderOptions } from '@qubeejs/core';
-
+import type { EnvironmentProviders, Provider } from '@angular/core';
 import type { QubeeConfig } from '@qubeejs/core';
 
+import { makeEnvironmentProviders } from '@angular/core';
+import { PaginationModeEnum, QueryBuilderOptions } from '@qubeejs/core';
+
+import { QubeePaginator } from './services/qubee-paginator';
 import { QubeeQueryBuilder } from './services/qubee-query-builder';
 import { QubeeSignalStore } from './services/qubee-signal-store';
-import { QubeePaginator } from './services/qubee-paginator';
 import {
   QUBEE_BASE_URL,
   QUBEE_DRIVER,
   QUBEE_REQUEST_OPTIONS,
   QUBEE_REQUEST_STRATEGY,
   QUBEE_RESPONSE_OPTIONS,
-  QUBEE_RESPONSE_STRATEGY
+  QUBEE_RESPONSE_STRATEGY,
 } from './tokens/qubee.tokens';
 
 /**
@@ -30,7 +31,13 @@ import {
  * @returns An array of Providers for the environment injector
  */
 export function buildQubeeProviders(config: QubeeConfig): Provider[] {
-  const { baseUrl = '', driver, pagination = PaginationModeEnum.QUERY, request = {}, response = {} } = config;
+  const {
+    baseUrl = '',
+    driver,
+    pagination = PaginationModeEnum.QUERY,
+    request = {},
+    response = {},
+  } = config;
 
   return [
     { provide: QUBEE_BASE_URL, useValue: baseUrl },
@@ -39,7 +46,7 @@ export function buildQubeeProviders(config: QubeeConfig): Provider[] {
     { provide: QUBEE_REQUEST_OPTIONS, useValue: new QueryBuilderOptions(request) },
     { provide: QUBEE_RESPONSE_STRATEGY, useValue: driver.createResponseStrategy() },
     { provide: QUBEE_RESPONSE_OPTIONS, useValue: driver.createResponseOptions(response) },
-    ...provideQubeeInstance()
+    ...provideQubeeInstance(),
   ];
 }
 

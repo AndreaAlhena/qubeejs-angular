@@ -1,12 +1,12 @@
-import { InjectionToken } from '@angular/core';
-
 import type {
   DriverDefinition,
   IRequestStrategy,
   IResponseStrategy,
   QueryBuilderOptions,
-  ResponseOptions
+  ResponseOptions,
 } from '@qubeejs/core';
+
+import { InjectionToken } from '@angular/core';
 
 import type { QubeeListAdapter } from '../types/qubee-list-adapter.type';
 
@@ -18,7 +18,9 @@ import type { QubeeListAdapter } from '../types/qubee-list-adapter.type';
  * `QubeeSignalStore` starts from it, as the core's `createQubee()` does, so
  * `setBaseUrl()` overrides it for one instance and `reset()` clears it.
  */
-export const QUBEE_BASE_URL = new InjectionToken<string>('QUBEE_BASE_URL', { factory: () => '' });
+export const QUBEE_BASE_URL = new InjectionToken<string>('QUBEE_BASE_URL', {
+  factory: (): string => '',
+});
 
 /**
  * Injection token for the active driver definition
@@ -35,7 +37,9 @@ export const QUBEE_DRIVER = new InjectionToken<DriverDefinition>('QUBEE_DRIVER')
  * Provided by `provideQubee()` / `QubeeModule.forRoot()` based on the
  * active driver. Used by `QubeeQueryBuilder` to build request URIs.
  */
-export const QUBEE_REQUEST_STRATEGY = new InjectionToken<IRequestStrategy>('QUBEE_REQUEST_STRATEGY');
+export const QUBEE_REQUEST_STRATEGY = new InjectionToken<IRequestStrategy>(
+  'QUBEE_REQUEST_STRATEGY'
+);
 
 /**
  * Injection token for the resolved request query-parameter key options
@@ -44,7 +48,9 @@ export const QUBEE_REQUEST_STRATEGY = new InjectionToken<IRequestStrategy>('QUBE
  * constructs it from `QubeeConfig.request`; consumers don't interact with this
  * token directly.
  */
-export const QUBEE_REQUEST_OPTIONS = new InjectionToken<QueryBuilderOptions>('QUBEE_REQUEST_OPTIONS');
+export const QUBEE_REQUEST_OPTIONS = new InjectionToken<QueryBuilderOptions>(
+  'QUBEE_REQUEST_OPTIONS'
+);
 
 /**
  * Injection token for the resolved response parsing strategy
@@ -52,7 +58,9 @@ export const QUBEE_REQUEST_OPTIONS = new InjectionToken<QueryBuilderOptions>('QU
  * Provided by `provideQubee()` / `QubeeModule.forRoot()` based on the
  * active driver. Used by `QubeePaginator` to parse paginated responses.
  */
-export const QUBEE_RESPONSE_STRATEGY = new InjectionToken<IResponseStrategy>('QUBEE_RESPONSE_STRATEGY');
+export const QUBEE_RESPONSE_STRATEGY = new InjectionToken<IResponseStrategy>(
+  'QUBEE_RESPONSE_STRATEGY'
+);
 
 /**
  * Injection token for the resolved response field-key options

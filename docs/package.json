@@ -1,0 +1,24 @@
+{
+  "name": "@qubeejs/angular-docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run generate && astro build",
+    "dev": "npm run generate && astro dev",
+    "generate": "node scripts/generate-api.mjs && node scripts/generate-changelog.mjs",
+    "preview": "astro preview",
+    "sync": "astro sync"
+  },
+  "devDependencies": {
+    "@astrojs/starlight": "^0.42.0",
+    "@fontsource-variable/ibm-plex-sans": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
+    "astro": "^7.3.1",
+    "sharp": "^0.34.0",
+    "starlight-links-validator": "^0.27.0",
+    "starlight-versions": "^0.10.1",
+    "typedoc": "^0.28.20"
+  }
+}

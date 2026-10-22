@@ -1,50 +1,43 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
+  "cli": {
+    "analytics": false
+  },
   "newProjectRoot": "projects",
   "projects": {
     "@qubeejs/angular": {
-      "projectType": "library",
-      "root": ".",
-      "sourceRoot": "src",
-      "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",
-          "options": {
-            "project": "ng-package.json"
-          },
           "configurations": {
-            "production": {
-              "tsConfig": "tsconfig.lib.prod.json"
-            },
             "development": {
               "tsConfig": "tsconfig.lib.json"
+            },
+            "production": {
+              "tsConfig": "tsconfig.lib.prod.json"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "project": "ng-package.json"
+          }
         },
         "test": {
           "builder": "@angular/build:karma",
           "options": {
+            "include": ["**/*.spec.ts", "../router/**/*.spec.ts", "../http/**/*.spec.ts"],
             "karmaConfig": "karma.conf.js",
             "main": "src/test.ts",
-            "include": [
-              "**/*.spec.ts",
-              "../router/**/*.spec.ts",
-              "../http/**/*.spec.ts"
-            ],
-            "tsConfig": "tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "tsconfig.spec.json"
           }
         }
-      }
+      },
+      "prefix": "lib",
+      "projectType": "library",
+      "root": ".",
+      "sourceRoot": "src"
     }
   },
-  "cli": {
-    "analytics": false
-  }
+  "version": 1
 }

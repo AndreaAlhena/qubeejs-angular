@@ -1,4 +1,4 @@
-import { Injectable, Injector, inject } from '@angular/core';
+import { inject, Injectable, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PaginationModeEnum, POSTGREST_DRIVER, SPATIE_DRIVER } from '@qubeejs/core';
 
@@ -22,10 +22,12 @@ describe('createQubeeInstance', () => {
   });
 
   it('should wire the three around one private store', () => {
-    const { builder, paginator, store } = TestBed.runInInjectionContext(() => createQubeeInstance());
+    const { builder, paginator, store } = TestBed.runInInjectionContext(() =>
+      createQubeeInstance()
+    );
 
     builder.setResource('users').setPage(2);
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+
     paginator.paginate({ data: [], current_page: 2, last_page: 5 });
 
     expect(store.state().resource).toBe('users');
@@ -60,13 +62,15 @@ describe('createQubeeInstance', () => {
   it('should inherit the driver wiring from the parent injector', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideQubee({ driver: POSTGREST_DRIVER, pagination: PaginationModeEnum.RANGE })]
+      providers: [provideQubee({ driver: POSTGREST_DRIVER, pagination: PaginationModeEnum.RANGE })],
     });
 
     const { builder } = TestBed.runInInjectionContext(() => createQubeeInstance());
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    expect(builder.setResource('users').paginationHeaders()).toEqual({ 'Range-Unit': 'items', Range: '0-14' });
+    expect(builder.setResource('users').paginationHeaders()).toEqual({
+      'Range-Unit': 'items',
+      Range: '0-14',
+    });
   });
 
   it('should accept an explicit injector outside an injection context', () => {

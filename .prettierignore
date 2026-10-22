@@ -1,0 +1,12 @@
+coverage/
+dist/
+node_modules/
+.angular/
+.claude/
+package-lock.json
+
+# The docs site is a separate workspace with its own toolchain.
+docs/
+
+# Release history: rewrapping it would rewrite every past entry.
+CHANGELOG.md

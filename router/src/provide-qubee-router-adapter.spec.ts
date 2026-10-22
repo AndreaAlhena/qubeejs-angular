@@ -1,18 +1,25 @@
 import { Component } from '@angular/core';
-import { TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { fakeAsync, flushMicrotasks, TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { QUBEE_LIST_ADAPTER, SPATIE_DRIVER, defineList, injectQubeeList, integerParam, stringParam } from '@qubeejs/angular';
+import {
+  defineList,
+  injectQubeeList,
+  integerParam,
+  QUBEE_LIST_ADAPTER,
+  SPATIE_DRIVER,
+  stringParam,
+} from '@qubeejs/angular';
 
 import { provideQubeeRouterAdapter } from './provide-qubee-router-adapter';
 
 const articleList = defineList({
   params: {
     page: integerParam('page', { default: 1, min: 1 }),
-    q: stringParam('q')
+    q: stringParam('q'),
   },
   qubee: { driver: SPATIE_DRIVER },
-  resource: 'articles'
+  resource: 'articles',
 });
 
 @Component({ selector: 'lib-articles', template: '' })
@@ -30,11 +37,11 @@ const setup = async (url: string): Promise<RouterTestingHarness> => {
     providers: [
       provideRouter([
         { component: ArticlesComponent, path: 'articles' },
-        { canActivate: [() => false], component: HomeComponent, path: 'locked' },
-        { component: HomeComponent, path: 'home' }
+        { canActivate: [(): boolean => false], component: HomeComponent, path: 'locked' },
+        { component: HomeComponent, path: 'home' },
       ]),
-      provideQubeeRouterAdapter()
-    ]
+      provideQubeeRouterAdapter(),
+    ],
   });
 
   const harness = await RouterTestingHarness.create();
@@ -48,7 +55,10 @@ describe('provideQubeeRouterAdapter', () => {
   it('should read the router URL, without the fragment', async () => {
     await setup('/home?panel=edit#top');
 
-    expect(TestBed.inject(QUBEE_LIST_ADAPTER).location()).toEqual({ pathname: '/home', search: '?panel=edit' });
+    expect(TestBed.inject(QUBEE_LIST_ADAPTER).location()).toEqual({
+      pathname: '/home',
+      search: '?panel=edit',
+    });
   });
 
   it('should follow navigations made elsewhere', async () => {
@@ -94,7 +104,7 @@ describe('provideQubeeRouterAdapter', () => {
   it('should drive a list end to end', fakeAsync(() => {
     let harness: RouterTestingHarness | undefined;
 
-    setup('/articles?q=react').then((created) => (harness = created));
+    void setup('/articles?q=react').then((created) => (harness = created));
     flushMicrotasks();
 
     const component = harness?.routeDebugElement?.componentInstance as ArticlesComponent;

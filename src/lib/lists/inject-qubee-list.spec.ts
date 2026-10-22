@@ -1,19 +1,19 @@
+import type { ListLocation } from '@qubeejs/core';
+
 import { DOCUMENT } from '@angular/common';
-import { EnvironmentInjector, createEnvironmentInjector, signal } from '@angular/core';
-import { TestBed, fakeAsync, flushMicrotasks, tick } from '@angular/core/testing';
+import { createEnvironmentInjector, EnvironmentInjector, signal } from '@angular/core';
+import { fakeAsync, flushMicrotasks, TestBed, tick } from '@angular/core/testing';
 import {
-  POSTGREST_DRIVER,
-  PaginationModeEnum,
-  SPATIE_DRIVER,
-  SortEnum,
   defineList,
   enumParam,
   integerParam,
+  PaginationModeEnum,
+  POSTGREST_DRIVER,
+  SortEnum,
   sortParam,
-  stringParam
+  SPATIE_DRIVER,
+  stringParam,
 } from '@qubeejs/core';
-
-import type { ListLocation } from '@qubeejs/core';
 
 import type { QubeeListAdapter, QubeeListNavigateOptions } from '../types/qubee-list-adapter.type';
 
@@ -40,10 +40,10 @@ const articleList = defineList({
     page: integerParam('page', { default: 1, min: 1 }),
     q: stringParam('q'),
     status: enumParam('status', ['draft', 'published']),
-    sort: sortParam('sort', { fields: ['publishedAt', 'title'] })
+    sort: sortParam('sort', { fields: ['publishedAt', 'title'] }),
   },
   qubee: { baseUrl: 'https://api.dev', driver: SPATIE_DRIVER },
-  resource: 'articles'
+  resource: 'articles',
 });
 
 const taskList = defineList({
@@ -56,10 +56,10 @@ const taskList = defineList({
   },
   params: {
     page: integerParam('page', { default: 1, min: 1 }),
-    status: enumParam('status', ['open', 'done'])
+    status: enumParam('status', ['open', 'done']),
   },
   qubee: { driver: SPATIE_DRIVER },
-  resource: 'tasks'
+  resource: 'tasks',
 });
 
 type Navigation = { href: string } & QubeeListNavigateOptions;
@@ -67,7 +67,9 @@ type Navigation = { href: string } & QubeeListNavigateOptions;
 /**
  * An adapter whose location the test moves by hand, recording every navigation
  */
-const fakeAdapter = (url = '/articles'): {
+const fakeAdapter = (
+  url = '/articles'
+): {
   adapter: QubeeListAdapter;
   go: (href: string) => void;
   navigations: Navigation[];
@@ -81,18 +83,19 @@ const fakeAdapter = (url = '/articles'): {
       navigate: (href, options): void => {
         navigations.push({ href, ...options });
         location.set(parseHref(href));
-      }
+      },
     },
     go: (href) => location.set(parseHref(href)),
-    navigations
+    navigations,
   };
 };
 
 describe('injectQubeeList', () => {
   describe('setup', () => {
     it('should throw MissingRouterAdapterError without an adapter', () => {
-      expect(() => TestBed.runInInjectionContext(() => injectQubeeList(articleList)))
-        .toThrowError(MissingRouterAdapterError);
+      expect(() => TestBed.runInInjectionContext(() => injectQubeeList(articleList))).toThrowError(
+        MissingRouterAdapterError
+      );
     });
 
     it('should use the adapter provided under QUBEE_LIST_ADAPTER', () => {
@@ -116,7 +119,10 @@ describe('injectQubeeList', () => {
 
     it('should run outside an injection context with an injector', () => {
       const { adapter } = fakeAdapter();
-      const list = injectQubeeList(articleList, { adapter, injector: TestBed.inject(EnvironmentInjector) });
+      const list = injectQubeeList(articleList, {
+        adapter,
+        injector: TestBed.inject(EnvironmentInjector),
+      });
 
       expect(list.state().page).toBe(1);
     });
@@ -137,7 +143,7 @@ describe('injectQubeeList', () => {
         page: 1,
         q: 'react',
         sort: [{ field: 'title', order: SortEnum.DESC }],
-        status: undefined
+        status: undefined,
       });
     });
 
@@ -158,7 +164,9 @@ describe('injectQubeeList', () => {
 
       list.set({ q: 'react', status: 'draft' });
 
-      expect(navigations).toEqual([{ href: '/articles?panel=edit&q=react&status=draft', replace: false }]);
+      expect(navigations).toEqual([
+        { href: '/articles?panel=edit&q=react&status=draft', replace: false },
+      ]);
       expect(list.state().page).toBe(1);
       expect(list.state().q).toBe('react');
     });
@@ -308,12 +316,13 @@ describe('injectQubeeList', () => {
       let land = (): void => undefined;
       const adapter: QubeeListAdapter = {
         location,
-        navigate: (href) => new Promise<void>((resolve) => {
-          land = (): void => {
-            location.set(parseHref(href));
-            resolve();
-          };
-        })
+        navigate: (href) =>
+          new Promise<void>((resolve) => {
+            land = (): void => {
+              location.set(parseHref(href));
+              resolve();
+            };
+          }),
       };
       const list = TestBed.runInInjectionContext(() => injectQubeeList(articleList, { adapter }));
 
@@ -335,12 +344,13 @@ describe('injectQubeeList', () => {
       const pending: (() => void)[] = [];
       const adapter: QubeeListAdapter = {
         location,
-        navigate: (href) => new Promise<void>((resolve) => {
-          pending.push(() => {
-            location.set(parseHref(href));
-            resolve();
-          });
-        })
+        navigate: (href) =>
+          new Promise<void>((resolve) => {
+            pending.push(() => {
+              location.set(parseHref(href));
+              resolve();
+            });
+          }),
       };
       const list = TestBed.runInInjectionContext(() => injectQubeeList(articleList, { adapter }));
 
@@ -366,7 +376,7 @@ describe('injectQubeeList', () => {
         location,
         navigate: () => {
           throw new Error('boom');
-        }
+        },
       };
       const list = TestBed.runInInjectionContext(() => injectQubeeList(articleList, { adapter }));
 
@@ -412,7 +422,7 @@ describe('injectQubeeList', () => {
       const rangeList = defineList({
         params: { page: integerParam('page', { default: 1, min: 1 }) },
         qubee: { driver: POSTGREST_DRIVER, pagination: PaginationModeEnum.RANGE },
-        resource: 'articles'
+        resource: 'articles',
       });
       const { adapter } = fakeAdapter('/articles?page=2');
       const list = TestBed.runInInjectionContext(() => injectQubeeList(rangeList, { adapter }));
@@ -420,11 +430,13 @@ describe('injectQubeeList', () => {
       expect(list.request().headers).not.toBeNull();
     });
 
-    it('should parse a response with the list\'s paginator', () => {
+    it("should parse a response with the list's paginator", () => {
       const { adapter } = fakeAdapter();
       const list = TestBed.runInInjectionContext(() => injectQubeeList(articleList, { adapter }));
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const page = list.request().paginate<{ id: number }>({ data: [{ id: 1 }], meta: { current_page: 1, last_page: 4 } });
+
+      const page = list
+        .request()
+        .paginate<{ id: number }>({ data: [{ id: 1 }], meta: { current_page: 1, last_page: 4 } });
 
       expect(page.data).toEqual([{ id: 1 }]);
     });
@@ -433,22 +445,28 @@ describe('injectQubeeList', () => {
   describe('input', () => {
     it('should pass the input to apply', () => {
       const { adapter } = fakeAdapter('/projects/42/tasks?status=open');
-      const list = TestBed.runInInjectionContext(() => injectQubeeList(taskList, { adapter, input: { projectId: '42' } }));
+      const list = TestBed.runInInjectionContext(() =>
+        injectQubeeList(taskList, { adapter, input: { projectId: '42' } })
+      );
 
-      expect(list.request()?.uri).toBe('/tasks?filter[project]=42&filter[status]=open&limit=15&page=1');
+      expect(list.request()?.uri).toBe(
+        '/tasks?filter[project]=42&filter[status]=open&limit=15&page=1'
+      );
     });
 
     it('should follow an input given as a signal, and be null while it is null', () => {
       const { adapter } = fakeAdapter('/tasks');
       const projectId = signal<string | null>(null);
-      const list = TestBed.runInInjectionContext(() => injectQubeeList(taskList, {
-        adapter,
-        input: () => {
-          const id = projectId();
+      const list = TestBed.runInInjectionContext(() =>
+        injectQubeeList(taskList, {
+          adapter,
+          input: () => {
+            const id = projectId();
 
-          return id ? { projectId: id } : null;
-        }
-      }));
+            return id ? { projectId: id } : null;
+          },
+        })
+      );
 
       expect(list.request()).toBeNull();
 
@@ -460,7 +478,9 @@ describe('injectQubeeList', () => {
     it('should keep the same request for an equal input', () => {
       const { adapter } = fakeAdapter('/tasks');
       const input = signal({ projectId: '7' });
-      const list = TestBed.runInInjectionContext(() => injectQubeeList(taskList, { adapter, input }));
+      const list = TestBed.runInInjectionContext(() =>
+        injectQubeeList(taskList, { adapter, input })
+      );
       const first = list.request();
 
       input.set({ projectId: '7' });
@@ -470,7 +490,9 @@ describe('injectQubeeList', () => {
 
     it('should always build a request for a list without an input', () => {
       const { adapter } = fakeAdapter();
-      const list = TestBed.runInInjectionContext(() => injectQubeeList(articleList, { adapter, input: undefined }));
+      const list = TestBed.runInInjectionContext(() =>
+        injectQubeeList(articleList, { adapter, input: undefined })
+      );
 
       expect(list.request().uri).toContain('/articles');
     });
@@ -493,7 +515,9 @@ describe('injectQubeeList', () => {
 
   describe('reset', () => {
     it('should return every param to its default in one navigation, keeping foreign keys', () => {
-      const { adapter, navigations } = fakeAdapter('/articles?panel=edit&q=react&status=draft&page=4');
+      const { adapter, navigations } = fakeAdapter(
+        '/articles?panel=edit&q=react&status=draft&page=4'
+      );
       const list = TestBed.runInInjectionContext(() => injectQubeeList(articleList, { adapter }));
 
       list.reset({ replace: true });
@@ -536,14 +560,18 @@ describe('injectQubeeList', () => {
 
     it('should be absent for a list without exactly one sortParam', () => {
       const { adapter } = fakeAdapter('/tasks');
-      const list = TestBed.runInInjectionContext(() => injectQubeeList(taskList, { adapter, input: { projectId: '1' } }));
+      const list = TestBed.runInInjectionContext(() =>
+        injectQubeeList(taskList, { adapter, input: { projectId: '1' } })
+      );
 
       expect('toggleSort' in list).toBeFalse();
     });
   });
 
   it('should be destructurable', () => {
-    TestBed.configureTestingModule({ providers: [{ provide: QUBEE_LIST_ADAPTER, useValue: fakeAdapter().adapter }] });
+    TestBed.configureTestingModule({
+      providers: [{ provide: QUBEE_LIST_ADAPTER, useValue: fakeAdapter().adapter }],
+    });
 
     const { set, state } = TestBed.runInInjectionContext(() => injectQubeeList(articleList));
 

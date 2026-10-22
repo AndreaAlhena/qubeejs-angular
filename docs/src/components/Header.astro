@@ -1,0 +1,179 @@
+---
+/**
+ * Header override — the one component the design requires that Starlight's
+ * defaults cannot express: the "qubeejs/angular" wordmark with a version
+ * menu, and top-level section links beside it rather than after the search.
+ *
+ * It is put together from Starlight's own pieces (search, social icons, theme
+ * select) in Starlight's order, so their behaviour is untouched. Everything
+ * else on a doc page (sidebar, table of contents, pagination) is left stock
+ * and themed with CSS custom properties, because those are the overrides that
+ * break on Starlight upgrades.
+ */
+import config from 'virtual:starlight/user-config';
+import Search from 'virtual:starlight/components/Search';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+
+import { versionOf } from '../versions.mjs';
+import VersionMenu from './VersionMenu.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { id, siteTitleHref } = Astro.locals.starlightRoute;
+const path = Astro.url.pathname;
+
+// On an archived page, Guide and API stay in that version.
+const version = versionOf(id);
+const prefix = version ? `/${version.slug}` : '';
+
+const SECTIONS = [
+  { href: `${prefix}/guide/getting-started/`, label: 'Guide', match: '/guide/' },
+  { href: `${prefix}/api/`, label: 'API', match: '/api/' },
+  // Current version only, like the changelog: the 3.8 archive has no recipes.
+  { href: '/recipes/', label: 'Recipes', match: '/recipes/' },
+  { href: '/changelog/', label: 'Changelog', match: '/changelog' },
+];
+
+const shouldRenderSearch =
+  config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+---
+
+<div class="qb-header">
+  <div class="qb-brand">
+    <a class="qb-wordmark" href={siteTitleHref}>
+      <img src={`${base}/mark.png`} alt="" width="39" height="26" />
+      <span translate="no">qubeejs<span class="qb-slash">/angular</span></span>
+    </a>
+    <VersionMenu />
+  </div>
+
+  <nav class="qb-nav" aria-label="Sections">
+    {
+      SECTIONS.map((section) => (
+        <a aria-current={path.includes(section.match) ? 'page' : undefined} href={`${base}${section.href}`}>
+          {section.label}
+        </a>
+      ))
+    }
+    <a class="qb-out" href="https://qubeejs.andreatantimonaco.me" rel="noopener" target="_blank">
+      Core docs <span aria-hidden="true">↗</span>
+    </a>
+  </nav>
+
+  <div class="qb-search print:hidden">
+    {shouldRenderSearch && <Search />}
+  </div>
+
+  <div class="sl-hidden md:sl-flex print:hidden qb-right">
+    <div class="sl-flex qb-social">
+      <SocialIcons />
+    </div>
+    <ThemeSelect />
+  </div>
+</div>
+
+<style>
+  .qb-header {
+    align-items: center;
+    display: flex;
+    gap: var(--sl-nav-gap);
+    height: 100%;
+    justify-content: space-between;
+  }
+
+  .qb-brand {
+    align-items: center;
+    display: flex;
+    gap: 0.625rem;
+    min-width: 0;
+  }
+
+  .qb-wordmark {
+    align-items: center;
+    color: var(--sl-color-white);
+    display: flex;
+    font-family: var(--qb-font-display);
+    font-size: 1.1875rem;
+    font-weight: 700;
+    gap: 0.5625rem;
+    letter-spacing: -0.02em;
+    min-width: 0;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .qb-wordmark img {
+    height: 26px;
+    width: auto;
+  }
+
+  .qb-wordmark > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .qb-slash {
+    color: var(--qb-ink);
+  }
+
+  .qb-nav {
+    align-items: center;
+    display: none;
+    gap: 0.25rem;
+  }
+
+  .qb-nav a {
+    border-radius: 7px;
+    color: var(--sl-color-gray-3);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.45rem 0.7rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .qb-nav a:hover {
+    background: var(--qb-hover);
+    color: var(--sl-color-white);
+  }
+
+  .qb-nav a[aria-current='page'] {
+    color: var(--sl-color-white);
+  }
+
+  .qb-out span {
+    font-size: 0.7rem;
+    opacity: 0.7;
+  }
+
+  .qb-search {
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .qb-right,
+  .qb-social {
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .qb-social::after {
+    border-inline-end: 1px solid var(--sl-color-gray-5);
+    content: '';
+    height: 2rem;
+  }
+
+  @media (min-width: 50rem) {
+    .qb-search :global(button[data-open-modal]) {
+      max-width: 16rem;
+    }
+  }
+
+  /* The mobile menu already exposes these sections; showing both would duplicate. */
+  @media (min-width: 72rem) {
+    .qb-nav {
+      display: flex;
+    }
+  }
+</style>

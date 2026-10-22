@@ -1,21 +1,27 @@
-import { HttpContext, HttpContextToken, HttpErrorResponse, HttpHeaders, provideHttpClient } from '@angular/common/http';
+import type { ListRequest } from '@qubeejs/angular';
+
+import {
+  HttpContext,
+  HttpContextToken,
+  HttpErrorResponse,
+  HttpHeaders,
+  provideHttpClient,
+} from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { EnvironmentInjector, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  POSTGREST_DRIVER,
-  PaginationModeEnum,
-  SPATIE_DRIVER,
   buildListRequest,
   createQubeeMemoryAdapter,
   defineList,
   injectQubeeList,
   integerParam,
+  PaginationModeEnum,
+  POSTGREST_DRIVER,
   readListState,
-  stringParam
+  SPATIE_DRIVER,
+  stringParam,
 } from '@qubeejs/angular';
-
-import type { ListRequest } from '@qubeejs/angular';
 
 import { qubeeHttpResource } from './qubee-http-resource';
 
@@ -29,20 +35,27 @@ const articleList = defineList({
   },
   params: {
     page: integerParam('page', { default: 1, min: 1 }),
-    q: stringParam('q')
+    q: stringParam('q'),
   },
   qubee: { baseUrl: 'https://api.dev', driver: SPATIE_DRIVER },
-  resource: 'articles'
+  resource: 'articles',
 });
 
 const rangeList = defineList({
   params: { page: integerParam('page', { default: 1, min: 1 }) },
-  qubee: { baseUrl: 'https://api.dev', driver: POSTGREST_DRIVER, pagination: PaginationModeEnum.RANGE },
-  resource: 'articles'
+  qubee: {
+    baseUrl: 'https://api.dev',
+    driver: POSTGREST_DRIVER,
+    pagination: PaginationModeEnum.RANGE,
+  },
+  resource: 'articles',
 });
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const spatiePage = (ids: number[], page: number): object => ({ data: ids.map((id) => ({ id })), current_page: page, last_page: 3 });
+const spatiePage = (ids: number[], page: number): object => ({
+  data: ids.map((id) => ({ id })),
+  current_page: page,
+  last_page: 3,
+});
 
 /**
  * Let the resource run its effects, issue its request or apply a response
@@ -60,13 +73,15 @@ describe('qubeeHttpResource', () => {
   let http: HttpTestingController;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     http = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => http.verify());
 
-  it('should fetch the request and parse the page with the list\'s paginator', async () => {
+  it("should fetch the request and parse the page with the list's paginator", async () => {
     const articles = TestBed.runInInjectionContext(() => {
       const list = injectQubeeList(articleList, { adapter: createQubeeMemoryAdapter('page=2') });
 
@@ -111,7 +126,9 @@ describe('qubeeHttpResource', () => {
     expect(articles.isLoading()).toBeTrue();
     expect(articles.value()?.data).toEqual([{ id: 1 }]);
 
-    http.expectOne('https://api.dev/articles?filter[title]=re&limit=15&page=1').flush(spatiePage([7], 1));
+    http
+      .expectOne('https://api.dev/articles?filter[title]=re&limit=15&page=1')
+      .flush(spatiePage([7], 1));
     await settle();
 
     expect(articles.value()?.data).toEqual([{ id: 7 }]);
@@ -122,7 +139,10 @@ describe('qubeeHttpResource', () => {
     const { articles, list } = TestBed.runInInjectionContext(() => {
       const created = injectQubeeList(articleList, { adapter });
 
-      return { articles: qubeeHttpResource<Article>(created.request, { keepPreviousData: false }), list: created };
+      return {
+        articles: qubeeHttpResource<Article>(created.request, { keepPreviousData: false }),
+        list: created,
+      };
     });
 
     await settle();
@@ -159,12 +179,14 @@ describe('qubeeHttpResource', () => {
     expect(articles.value()?.data).toEqual([{ id: 1 }]);
   });
 
-  it('should send the list\'s headers and parse the response\'s', async () => {
-    const articles = TestBed.runInInjectionContext(() => qubeeHttpResource<Article>(
-      () => buildListRequest(rangeList, readListState(rangeList, '?page=2')),
-      // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header names
-      { init: { headers: { 'Prefer': 'count=exact', 'Range': 'overridden' } } }
-    ));
+  it("should send the list's headers and parse the response's", async () => {
+    const articles = TestBed.runInInjectionContext(() =>
+      qubeeHttpResource<Article>(
+        () => buildListRequest(rangeList, readListState(rangeList, '?page=2')),
+
+        { init: { headers: { Prefer: 'count=exact', Range: 'overridden' } } }
+      )
+    );
 
     await settle();
 
@@ -173,22 +195,54 @@ describe('qubeeHttpResource', () => {
     expect(call.request.headers.get('Prefer')).toBe('count=exact');
     expect(call.request.headers.get('Range')).toBe('15-29');
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header names
-    call.flush(Array.from({ length: 15 }, (_, index) => ({ id: index + 16 })), { headers: { 'Content-Range': '15-29/31' } });
+    call.flush(
+      Array.from({ length: 15 }, (_, index) => ({ id: index + 16 })),
+      { headers: { 'Content-Range': '15-29/31' } }
+    );
     await settle();
 
     expect(articles.value()?.total).toBe(31);
     expect(articles.value()?.page).toBe(2);
   });
 
+  it('should place a short last page on the page that was asked for', async () => {
+    // A one-row last page: the Content-Range span (1) is not the page size (15).
+    const articles = TestBed.runInInjectionContext(() =>
+      qubeeHttpResource<Article>(() =>
+        buildListRequest(rangeList, readListState(rangeList, '?page=3'))
+      )
+    );
+
+    await settle();
+
+    const call = http.expectOne('https://api.dev/articles');
+
+    expect(call.request.headers.get('Range')).toBe('30-44');
+
+    call.flush([{ id: 31 }], { headers: { 'Content-Range': '30-30/31' } });
+    await settle();
+
+    expect(articles.value()?.page).toBe(3);
+    expect(articles.value()?.perPage).toBe(15);
+    expect(articles.value()?.lastPage).toBe(3);
+  });
+
   it('should merge into HttpHeaders and pass the other init options through', async () => {
     const token = new HttpContextToken(() => '');
 
-    TestBed.runInInjectionContext(() => qubeeHttpResource<Article>(
-      () => buildListRequest(rangeList, readListState(rangeList, '')),
-      // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header names
-      { init: { context: new HttpContext().set(token, 'tag'), headers: new HttpHeaders({ 'X-App': 'qubee' }), withCredentials: true } }
-    ));
+    TestBed.runInInjectionContext(() =>
+      qubeeHttpResource<Article>(
+        () => buildListRequest(rangeList, readListState(rangeList, '')),
+
+        {
+          init: {
+            context: new HttpContext().set(token, 'tag'),
+            headers: new HttpHeaders({ 'X-App': 'qubee' }),
+            withCredentials: true,
+          },
+        }
+      )
+    );
 
     await settle();
 
@@ -201,12 +255,14 @@ describe('qubeeHttpResource', () => {
     http.expectNone(() => true);
   });
 
-  it('should leave the caller\'s headers alone for a list that sends none', async () => {
-    TestBed.runInInjectionContext(() => qubeeHttpResource<Article>(
-      () => buildListRequest(articleList, readListState(articleList, '')),
-      // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header names
-      { init: { headers: { 'X-App': 'qubee' } } }
-    ));
+  it("should leave the caller's headers alone for a list that sends none", async () => {
+    TestBed.runInInjectionContext(() =>
+      qubeeHttpResource<Article>(
+        () => buildListRequest(articleList, readListState(articleList, '')),
+
+        { init: { headers: { 'X-App': 'qubee' } } }
+      )
+    );
 
     await settle();
 
@@ -214,9 +270,11 @@ describe('qubeeHttpResource', () => {
   });
 
   it('should report a failure, with no page, and recover on reload', async () => {
-    const articles = TestBed.runInInjectionContext(() => qubeeHttpResource<Article>(
-      () => buildListRequest(articleList, readListState(articleList, ''))
-    ));
+    const articles = TestBed.runInInjectionContext(() =>
+      qubeeHttpResource<Article>(() =>
+        buildListRequest(articleList, readListState(articleList, ''))
+      )
+    );
 
     await settle();
     http.expectOne(() => true).flush('nope', { status: 500, statusText: 'Server Error' });
@@ -235,9 +293,11 @@ describe('qubeeHttpResource', () => {
   });
 
   it('should expose the underlying resource', async () => {
-    const articles = TestBed.runInInjectionContext(() => qubeeHttpResource<Article>(
-      () => buildListRequest(articleList, readListState(articleList, ''))
-    ));
+    const articles = TestBed.runInInjectionContext(() =>
+      qubeeHttpResource<Article>(() =>
+        buildListRequest(articleList, readListState(articleList, ''))
+      )
+    );
 
     await settle();
     http.expectOne(() => true).flush(spatiePage([], 1));
@@ -249,7 +309,9 @@ describe('qubeeHttpResource', () => {
   it('should run outside an injection context with an injector, and throw without one', () => {
     const request = (): null => null;
 
-    expect(() => qubeeHttpResource(request, { injector: TestBed.inject(EnvironmentInjector) })).not.toThrow();
+    expect(() =>
+      qubeeHttpResource(request, { injector: TestBed.inject(EnvironmentInjector) })
+    ).not.toThrow();
     expect(() => qubeeHttpResource(request)).toThrowError(/injection context/);
   });
 });

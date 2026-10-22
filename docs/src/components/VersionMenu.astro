@@ -1,0 +1,114 @@
+---
+/**
+ * The version chip beside the wordmark, as a menu.
+ *
+ * starlight-versions routes the archived pages, scopes their sidebar and
+ * search, and snapshots a new version at release time; this replaces only its
+ * <select>, so that switching from a page one version lacks — a 3.8 driver
+ * page, a 4.0 list guide — lands on that version's nearest page instead of a
+ * 404. See counterpart() in src/versions.mjs.
+ */
+import { getCollection } from 'astro:content';
+
+import { ARCHIVED, CURRENT, counterpart, versionOf } from '../versions.mjs';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { id } = Astro.locals.starlightRoute;
+const ids = new Set((await getCollection('docs')).map((entry) => entry.id));
+const here = versionOf(id);
+
+const options = [
+  { href: counterpart(id, undefined, ids), label: CURRENT.label, name: CURRENT.name, selected: !here },
+  ...ARCHIVED.map((version) => ({
+    href: counterpart(id, version, ids),
+    label: version.label,
+    name: version.name,
+    selected: here?.slug === version.slug,
+  })),
+];
+---
+
+<qb-version-menu class="qb-version">
+  <label>
+    <span class="sr-only">Documentation version</span>
+    <select autocomplete="off">
+      {
+        options.map((option) => (
+          <option selected={option.selected} value={`${base}${option.href}`}>
+            {option.label}
+          </option>
+        ))
+      }
+    </select>
+  </label>
+</qb-version-menu>
+
+<script>
+  customElements.define(
+    'qb-version-menu',
+    class extends HTMLElement {
+      constructor() {
+        super();
+        const select = this.querySelector('select');
+
+        select?.addEventListener('change', () => {
+          window.location.pathname = select.value;
+        });
+
+        // A page restored from the back/forward cache keeps the option the
+        // user picked before leaving; put the page's own version back.
+        window.addEventListener('pageshow', (event) => {
+          const own = select?.querySelector<HTMLOptionElement>('option[selected]');
+          if (event.persisted && select && own) select.selectedIndex = own.index;
+        });
+      }
+    }
+  );
+</script>
+
+<style>
+  .qb-version {
+    display: inline-flex;
+    flex: none;
+  }
+
+  label {
+    display: inline-flex;
+    position: relative;
+  }
+
+  /* The design's chip, with a caret: a native <select> keeps it accessible. */
+  select {
+    appearance: none;
+    background: var(--qb-honey-soft);
+    border: 0;
+    border-radius: 5px;
+    color: var(--qb-ink);
+    cursor: pointer;
+    font-family: var(--qb-font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding: 0.2rem 1.25rem 0.2rem 0.45rem;
+  }
+
+  select:hover,
+  select:focus-visible {
+    outline: 1px solid var(--qb-honey-line);
+  }
+
+  label::after {
+    border-block-start: 4px solid var(--qb-ink);
+    border-inline: 3.5px solid transparent;
+    content: '';
+    inset-inline-end: 0.45rem;
+    pointer-events: none;
+    position: absolute;
+    top: calc(50% - 2px);
+  }
+
+  option {
+    background: var(--sl-color-bg-nav);
+    color: var(--sl-color-gray-1);
+  }
+</style>

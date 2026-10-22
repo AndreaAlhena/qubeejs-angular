@@ -1,0 +1,135 @@
+---
+title: Getting started
+description: Install @qubeejs/angular, configure a driver once, and read your first query as a signal.
+---
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+`@qubeejs/angular` is the Angular adapter for [`@qubeejs/core`](https://qubeejs.andreatantimonaco.me), the framework-agnostic query builder and paginator with drivers for twenty backends. The core composes request URIs and parses paginated responses; the adapter makes that state injectable and reactive, with Angular signals in place of RxJS.
+
+> These pages cover only what the adapter adds. Filters and operators, sorting, field selection, drivers and the builder's semantics are the same in every framework binding, and are documented once in the [core docs ↗](https://qubeejs.andreatantimonaco.me/guide/introduction/).
+
+:::tip[Upgrading from ng-qubee 3.x?]
+[Migrating from ng-qubee 3.x](/guide/migrating/) has the line-by-line table. The short version: install `@qubeejs/angular` and `@qubeejs/core`, pass `STRAPI_DRIVER` instead of `DriverEnum.STRAPI`, and read `generateUri()` as a string — or the `uri` signal — instead of subscribing to it.
+:::
+
+## What the adapter adds
+
+- **`provideQubee()` and `QubeeModule.forRoot()`** — configure a driver once, for the whole application.
+- **`QubeeQueryBuilder`** — the core builder as an injectable, whose URI, state and pagination flags are computed signals. See [The query builder](/guide/query-builder/).
+- **`QubeePaginator`** — parses a response into a typed `PaginatedCollection` and syncs the page bounds back into those signals. See [Pagination](/guide/pagination/).
+- **Scoped instances** — `provideQubeeInstance()` per component, `createQubeeInstance()` per service. See [Per-component instances](/guide/per-component-instances/).
+- **Lists in the URL** — `injectQubeeList()` keeps filters, sorts and the page in the address bar, through the Angular Router or without it. See [Lists in the URL](/guide/lists/).
+- **`qubeeHttpResource()`** — fetches a list's page with `httpResource()`. See [Fetching data](/guide/fetching-data/).
+
+Everything else — every driver, enum, error, model and helper of `@qubeejs/core` — is re-exported from `@qubeejs/angular` unchanged, so one import path serves both.
+
+## Requirements
+
+| Dependency | Range |
+| --- | --- |
+| `@angular/core`, `@angular/common` | `>=17.0.0` |
+| `@qubeejs/core` | `^1.6.1` |
+| `@angular/router` | `>=17.0.0`, only for `@qubeejs/angular/router` |
+| Angular 19.2 or later | only for `@qubeejs/angular/http`, which is built on `httpResource()` |
+
+**Why 17 is the floor.** The library is built on `signal()` and `computed()`, which left developer preview in Angular 17; it uses nothing newer than that — `inject()`, `DestroyRef`, `untracked()` and `makeEnvironmentProviders()` are older still. `effect()` and `httpResource()` appear only in examples, never in the main entry point, so Angular 17 applications use the `HttpClient` shape shown in [Fetching data](/guide/fetching-data/#with-httpclient-angular-17-to-191).
+
+**Why there is no ceiling.** The package is published in Angular's partial compilation mode, so the consuming application's compiler links the declarations at its own version — the version the library was built with does not constrain the version it runs on. The 3.x line capped the range at the current major and paid for it on every Angular release with an `ERESOLVE` install failure until a widening release shipped. 4.x leaves the range open and instead verifies the floor (17), the middle (20) and the current release (22) in CI, plus Angular's `next` prerelease as an early warning, by installing the packed artifact into a freshly scaffolded application and building it. RxJS is not a dependency of the library.
+
+## Installation
+
+```bash
+npm install @qubeejs/angular @qubeejs/core
+```
+
+`@qubeejs/core` is a peer dependency. npm 7 and later install it for you, but listing it explicitly keeps your `package.json` honest about the version you depend on.
+
+## Configure a driver
+
+Pick a driver at bootstrap by passing its **definition**. There is no default: every driver speaks a different wire format, and the library wants you to be explicit.
+
+<Tabs syncKey="bootstrap">
+  <TabItem label="Standalone">
+    ```typescript title="main.ts"
+    import { bootstrapApplication } from '@angular/platform-browser';
+    import { SPATIE_DRIVER, provideQubee } from '@qubeejs/angular';
+
+    import { AppComponent } from './app/app.component';
+
+    bootstrapApplication(AppComponent, {
+      providers: [
+        provideQubee({ baseUrl: 'https://api.example.com', driver: SPATIE_DRIVER })
+      ]
+    });
+    ```
+  </TabItem>
+  <TabItem label="NgModule">
+    ```typescript title="app.module.ts"
+    import { NgModule } from '@angular/core';
+    import { QubeeModule, SPATIE_DRIVER } from '@qubeejs/angular';
+
+    @NgModule({
+      imports: [
+        QubeeModule.forRoot({ baseUrl: 'https://api.example.com', driver: SPATIE_DRIVER })
+      ]
+    })
+    export class AppModule {}
+    ```
+  </TabItem>
+</Tabs>
+
+Both take the core's `QubeeConfig`:
+
+| Option | What it does |
+| --- | --- |
+| `driver` | The driver definition — `SPATIE_DRIVER`, `STRAPI_DRIVER`, … Required. |
+| `baseUrl` | Prepended to every generated URI. Each `QubeeQueryBuilder` starts from it; `setBaseUrl()` overrides it for one instance and `reset()` clears it. |
+| `pagination` | The wire-level pagination mode. Only PostgREST honours it (`PaginationModeEnum.RANGE` pages with `Range` headers). |
+| `request` | Renames the query parameters the driver emits. |
+| `response` | Tells the driver where to find pagination metadata in a response. |
+
+Passing a definition rather than an id is what lets the other nineteen drivers tree-shake out of your bundle. When the backend is only known at runtime, look the definition up in the registry — the cost of bundling every driver is then visible at your own import site:
+
+```typescript
+import { DRIVERS, provideQubee } from '@qubeejs/angular';
+
+// environment.driver: 'strapi' | 'laravel' | … (or a DriverEnum member)
+provideQubee({ driver: DRIVERS[environment.driver] });
+```
+
+> Which driver fits your backend, what it emits and which features it supports: [Drivers in the core docs ↗](https://qubeejs.andreatantimonaco.me/drivers/).
+
+## Build your first request
+
+Inject the query builder, set a resource, add filters, sorts and a page size, and read the URI — synchronously with `generateUri()`, or as a signal with `uri()`:
+
+```typescript title="users.component.ts"
+import { Component, inject } from '@angular/core';
+import { QubeeQueryBuilder, SortEnum } from '@qubeejs/angular';
+
+@Component({ /* … */ })
+export class UsersComponent {
+  private readonly _qb = inject(QubeeQueryBuilder);
+
+  constructor() {
+    this._qb.setResource('users')
+            .addFilter('status', 'active')
+            .addSort('created_at', SortEnum.DESC)
+            .setLimit(25);
+
+    // Spatie driver: /users?filter[status]=active&limit=25&page=1&sort=-created_at
+    console.log(this._qb.generateUri());
+  }
+}
+```
+
+`this._qb.uri()` returns the same string and, being a signal, re-evaluates whenever the query changes — which is what lets `httpResource(() => this._qb.uri())` re-fetch on every filter or page change. With `baseUrl` configured, both start with it.
+
+## Next steps
+
+- [The query builder](/guide/query-builder/) — mutators, the signals that read the state, and how the URI follows them
+- [Pagination](/guide/pagination/) — navigation, page signals, and parsing a response with `QubeePaginator`
+- [Fetching data](/guide/fetching-data/) — `qubeeHttpResource()` for lists, `httpResource()` for the query builder
+- [Lists in the URL](/guide/lists/) — filters, sorts and the page in the address bar, as typed signals
+- [Per-component instances](/guide/per-component-instances/) — isolated query state per component or service

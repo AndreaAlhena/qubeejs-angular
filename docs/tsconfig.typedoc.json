@@ -1,0 +1,12 @@
+{
+  "//": "TypeDoc only: the library's compiler options, with the secondary entry points' self-import resolved to source. Used by scripts/generate-api.mjs.",
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "paths": {
+      "@qubeejs/angular": ["../src/public-api.ts"]
+    }
+  },
+  "include": ["../src/**/*.ts", "../router/src/**/*.ts", "../http/src/**/*.ts"],
+  "exclude": ["../src/test.ts", "../**/*.spec.ts"]
+}

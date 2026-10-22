@@ -1,7 +1,8 @@
-import { DOCUMENT } from '@angular/common';
-import { DestroyRef, Provider, inject, signal } from '@angular/core';
-
+import type { Provider } from '@angular/core';
 import type { ListLocation } from '@qubeejs/core';
+
+import { DOCUMENT } from '@angular/common';
+import { DestroyRef, inject, signal } from '@angular/core';
 
 import type { QubeeListAdapter, QubeeListNavigateOptions } from '../types/qubee-list-adapter.type';
 
@@ -40,7 +41,7 @@ function createBrowserAdapter(): QubeeListAdapter {
   const view = inject(DOCUMENT).defaultView;
   const read = (): ListLocation => ({
     pathname: view?.location.pathname ?? '',
-    search: view?.location.search ?? ''
+    search: view?.location.search ?? '',
   });
   const location = signal(read(), { equal: isSameLocation });
 
@@ -65,6 +66,6 @@ function createBrowserAdapter(): QubeeListAdapter {
       }
 
       location.set(read());
-    }
+    },
   };
 }

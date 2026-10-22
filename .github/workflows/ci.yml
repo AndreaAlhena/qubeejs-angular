@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [master, develop]
   pull_request:
-    branches: [ master, develop ]
+    branches: [master, develop]
 
 jobs:
   lint:
@@ -24,8 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Run ESLint
         run: npm run lint
+
+      - name: Check repository conventions
+        run: npm run test:conventions
 
   test:
     name: Test
@@ -144,7 +150,16 @@ jobs:
             --package-manager=npm
 
       - name: Install the packed library
-        run: npm install "$GITHUB_WORKSPACE"/qubeejs-angular-*.tgz
+        # The core is installed explicitly, as the README says to, at the range
+        # the built package.json declares (this job has no checkout, only the
+        # build artifact). npm never matches a prerelease (22.3.0-next.2)
+        # against `>=17.0.0`, so the `next` leg skips the peer check to test the
+        # code, not the range; that also stops npm auto-installing peers, which
+        # is why the core cannot be left to it. Stable legs keep the check:
+        # there it is what catches a range regression.
+        run: |
+          core="@qubeejs/core@$(node -p "require('$GITHUB_WORKSPACE/qubeejs-angular-dist/package.json').peerDependencies['@qubeejs/core']")"
+          npm install "$GITHUB_WORKSPACE"/qubeejs-angular-*.tgz "$core" ${{ matrix.experimental && '--legacy-peer-deps' || '' }}
         working-directory: consumer
 
       - name: Consume the library for real
