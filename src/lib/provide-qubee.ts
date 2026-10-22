@@ -48,7 +48,7 @@ export function buildQubeeProviders(config: QubeeConfig): Provider[] {
  *
  * Pass the driver **definition** exported by the core — `STRAPI_DRIVER`,
  * `LARAVEL_DRIVER`, … — rather than an id. Importing one definition lets the
- * other seventeen drivers tree-shake out of your bundle:
+ * other nineteen drivers tree-shake out of your bundle:
  * ```
  * import { STRAPI_DRIVER, provideQubee } from '@qubeejs/angular';
  *
