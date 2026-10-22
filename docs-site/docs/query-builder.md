@@ -55,6 +55,8 @@ qb.deleteFilters('status');                  // remove
 
 Spatie / JSON:API: `filter[status]=active`. NestJS: `filter.status=active`. PostgREST: `status=eq.active` (single) or `status=in.(1,2,3)` (multi). Strapi: `filters[status][$eq]=active`. DRF: `status=active` (single) or `status__in=1,2,3` (multi). @nestjsx/crud: `filter=status||$eq||active` (single) or `filter=status||$in||1,2,3` (multi). Sieve: `filters=status==active` (single) or `filters=status==1|2|3` (multi). OData: `$filter=status eq 'active'` (single) or `$filter=status in (1,2,3)` (multi). Directus: `filter[status][_eq]=active` (single) or `filter[status][_in]=1,2,3` (multi). json-server: `status=active` (single) or `status:in=1,2,3` (multi). API Platform: `status=active` (single) or `status[]=a&status[]=b` (multi); relation dot paths (`author.name=John`) pass through. Feathers: `status=active` (single) or `status[$in][0]=active&status[$in][1]=pending` (multi). PocketBase: `filter=(status='active')` (single) or `filter=((status='active' || status='pending'))` (multi). Payload: `where[status][equals]=active` (single) or `where[status][in]=active,pending` (multi). WordPress: `status=publish` (single) or `categories=2,3` (multi, CSV).
 
+Filter values are percent-encoded, so a `&` or `#` typed by a user stays inside its value — pass raw input, and don't call `encodeURIComponent()` yourself.
+
 Triggers auto-reset.
 
 ### `addFilterOperator(field, operator, ...values)` / `deleteOperatorFilters(...fields)`
