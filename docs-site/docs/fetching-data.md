@@ -106,10 +106,6 @@ export class UserClient {
 }
 ```
 
-:::note Declare row types with `type`, not `interface`
-`paginate<T>()` and `PaginatedCollection<T>` constrain `T` to the core's `PaginatedObject` (`Record<string, unknown>`). A `type` alias of an object literal satisfies it through TypeScript's implicit index signature; an `interface` does not, and fails with *"Index signature for type 'string' is missing in type 'User'"*. If you must keep an interface, add `[key: string]: unknown` to it.
-:::
-
 ### What's happening
 
 1. **`uri`** is a computed signal over the query state. It is `undefined` until `setResource()` runs, and `httpResource()` treats `undefined` as "idle" — so nothing is fetched before `list()` is called.
