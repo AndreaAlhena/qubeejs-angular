@@ -13,6 +13,7 @@
 
 - **Signals all the way down** — the URI, the query state and every pagination flag are Angular Signals. No RxJS.
 - **Pagination ready** — typed `PaginatedCollection<T>`, fluent navigation (`nextPage`, `lastPage`, `goToPage`), auto-sync from response to state
+- **Lists in the URL** — `injectQubeeList()` keeps filters, sorts and the page in the address bar as typed signals, through the Angular Router
 - **Tree-shakeable drivers** — import the one definition you use and the other seventeen stay out of your bundle
 - **Multi-driver support**: API Platform (Symfony), Directus, Django REST Framework, FeathersJS, JSON:API, json-server, Laravel (pagination-only), Spatie Query Builder, NestJS (`nestjs-paginate`), @nestjsx/crud, OData, Payload CMS, PocketBase, PostgREST / Supabase, Sieve (.NET), Spring Data REST, Strapi, and WordPress REST
 
@@ -28,6 +29,7 @@ This README is intentionally minimal. For everything beyond install + a ten-line
 
 - **Angular** `>=17.0.0` (built on Signals; every major from 17 is verified in CI, see [Requirements](https://qubeejs-angular.andreatantimonaco.me/docs/getting-started#requirements))
 - **@qubeejs/core** `^1.6.0` (peer dependency)
+- **@angular/router** `>=17.0.0`, only if you import `@qubeejs/angular/router`
 
 ## Install
 
@@ -93,6 +95,39 @@ export class ArticlesComponent {
   }
 }
 ```
+
+## Lists in the URL
+
+Declare a list once with the core's `defineList()`, and `injectQubeeList()` keeps its state in the address bar — it survives a reload, can be shared, and works with Back:
+
+```typescript
+import { STRAPI_DRIVER, defineList, injectQubeeList, integerParam, stringParam } from '@qubeejs/angular';
+import { provideQubeeRouterAdapter } from '@qubeejs/angular/router';
+
+export const articleList = defineList({
+  apply: (builder, { q }) => {
+    if (q) {
+      builder.addFilter('title', q);
+    }
+  },
+  params: { page: integerParam('page', { default: 1, min: 1 }), q: stringParam('q') },
+  qubee: { driver: STRAPI_DRIVER },
+  resource: 'articles'
+});
+
+bootstrapApplication(AppComponent, {
+  providers: [provideRouter(routes), provideQubeeRouterAdapter()]
+});
+
+@Component({ /* … */ })
+export class ArticlesComponent {
+  protected readonly list = injectQubeeList(articleList);
+
+  // list.state().q, list.set({ q }, { debounce: 300 }), list.setPage(2), list.request().uri …
+}
+```
+
+[Lists in the URL](https://qubeejs-angular.andreatantimonaco.me/docs/lists) covers fetching, debounce, lists that need a route param, and lists kept in memory.
 
 The full query-builder API, pagination signals, per-driver feature matrices, and TypeScript types are documented at [qubeejs-angular.andreatantimonaco.me](https://qubeejs-angular.andreatantimonaco.me).
 
