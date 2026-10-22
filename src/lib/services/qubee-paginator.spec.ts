@@ -2,7 +2,14 @@ import type { QubeeConfig } from '@qubeejs/core';
 
 import { HttpHeaders } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { NESTJS_DRIVER, PaginatedCollection, SPATIE_DRIVER, WORDPRESS_DRIVER } from '@qubeejs/core';
+import {
+  NESTJS_DRIVER,
+  PaginatedCollection,
+  PaginationModeEnum,
+  POSTGREST_DRIVER,
+  SPATIE_DRIVER,
+  WORDPRESS_DRIVER,
+} from '@qubeejs/core';
 
 import { provideQubee } from '../provide-qubee';
 import { QubeePaginator } from './qubee-paginator';
@@ -181,5 +188,29 @@ describe('QubeePaginator (WordPress, header-driven)', () => {
 
     expect(collection.total).toBeUndefined();
     expect(TestBed.inject(QubeeQueryBuilder).totalPages()).toBeUndefined();
+  });
+});
+
+describe('QubeePaginator (PostgREST, RANGE)', () => {
+  let service: QubeePaginator;
+
+  beforeEach(() => {
+    service = setup({ driver: POSTGREST_DRIVER, pagination: PaginationModeEnum.RANGE });
+  });
+
+  it('should keep a short last page on the page that was asked for, and sync it', () => {
+    const builder = TestBed.inject(QubeeQueryBuilder);
+    builder.setResource('users').setLimit(10).setPage(4);
+
+    // Four rows on the last page: the Content-Range span (4) is not the page size (10).
+    const rows = [31, 32, 33, 34].map((id) => ({ id, name: `user ${id}` }));
+    const collection = service.paginate<User>(rows, { 'Content-Range': '30-33/34' });
+
+    expect(collection.page).toBe(4);
+    expect(collection.perPage).toBe(10);
+    expect(collection.lastPage).toBe(4);
+    expect(builder.currentPage()).toBe(4);
+    expect(builder.totalPages()).toBe(4);
+    expect(builder.paginationHeaders()).toEqual({ Range: '30-39', 'Range-Unit': 'items' });
   });
 });
