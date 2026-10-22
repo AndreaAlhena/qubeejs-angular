@@ -20,13 +20,13 @@
 
 ## 📚 Documentation
 
-**Full documentation lives at [ng-qubee.andreatantimonaco.me](https://ng-qubee.andreatantimonaco.me)** — driver guides, query-builder API, pagination signals, auto-generated API reference, and version history. The framework-agnostic core is documented at [qubeejs.andreatantimonaco.me](https://qubeejs.andreatantimonaco.me).
+**Full documentation lives at [qubeejs-angular.andreatantimonaco.me](https://qubeejs-angular.andreatantimonaco.me)** — driver guides, query-builder API, pagination signals, auto-generated API reference, and version history. The framework-agnostic core is documented at [qubeejs.andreatantimonaco.me](https://qubeejs.andreatantimonaco.me).
 
 This README is intentionally minimal. For everything beyond install + a ten-line example, head to the docs site.
 
 ## Requirements
 
-- **Angular** `>=17.0.0` (built on Signals; every major from 17 is verified in CI, see [Requirements](https://ng-qubee.andreatantimonaco.me/docs/getting-started#requirements))
+- **Angular** `>=17.0.0` (built on Signals; every major from 17 is verified in CI, see [Requirements](https://qubeejs-angular.andreatantimonaco.me/docs/getting-started#requirements))
 - **@qubeejs/core** `^1.0.0` (peer dependency)
 
 ## Install
@@ -60,7 +60,7 @@ A driver **must** be specified in the configuration, as its exported definition:
 | **Strapi** | `STRAPI_DRIVER` | [Strapi](https://strapi.io/) v4 / v5 headless CMS | `filters[field][$eq]=value`, `sort[0]=field:asc`, `pagination[page]=N&pagination[pageSize]=N` |
 | **WordPress** | `WORDPRESS_DRIVER` | [WordPress REST API](https://developer.wordpress.org/rest-api/) | `field=value`, `orderby=field&order=desc`, `_fields=col`, `_embed=rel`, `search=term`, `page=N&per_page=M` |
 
-Per-driver guides — wire format, supported operators, response parsing, customisation — live on the [docs site](https://ng-qubee.andreatantimonaco.me/docs/getting-started). For a backend chosen at runtime, `provideQubee({ driver: DRIVERS[id] })` looks the definition up by its `DriverEnum` member or string id.
+Per-driver guides — wire format, supported operators, response parsing, customisation — live on the [docs site](https://qubeejs-angular.andreatantimonaco.me/docs/getting-started). For a backend chosen at runtime, `provideQubee({ driver: DRIVERS[id] })` looks the definition up by its `DriverEnum` member or string id.
 
 ## Quick start
 
@@ -94,7 +94,7 @@ export class ArticlesComponent {
 }
 ```
 
-The full query-builder API, pagination signals, per-driver feature matrices, and TypeScript types are documented at [ng-qubee.andreatantimonaco.me](https://ng-qubee.andreatantimonaco.me).
+The full query-builder API, pagination signals, per-driver feature matrices, and TypeScript types are documented at [qubeejs-angular.andreatantimonaco.me](https://qubeejs-angular.andreatantimonaco.me).
 
 ## License
 

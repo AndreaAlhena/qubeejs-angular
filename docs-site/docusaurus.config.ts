@@ -12,7 +12,7 @@ const config: Config = {
   },
 
   // Production URL — custom subdomain on andreatantimonaco.me
-  url: 'https://ng-qubee.andreatantimonaco.me',
+  url: 'https://qubeejs-angular.andreatantimonaco.me',
   baseUrl: '/',
 
   // GitHub Pages deployment config
