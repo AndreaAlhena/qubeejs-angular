@@ -30,6 +30,7 @@ This README is intentionally minimal. For everything beyond install + a ten-line
 - **Angular** `>=17.0.0` (built on Signals; every major from 17 is verified in CI, see [Requirements](https://qubeejs-angular.andreatantimonaco.me/docs/getting-started#requirements))
 - **@qubeejs/core** `^1.6.0` (peer dependency)
 - **@angular/router** `>=17.0.0`, only if you import `@qubeejs/angular/router`
+- **Angular 19.2+**, only if you import `@qubeejs/angular/http` (it is built on `httpResource()`)
 
 ## Install
 
@@ -102,7 +103,10 @@ Declare a list once with the core's `defineList()`, and `injectQubeeList()` keep
 
 ```typescript
 import { STRAPI_DRIVER, defineList, injectQubeeList, integerParam, stringParam } from '@qubeejs/angular';
+import { qubeeHttpResource } from '@qubeejs/angular/http';
 import { provideQubeeRouterAdapter } from '@qubeejs/angular/router';
+
+type Article = { id: number; title: string };
 
 export const articleList = defineList({
   apply: (builder, { q }) => {
@@ -116,14 +120,17 @@ export const articleList = defineList({
 });
 
 bootstrapApplication(AppComponent, {
-  providers: [provideRouter(routes), provideQubeeRouterAdapter()]
+  providers: [provideHttpClient(), provideRouter(routes), provideQubeeRouterAdapter()]
 });
 
 @Component({ /* … */ })
 export class ArticlesComponent {
   protected readonly list = injectQubeeList(articleList);
 
-  // list.state().q, list.set({ q }, { debounce: 300 }), list.setPage(2), list.request().uri …
+  // Fetches once per navigation and parses the page; the previous page stays up while the next loads
+  protected readonly articles = qubeeHttpResource<Article>(this.list.request);
+
+  // list.state().q, list.set({ q }, { debounce: 300 }), list.setPage(2), articles.value()?.data …
 }
 ```
 
