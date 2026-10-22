@@ -46,7 +46,6 @@
     "postgrest",
     "query",
     "query-builder",
-    "rxjs",
     "sieve",
     "signals",
     "spatie",
@@ -68,8 +67,7 @@
   },
   "peerDependencies": {
     "@angular/core": ">=17.0.0",
-    "@qubeejs/core": "^1.0.0",
-    "rxjs": "^7.2.0"
+    "@qubeejs/core": "^1.0.0"
   },
   "scripts": {
     "ng": "ng",
