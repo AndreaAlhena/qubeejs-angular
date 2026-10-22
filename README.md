@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="500" height="500" src="https://i.ibb.co/LdXRKyG/logo.png">
+  <img width="360" src="https://qubeejs-angular.andreatantimonaco.me/mark.png" alt="@qubeejs/angular">
 </p>
 
 # Your next Angular Query Builder 🐝
