@@ -10,10 +10,10 @@ Targets [Payload](https://payloadcms.com/) — the TypeScript-native headless CM
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { PAYLOAD_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.PAYLOAD })]
+  providers: [provideQubee({ driver: PAYLOAD_DRIVER })]
 });
 ```
 
@@ -37,7 +37,7 @@ Relationship population is controlled by Payload's numeric `depth` param rather 
 `FilterOperatorEnum` translates to Payload's `where` operators:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('views', FilterOperatorEnum.GT, 100);            // where[views][greater_than]=100
 qb.addFilterOperator('title', FilterOperatorEnum.CONTAINS, 'hello');  // where[title][contains]=hello
@@ -110,8 +110,8 @@ Since the envelope comes from `mongoose-paginate-v2`, this driver also fits any 
 All key paths are configurable (dot notation supported):
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.PAYLOAD,
+provideQubee({
+  driver: PAYLOAD_DRIVER,
   response: {
     data: 'results',
     total: 'count'

@@ -10,10 +10,10 @@ Targets [FeathersJS](https://feathersjs.com/) — the realtime/REST application 
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { FEATHERS_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.FEATHERS })]
+  providers: [provideQubee({ driver: FEATHERS_DRIVER })]
 });
 ```
 
@@ -37,7 +37,7 @@ Pagination is offset-based on the wire, but your state stays page-based: `setPag
 `FilterOperatorEnum` translates to Feathers' `$operator` syntax:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('age', FilterOperatorEnum.GTE, 18);            // age[$gte]=18
 qb.addFilterOperator('age', FilterOperatorEnum.EQ, 18);             // age=18
@@ -105,8 +105,8 @@ The `firstPageUrl`/`prevPageUrl`/`nextPageUrl`/`lastPageUrl` slots on `Paginated
 The `data` / `total` / `limit` key paths are configurable (the `skip` key is fixed by the envelope):
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.FEATHERS,
+provideQubee({
+  driver: FEATHERS_DRIVER,
   response: {
     data: 'results',
     perPage: 'pageSize',

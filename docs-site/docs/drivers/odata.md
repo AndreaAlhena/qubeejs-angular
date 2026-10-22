@@ -10,10 +10,10 @@ Targets [OData v4](https://www.odata.org/) — the OASIS-standard query protocol
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { ODATA_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.ODATA })]
+  providers: [provideQubee({ driver: ODATA_DRIVER })]
 });
 ```
 
@@ -44,7 +44,7 @@ String literals are single-quoted with embedded quotes doubled (`name eq 'O''Bri
 `FilterOperatorEnum` translates to OData's expression language:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('likeCount', FilterOperatorEnum.GTE, 4);        // likeCount ge 4
 qb.addFilterOperator('title', FilterOperatorEnum.CONTAINS, 'world'); // contains(title,'world')
@@ -137,8 +137,8 @@ The envelope keys contain **literal dots** (`@odata.count`), so they are read wi
 Key paths are configurable for servers that rename the envelope:
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.ODATA,
+provideQubee({
+  driver: ODATA_DRIVER,
   response: {
     data: 'items',
     nextPageUrl: 'nextLink',

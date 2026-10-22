@@ -5,129 +5,135 @@ title: Fetching data
 
 # Fetching data
 
-`ng-qubee` builds the URI and parses the response, but it deliberately stays out of the HTTP layer — you bring your own `HttpClient`. This page shows how to wire the three pieces together in a typical service class.
+`@qubeejs/angular` builds the URI and parses the response, but it deliberately stays out of the HTTP layer — you bring your own client. This page shows how to wire the pieces together with signals.
 
-The recommended shape is a **reactive client paired with `provideNgQubeeInstance()`** — each feature component gets its own `NgQubeeService`, the client subscribes to that instance's `uri$` once, and any state mutation (filter, sort, page) is auto-published as a fresh fetch. The example assumes the **Spatie driver**, but the flow is identical for API Platform, Directus, Feathers, JSON:API, json-server, NestJS, @nestjsx/crud, Laravel, OData, Payload, PocketBase, Sieve, Strapi, Spring, and DRF. The PostgREST and WordPress variants differ only in passing headers to `paginate()` — see the [end of the page](#variant-postgrest--supabase).
+The recommended shape pairs **`httpResource()` with `provideQubeeInstance()`**: each feature component gets its own `QubeeQueryBuilder`, the resource derives its request from that instance's `uri` signal, and any state mutation (filter, sort, page) re-fetches on its own. The example assumes the **Spatie driver**; the flow is identical for every other driver, and the PostgREST and WordPress variants differ only in handing response headers to `paginate()` — see the [end of the page](#variant-postgrest--supabase).
+
+`httpResource()` ships with Angular 19.2+. On Angular 17 to 19.1, use the [`HttpClient` variant](#alternative-httpclient-angular-17-to-191) below.
+
+:::note
+Both shapes need `provideHttpClient()` in your bootstrap providers, next to `provideQubee()`.
+:::
 
 ## A complete `UserClient` service
 
 ```typescript title="user-client.service.ts"
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, switchMap, map } from 'rxjs';
+import { Injectable, Signal, effect, inject, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
 
 import {
-  NgQubeeService,
-  PaginationService,
+  QubeeQueryBuilder,
   PaginatedCollection,
+  QubeePaginator,
+  RawResponse,
   SortEnum
-} from 'ng-qubee';
+} from '@qubeejs/angular';
 
 /** Domain model — what the API returns for each user record */
-export interface User {
+export type User = {
   id: number;
   email: string;
   name: string;
   status: 'active' | 'pending' | 'inactive';
-}
+};
 
 @Injectable()
 export class UserClient {
 
-  private readonly _qb = inject(NgQubeeService);
-  private readonly _pagination = inject(PaginationService);
-  private readonly _http = inject(HttpClient);
+  private readonly _qb = inject(QubeeQueryBuilder);
+  private readonly _pagination = inject(QubeePaginator);
 
   /**
-   * Live stream of the current page's PaginatedCollection<User>
-   *
-   * Subscribed once at component-init via the async pipe. Every state
-   * mutation followed by `generateUri()` pushes a new URI onto the
-   * scoped `uri$` subject; switchMap cancels any in-flight HTTP and
-   * fires a fresh request, paginate auto-syncs page/lastPage back into
-   * NestService, the async pipe re-renders. No manual subscription
-   * management.
+   * The HTTP resource. Its request is derived from the `uri` signal, so it
+   * stays idle until a resource is set and re-fetches after every mutation —
+   * no manual trigger, no subscription management.
    */
-  public readonly users$: Observable<PaginatedCollection<User>> = this._qb.uri$.pipe(
-    switchMap(uri => this._http.get<unknown>(uri)),
-    map(body => this._pagination.paginate<User>(body as Record<string, unknown>))
-  );
+  private readonly _response = httpResource<RawResponse>(() => this._qb.uri());
+
+  private readonly _page = signal<PaginatedCollection<User> | undefined>(undefined);
 
   /**
-   * Compose the base list query and trigger the first fetch
+   * The current page, parsed and typed. `undefined` until the first
+   * response lands.
+   */
+  public readonly page: Signal<PaginatedCollection<User> | undefined> = this._page.asReadonly();
+
+  /** Loading flag, straight from the resource */
+  public readonly isLoading: Signal<boolean> = this._response.isLoading;
+
+  constructor() {
+    // Parsing is a side effect — it syncs page and lastPage back into the
+    // store — so it lives in an effect, not a computed.
+    effect(() => {
+      if (this._response.hasValue()) {
+        this._page.set(this._pagination.paginate<User>(this._response.value()));
+      }
+    });
+  }
+
+  /**
+   * Compose the base list query. Setting the resource is what wakes the
+   * resource up.
    */
   public list(): void {
     this._qb.setResource('users')
             .addSort('created_at', SortEnum.DESC);
-
-    this._qb.generateUri();
   }
 
   /**
-   * Apply a free-text search and refetch
+   * Apply a free-text search. Filters reset the page to 1.
    */
   public search(term: string): void {
     this._qb.setResource('users')
             .addFilter('status', 'active')
             .addFilter('name', term);
-
-    this._qb.generateUri();
   }
 
   /**
-   * Advance to the next page and refetch
-   *
-   * Bounds are auto-known after the first list() call because
-   * PaginationService.paginate() syncs lastPage back into NestService.
+   * Advance to the next page. Bounds are known after the first response,
+   * because `paginate()` synced `lastPage` back into the store.
    */
   public next(): void {
     this._qb.nextPage();
-
-    this._qb.generateUri();
   }
 
   /**
-   * Step back to the previous page and refetch
+   * Step back to the previous page
    */
   public previous(): void {
     this._qb.previousPage();
-
-    this._qb.generateUri();
   }
 }
 ```
 
 ### What's happening
 
-1. **`users$`** is the long-lived stream the component subscribes to via the async pipe. Built once when the client is constructed.
-2. **`setResource(...)`, `addFilter(...)`, etc.** are synchronous state mutations on `NestService`. They return `this` and don't fire anything by themselves.
-3. **`generateUri()`** synchronously computes a URI from current state and pushes it onto the scoped `uri$` subject. It returns the subject too, but the reactive pattern ignores the return value — the side-effect is the trigger.
-4. **`switchMap(uri => http.get(uri))`** cancels any in-flight HTTP when a newer URI arrives. Old requests can never overwrite a newer page's data.
-5. **`paginationService.paginate<User>(body)`** parses the response into a typed `PaginatedCollection<User>` and auto-syncs `page` + `lastPage` back into the same scoped `NestService` — so navigation helpers like `nextPage()` immediately know their bounds.
+1. **`uri`** is a computed signal over the query state. It is `undefined` until `setResource()` runs, and `httpResource()` treats `undefined` as "idle" — so nothing is fetched before `list()` is called.
+2. **`setResource(...)`, `addFilter(...)`, `nextPage()`** are synchronous writes to the shared `QubeeSignalStore`. Each one changes `uri()`, and the resource re-fetches. An in-flight request for a stale URI is cancelled.
+3. **`paginate<User>(body)`** parses the body into a typed `PaginatedCollection<User>` and syncs `page` + `lastPage` back into the store, so `qb.totalPages()`, `qb.isLastPage()` and friends reflect the server-reported bounds. That write is why parsing lives in an `effect` and not in a `computed`.
+4. That sync does **not** re-fetch: the URI string is unchanged, and the store's signal only notifies when the state actually differs.
 
 ## Wiring it into a component
 
-The component scopes both `UserClient` and the `provideNgQubeeInstance()` providers so each instance of the component owns its own query state and its own fetch pipeline. The template subscribes once via the async pipe; `next()` / `previous()` calls just push state and let the pipeline propagate.
+The component scopes both `UserClient` and the `provideQubeeInstance()` providers, so each instance of the component owns its own query state and its own resource. The template reads signals; `next()` / `previous()` just write state and let the resource follow.
 
 ```typescript title="user-list.component.ts"
 import { Component, OnInit, inject } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
 
-import { NgQubeeService, provideNgQubeeInstance } from 'ng-qubee';
+import { QubeeQueryBuilder, provideQubeeInstance } from '@qubeejs/angular';
 
 import { UserClient } from './user-client.service';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [AsyncPipe],
-  // Scope the entire ng-qubee stack + the client to this component instance
+  // Scope the entire stack + the client to this component instance
   providers: [
-    ...provideNgQubeeInstance(),
+    ...provideQubeeInstance(),
     UserClient
   ],
   template: `
-    @if (client.users$ | async; as page) {
+    @if (client.page(); as page) {
       <ul>
         @for (u of page.data; track u.id) {
           <li>{{ u.name }} — {{ u.email }}</li>
@@ -135,15 +141,17 @@ import { UserClient } from './user-client.service';
       </ul>
 
       <button [disabled]="qb.isFirstPage()" (click)="client.previous()">Prev</button>
-      <span>Page {{ qb.currentPage() }} of {{ qb.totalPages() }}</span>
+      <span>Page {{ qb.currentPage() }} of {{ qb.totalPages() ?? '…' }}</span>
       <button [disabled]="qb.isLastPage()" (click)="client.next()">Next</button>
+    } @else if (client.isLoading()) {
+      <p>Loading…</p>
     }
   `
 })
 export class UserListComponent implements OnInit {
 
   protected readonly client = inject(UserClient);
-  protected readonly qb = inject(NgQubeeService);
+  protected readonly qb = inject(QubeeQueryBuilder);
 
   public ngOnInit(): void {
     this.client.list();
@@ -151,105 +159,104 @@ export class UserListComponent implements OnInit {
 }
 ```
 
-The template uses `qb.isFirstPage()` / `qb.isLastPage()` for the disable bindings — those predicates are template-safe and return conservative defaults before the first response syncs, so the buttons render correctly on the very first frame. See [Pagination → Predicates](./pagination.md#predicates-template-safe).
-
-`client.next()` is bound directly in the click handler — no event handler method on the component is needed. The async pipe handles the subscription lifecycle; nothing leaks when the component is destroyed.
+`qb.isFirstPage()`, `qb.isLastPage()`, `qb.currentPage()` and `qb.totalPages()` are signals: the template re-renders exactly when they change, with or without zone.js. The predicates return conservative defaults before the first response syncs, so the buttons render correctly on the very first frame. See [Pagination → Predicates](./pagination.md#predicates-template-safe).
 
 ## Why scope per component
 
-The reactive pipeline only works cleanly when **the client owns its own `NgQubeeService`**. If `UserClient` were `providedIn: 'root'` and shared a single `NgQubeeService` with the rest of the app, every other consumer's `generateUri()` call would push a URI onto the same `uri$` subject — and the user list pipeline would re-fire HTTP for **product** URIs, **invoice** URIs, anything. `provideNgQubeeInstance()` gives each component a private `NgQubeeService` + `NestService` + `PaginationService` and removes the cross-talk entirely.
+The reactive pipeline only works cleanly when **the client owns its own `QubeeQueryBuilder`**. If `UserClient` were `providedIn: 'root'` and shared a single `QubeeQueryBuilder` with the rest of the app, every other consumer's `setResource()` would change the same `uri` signal — and the user list resource would fetch **product** URIs, **invoice** URIs, anything. `provideQubeeInstance()` gives each component a private `QubeeQueryBuilder` + `QubeeSignalStore` + `QubeePaginator` and removes the cross-talk entirely. A root-scoped client that cannot be component-scoped gets the same isolation from [`createQubeeInstance()`](./per-component-instances.md#isolated-state-in-a-root-scoped-service).
 
 ## Variant: PostgREST / Supabase
 
-PostgREST returns a bare array body and reports the total count in the `Content-Range` HTTP header. Two things change in `users$`:
+PostgREST returns a bare array body and reports the total count in the `Content-Range` response header. Ask for it with `Prefer: count=exact`, and hand the response headers to `paginate()` — `httpResource()` exposes them as a signal:
 
 ```typescript
-public readonly users$: Observable<PaginatedCollection<User>> = this._qb.uri$.pipe(
-  switchMap(uri => this._http.get<User[]>(uri, {
-    observe: 'response',                          // ← keep the full response
-    headers: { 'Prefer': 'count=exact' }          // ← ask PostgREST for the total
-  })),
-  map(response => this._pagination.paginate<User>(
-    response.body as unknown as Record<string, unknown>,
-    response.headers                              // ← pass headers to paginate()
-  ))
-);
+private readonly _response = httpResource<User[]>(() => {
+  const url = this._qb.uri();
+
+  if (url === undefined) {
+    return undefined;                              // idle until a resource is set
+  }
+
+  return {
+    url,
+    headers: {
+      'Prefer': 'count=exact',                     // ← ask PostgREST for the total
+      ...(this._qb.paginationHeaders() ?? {})      // ← Range headers in RANGE mode, null otherwise
+    }
+  };
+});
+
+constructor() {
+  effect(() => {
+    if (this._response.hasValue()) {
+      this._page.set(this._pagination.paginate<User>(
+        this._response.value(),
+        this._response.headers()                   // ← pass the response headers
+      ));
+    }
+  });
+}
 ```
 
-When `IConfig.pagination` is set to `PaginationModeEnum.RANGE`, also merge in `paginationHeaders()`:
-
-```typescript
-public readonly users$: Observable<PaginatedCollection<User>> = this._qb.uri$.pipe(
-  switchMap(uri => {
-    const extra = this._qb.paginationHeaders() ?? {};   // null on every other driver
-    return this._http.get<User[]>(uri, {
-      observe: 'response',
-      headers: { 'Prefer': 'count=exact', ...extra }
-    });
-  }),
-  map(response => this._pagination.paginate<User>(
-    response.body as unknown as Record<string, unknown>,
-    response.headers
-  ))
-);
-```
-
-`paginationHeaders()` returns `null` for all drivers other than PostgREST in RANGE mode, so spreading the result is safe even on the API Platform / Directus / Feathers / Spatie / NestJS / @nestjsx/crud / JSON:API / json-server / Laravel / OData / Payload / PocketBase / Sieve / Strapi / Spring / DRF / WordPress path.
+`paginationHeaders()` is `null` for every driver except PostgREST configured with `PaginationModeEnum.RANGE`, so spreading it is safe everywhere. It only notifies when the header values change, so the sync performed by `paginate()` never triggers a second fetch.
 
 ### WordPress
 
-The WordPress driver follows the same header-passing shape — the body is a bare array and the totals live in `X-WP-Total` / `X-WP-TotalPages` (no `Prefer` request header needed; WordPress always sends them):
+Same shape — bare array body, totals in `X-WP-Total` / `X-WP-TotalPages`, which WordPress always sends (no `Prefer` header needed):
 
 ```typescript
-public readonly posts$: Observable<PaginatedCollection<Post>> = this._qb.uri$.pipe(
-  switchMap(uri => this._http.get<Post[]>(uri, { observe: 'response' })),
-  map(response => this._pagination.paginate<Post>(
-    response.body as unknown as Record<string, unknown>,
-    response.headers
-  ))
-);
+private readonly _response = httpResource<Post[]>(() => this._qb.uri());
+
+constructor() {
+  effect(() => {
+    if (this._response.hasValue()) {
+      this._page.set(this._pagination.paginate<Post>(this._response.value(), this._response.headers()));
+    }
+  });
+}
 ```
 
-## Alternative: one-shot fetches (root-scoped clients)
+## Alternative: `HttpClient` (Angular 17 to 19.1)
 
-If you can't use `provideNgQubeeInstance()` — e.g. `UserClient` is `providedIn: 'root'` and shared across the app — the reactive pattern is unsafe (cross-consumer URI leakage). Fall back to the imperative shape: each method returns a one-shot `Observable<PaginatedCollection<T>>` with `take(1)` so the subscription completes after a single emission and ignores any later URI pushes from elsewhere.
+Without `httpResource()`, fetch imperatively and set the signal from the callback. `HttpClient` returns an Observable, so this is the one place `.subscribe()` still appears — in your code, never in the library:
 
 ```typescript
-import { take } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
-@Injectable({ providedIn: 'root' })
+import { QubeeQueryBuilder, PaginatedCollection, QubeePaginator, RawResponse, SortEnum } from '@qubeejs/angular';
+
+@Injectable()
 export class UserClient {
 
-  private readonly _qb = inject(NgQubeeService);
-  private readonly _pagination = inject(PaginationService);
+  private readonly _qb = inject(QubeeQueryBuilder);
+  private readonly _pagination = inject(QubeePaginator);
   private readonly _http = inject(HttpClient);
 
-  public list(): Observable<PaginatedCollection<User>> {
+  private readonly _page = signal<PaginatedCollection<User> | undefined>(undefined);
+  public readonly page = this._page.asReadonly();
+
+  public list(): void {
     this._qb.setResource('users').addSort('created_at', SortEnum.DESC);
-
-    return this._fetch();
+    this._fetch();
   }
 
-  public next(): Observable<PaginatedCollection<User>> {
+  public next(): void {
     this._qb.nextPage();
-
-    return this._fetch();
+    this._fetch();
   }
 
-  public previous(): Observable<PaginatedCollection<User>> {
+  public previous(): void {
     this._qb.previousPage();
-
-    return this._fetch();
+    this._fetch();
   }
 
-  private _fetch(): Observable<PaginatedCollection<User>> {
-    return this._qb.generateUri().pipe(
-      take(1),
-      switchMap(uri => this._http.get<unknown>(uri)),
-      map(body => this._pagination.paginate<User>(body as Record<string, unknown>))
-    );
+  private _fetch(): void {
+    this._http.get<RawResponse>(this._qb.generateUri()).subscribe(body => {
+      this._page.set(this._pagination.paginate<User>(body));
+    });
   }
 }
 ```
 
-The component then reassigns `users$ = client.next()` on each navigation rather than binding to a long-lived stream. The `take(1)` is critical here: without it, every `generateUri()` call **anywhere in the app** would re-fire HTTP through every dangling subscription. See [Per-component instances](./per-component-instances.md) for the full picture on when component-scoping does and doesn't fit.
+Each navigation calls `_fetch()` explicitly; there is no long-lived stream to leak, and a root-scoped client is safe here because nothing reacts to the shared `uri` signal on its own. For PostgREST and WordPress, request `{ observe: 'response' }` and pass `response.headers` as the second argument of `paginate()`.

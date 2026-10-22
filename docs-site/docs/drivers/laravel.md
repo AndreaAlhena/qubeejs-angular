@@ -10,10 +10,10 @@ Targets vanilla Laravel pagination — **limit + page only**, no filters, no sor
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { LARAVEL_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.LARAVEL })]
+  providers: [provideQubee({ driver: LARAVEL_DRIVER })]
 });
 ```
 

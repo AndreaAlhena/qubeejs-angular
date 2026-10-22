@@ -10,10 +10,10 @@ Targets [Sieve](https://github.com/Biarity/Sieve) — the popular filtering, sor
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { SIEVE_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.SIEVE })]
+  providers: [provideQubee({ driver: SIEVE_DRIVER })]
 });
 ```
 
@@ -35,7 +35,7 @@ All filter terms — simple and operator alike — merge into **one** `filters=`
 `FilterOperatorEnum` translates to Sieve's inline operator symbols:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('likeCount', FilterOperatorEnum.GTE, 4);        // likeCount>=4
 qb.addFilterOperator('title', FilterOperatorEnum.CONTAINS, 'world'); // title@=world
@@ -106,8 +106,8 @@ Sieve does **not** define a response envelope — it returns an `IQueryable` you
 `SieveResponseStrategy` reads `{ data, page, pageSize, total, totalPages }` and computes `from`/`to` from page × pageSize. The envelope key paths are fully configurable (dot notation supported), so any wrapper your backend emits can be mapped without subclassing:
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.SIEVE,
+provideQubee({
+  driver: SIEVE_DRIVER,
   response: {
     currentPage: 'meta.page',
     data: 'items',

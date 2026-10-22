@@ -37,5 +37,5 @@ jobs:
         run: npm run build
 
       - name: Publish to npm
-        working-directory: dist/ng-qubee
+        working-directory: dist/qubeejs/angular
         run: npm publish --provenance --access public

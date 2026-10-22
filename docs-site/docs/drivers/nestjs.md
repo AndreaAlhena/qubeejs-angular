@@ -10,10 +10,10 @@ Targets [`nestjs-paginate`](https://github.com/ppetzold/nestjs-paginate).
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { NESTJS_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.NESTJS })]
+  providers: [provideQubee({ driver: NESTJS_DRIVER })]
 });
 ```
 
@@ -35,7 +35,7 @@ bootstrapApplication(AppComponent, {
 ## Operator filters
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('age', FilterOperatorEnum.GTE, 18);     // filter.age=$gte:18
 qb.addFilterOperator('id', FilterOperatorEnum.IN, 1, 2, 3);  // filter.id=$in:1,2,3

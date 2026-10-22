@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ng-qubee": {
+    "@qubeejs/angular": {
       "projectType": "library",
       "root": ".",
       "sourceRoot": "src",
@@ -29,6 +29,11 @@
           "options": {
             "karmaConfig": "karma.conf.js",
             "main": "src/test.ts",
+            "include": [
+              "**/*.spec.ts",
+              "../router/**/*.spec.ts",
+              "../http/**/*.spec.ts"
+            ],
             "tsConfig": "tsconfig.spec.json",
             "polyfills": [
               "zone.js",

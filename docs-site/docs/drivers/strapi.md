@@ -10,10 +10,10 @@ Targets [Strapi](https://strapi.io/) v4 / v5 — the leading open-source headles
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { STRAPI_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.STRAPI })]
+  providers: [provideQubee({ driver: STRAPI_DRIVER })]
 });
 ```
 
@@ -34,7 +34,7 @@ bootstrapApplication(AppComponent, {
 `FilterOperatorEnum` translates to Strapi's `$`-prefixed operators:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('rating', FilterOperatorEnum.GTE, 4);            // filters[rating][$gte]=4
 qb.addFilterOperator('title', FilterOperatorEnum.CONTAINS, 'world');  // filters[title][$contains]=world
@@ -116,13 +116,13 @@ qb.addFilterOperator('rating', FilterOperatorEnum.GTE, 4);
 }
 ```
 
-`StrapiResponseStrategy` reads `meta.pagination.{page,pageSize,pageCount,total}` and computes `from`/`to` from `(page - 1) * pageSize + 1` and `min(page * pageSize, total)`. Strapi does not include navigation links in the envelope, so `firstPageUrl` / `prevPageUrl` / `nextPageUrl` / `lastPageUrl` resolve to `undefined` unless you override their paths via `IConfig.response`.
+`StrapiResponseStrategy` reads `meta.pagination.{page,pageSize,pageCount,total}` and computes `from`/`to` from `(page - 1) * pageSize + 1` and `min(page * pageSize, total)`. Strapi does not include navigation links in the envelope, so `firstPageUrl` / `prevPageUrl` / `nextPageUrl` / `lastPageUrl` resolve to `undefined` unless you override their paths via `QubeeConfig.response`.
 
 ## Customising response paths
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.STRAPI,
+provideQubee({
+  driver: STRAPI_DRIVER,
   response: {
     total: 'meta.totalCount'
   }

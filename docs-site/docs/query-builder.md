@@ -5,7 +5,7 @@ title: Query Builder API
 
 # Query Builder API
 
-Every fluent method on `NgQubeeService`. All methods that mutate state return `this` for chaining; capability methods return values without mutating.
+Every fluent method on `QubeeQueryBuilder`. Mutators return `this` for chaining. Readers — the URI, the state and the pagination flags — are computed signals, covered under [Lifecycle](#lifecycle) below and in [Pagination](./pagination.md).
 
 Driver compatibility is gated at runtime — calling an unsupported method throws an `Unsupported*Error`. The per-driver pages list which methods each driver accepts.
 
@@ -23,10 +23,16 @@ Triggers an [auto-reset of `page`](#auto-reset-of-page).
 
 ### `setBaseUrl(url)`
 
-Optional. Prepends a base URL (e.g. `https://api.example.com`) to every generated URI.
+Optional. Prepends a base URL (e.g. `https://api.example.com`) to every generated URI. Exactly one slash joins it to the resource, whatever trailing or leading slashes either carries.
 
 ```typescript
 qb.setBaseUrl('https://api.example.com');     // → https://api.example.com/users…
+```
+
+To give every instance the same base URL, pass it to the config instead — each `QubeeQueryBuilder` starts from it, `setBaseUrl()` overrides it for one instance, and `reset()` clears it:
+
+```typescript
+provideQubee({ baseUrl: 'https://api.example.com', driver: STRAPI_DRIVER });
 ```
 
 Does not trigger auto-reset (URL prefix only).
@@ -53,22 +59,24 @@ qb.addFilter('id', 1, 2, 3);                // multi-value
 qb.deleteFilters('status');                  // remove
 ```
 
-Spatie / JSON:API: `filter[status]=active`. NestJS: `filter.status=active`. PostgREST: `status=eq.active` (single) or `status=in.(1,2,3)` (multi). Strapi: `filters[status][$eq]=active`. DRF: `status=active` (single) or `status__in=1,2,3` (multi). @nestjsx/crud: `filter=status||$eq||active` (single) or `filter=status||$in||1,2,3` (multi). Sieve: `filters=status==active` (single) or `filters=status==1|2|3` (multi). OData: `$filter=status eq 'active'` (single) or `$filter=status in (1,2,3)` (multi). Directus: `filter[status][_eq]=active` (single) or `filter[status][_in]=1,2,3` (multi). json-server: `status=active` (single) or `status:in=1,2,3` (multi). API Platform: `status=active` (single) or `status[]=a&status[]=b` (multi); relation dot paths (`author.name=John`) pass through. Feathers: `status=active` (single) or `status[$in][0]=active&status[$in][1]=pending` (multi). PocketBase: `filter=(status='active')` (single) or `filter=((status='active' || status='pending'))` (multi). Payload: `where[status][equals]=active` (single) or `where[status][in]=active,pending` (multi). WordPress: `status=publish` (single) or `categories=2,3` (multi, CSV).
+Spatie / JSON:API: `filter[status]=active`. NestJS: `filter.status=active`. PostgREST: `status=eq.active` (single) or `status=in.(1,2,3)` (multi). Strapi: `filters[status][$eq]=active`. DRF: `status=active` (single) or `status__in=1,2,3` (multi). @nestjsx/crud: `filter=status||$eq||active` (single) or `filter=status||$in||1,2,3` (multi). Sieve: `filters=status==active` (single) or `filters=status==1|2|3` (multi). OData: `$filter=status eq 'active'` (single) or `$filter=status in (1,2,3)` (multi). Directus: `filter[status][_eq]=active` (single) or `filter[status][_in]=1,2,3` (multi). json-server: `status=active` (single) or `status:in=1,2,3` (multi). API Platform: `status=active` (single) or `status[]=a&status[]=b` (multi); relation dot paths (`author.name=John`) pass through. Feathers: `status=active` (single) or `status[$in][0]=active&status[$in][1]=pending` (multi). PocketBase: `filter=(status='active')` (single) or `filter=((status='active' || status='pending'))` (multi). Payload: `where[status][equals]=active` (single) or `where[status][in]=active,pending` (multi). WordPress: `status=publish` (single) or `categories=2,3` (multi, CSV). Ransack: `q[status_eq]=active` (single) or `q[id_in][]=1&q[id_in][]=2` (multi). FastAPI: `status=active` (single) or `id__in=1,2,3` (multi).
+
+Filter values are percent-encoded, so a `&` or `#` typed by a user stays inside its value — pass raw input, and don't call `encodeURIComponent()` yourself.
 
 Triggers auto-reset.
 
 ### `addFilterOperator(field, operator, ...values)` / `deleteOperatorFilters(...fields)`
 
-Filters with explicit comparison operators. Supported by API Platform, Directus, Feathers, json-server, NestJS, @nestjsx/crud, OData, Payload, PocketBase, PostgREST, Sieve, Strapi, and DRF.
+Filters with explicit comparison operators. Supported by API Platform, Directus, FastAPI, Feathers, json-server, NestJS, @nestjsx/crud, OData, Payload, PocketBase, PostgREST, Ransack, Sieve, Strapi, and DRF.
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('age', FilterOperatorEnum.GTE, 18);
 qb.addFilterOperator('id', FilterOperatorEnum.IN, 1, 2, 3);
 ```
 
-The full operator list: `EQ`, `NOT`, `NULL`, `IN`, `GT`, `GTE`, `LT`, `LTE`, `BTW`, `ILIKE`, `SW`, `CONTAINS`. PostgREST adds `FTS`, `PLFTS`, `PHFTS`, `WFTS`. Per-driver support varies — DRF and API Platform reject `NOT` (no generic negation filter) plus the `FTS` family (PostgREST-only); Strapi, @nestjsx/crud, Sieve, OData, Directus, and PocketBase reject only the `FTS` family; json-server additionally rejects `ILIKE` (no case-insensitive variant) and `NULL` (no null-check operator); Feathers rejects `CONTAINS`/`ILIKE`/`SW` (LIKE-style matching is adapter-specific, not part of the common syntax) and `NULL` on top of the `FTS` family; Payload rejects `SW` (no starts-with operator) plus the `FTS` family. See each driver's page for detailed mappings: [API Platform](./drivers/api-platform.md#operator-filters), [Directus](./drivers/directus.md#operator-filters), [Feathers](./drivers/feathers.md#operator-filters), [json-server](./drivers/json-server.md#operator-filters), [NestJS](./drivers/nestjs.md#operator-filters), [@nestjsx/crud](./drivers/nestjsx-crud.md#operator-filters), [OData](./drivers/odata.md#operator-filters), [Payload](./drivers/payload.md#operator-filters), [PocketBase](./drivers/pocketbase.md#operator-filters), [PostgREST](./drivers/postgrest.md#operator-filters), [Sieve](./drivers/sieve.md#operator-filters), [Strapi](./drivers/strapi.md#operator-filters), [DRF](./drivers/drf.md#operator-filters).
+The full operator list: `EQ`, `NOT`, `NULL`, `IN`, `GT`, `GTE`, `LT`, `LTE`, `BTW`, `ILIKE`, `SW`, `CONTAINS`. PostgREST adds `FTS`, `PLFTS`, `PHFTS`, `WFTS`. Per-driver support varies — DRF and API Platform reject `NOT` (no generic negation filter) plus the `FTS` family (PostgREST-only); Strapi, @nestjsx/crud, Sieve, OData, Directus, and PocketBase reject only the `FTS` family; json-server additionally rejects `ILIKE` (no case-insensitive variant) and `NULL` (no null-check operator); Feathers rejects `CONTAINS`/`ILIKE`/`SW` (LIKE-style matching is adapter-specific, not part of the common syntax) and `NULL` on top of the `FTS` family; Payload rejects `SW` (no starts-with operator) plus the `FTS` family. See each driver's page for detailed mappings: [API Platform](./drivers/api-platform.md#operator-filters), [Directus](./drivers/directus.md#operator-filters), [Feathers](./drivers/feathers.md#operator-filters), [json-server](./drivers/json-server.md#operator-filters), [NestJS](./drivers/nestjs.md#operator-filters), [@nestjsx/crud](./drivers/nestjsx-crud.md#operator-filters), [OData](./drivers/odata.md#operator-filters), [Payload](./drivers/payload.md#operator-filters), [PocketBase](./drivers/pocketbase.md#operator-filters), [PostgREST](./drivers/postgrest.md#operator-filters), [Sieve](./drivers/sieve.md#operator-filters), [Strapi](./drivers/strapi.md#operator-filters), [DRF](./drivers/drf.md#operator-filters), [Ransack](./drivers/ransack.md#operator-filters), [FastAPI](./drivers/fastapi.md#operator-filters).
 
 Triggers auto-reset.
 
@@ -77,14 +85,14 @@ Triggers auto-reset.
 ### `addSort(field, order)` / `deleteSorts(...fields)`
 
 ```typescript
-import { SortEnum } from 'ng-qubee';
+import { SortEnum } from '@qubeejs/angular';
 
 qb.addSort('created_at', SortEnum.DESC);
 qb.addSort('name', SortEnum.ASC);
 qb.deleteSorts('created_at');
 ```
 
-Spatie / JSON:API: `sort=-created_at,name`. NestJS: `sortBy=created_at:DESC,name:ASC`. PostgREST: `order=created_at.desc,name.asc`. Strapi: `sort[0]=created_at:desc&sort[1]=name:asc`. DRF: `ordering=-created_at,name`. @nestjsx/crud: `sort=created_at,DESC&sort=name,ASC`. Spring: `sort=created_at,desc&sort=name,asc`. Sieve: `sorts=-created_at,name`. OData: `$orderby=created_at desc,name asc`. Directus: `sort=-created_at,name`. json-server: `_sort=-created_at,name`. API Platform: `order[created_at]=desc&order[name]=asc`. Feathers: `$sort[created_at]=-1&$sort[name]=1`. PocketBase: `sort=-created_at,name`. Payload: `sort=-created_at,name`. WordPress: `orderby=created_at&order=desc` (single sort only — the first rule wins).
+Spatie / JSON:API: `sort=-created_at,name`. NestJS: `sortBy=created_at:DESC,name:ASC`. PostgREST: `order=created_at.desc,name.asc`. Strapi: `sort[0]=created_at:desc&sort[1]=name:asc`. DRF: `ordering=-created_at,name`. @nestjsx/crud: `sort=created_at,DESC&sort=name,ASC`. Spring: `sort=created_at,desc&sort=name,asc`. Sieve: `sorts=-created_at,name`. OData: `$orderby=created_at desc,name asc`. Directus: `sort=-created_at,name`. json-server: `_sort=-created_at,name`. API Platform: `order[created_at]=desc&order[name]=asc`. Feathers: `$sort[created_at]=-1&$sort[name]=1`. PocketBase: `sort=-created_at,name`. Payload: `sort=-created_at,name`. WordPress: `orderby=created_at&order=desc` (single sort only — the first rule wins). Ransack: `q[s][]=created_at+desc&q[s][]=name+asc`. FastAPI: `order_by=-created_at,name`.
 
 Triggers auto-reset.
 
@@ -142,7 +150,7 @@ With embedded relations but no `addSelect`, the flat part defaults to `*` so the
 
 Does **not** trigger auto-reset (column shape change, not record set).
 
-## Search — NestJS / DRF / OData / Directus / json-server / WordPress
+## Search — NestJS / DRF / OData / Directus / json-server / WordPress / FastAPI
 
 ### `setSearch(term)` / `deleteSearch()`
 
@@ -150,6 +158,22 @@ Does **not** trigger auto-reset (column shape change, not record set).
 qb.setSearch('john doe');     // search=john doe
 qb.deleteSearch();
 ```
+
+Triggers auto-reset.
+
+## Extra parameters — all drivers
+
+### `setParam(key, ...values)` / `deleteParams(...keys)`
+
+For what a backend accepts beyond the driver's own parameters — a top-level `status`, an `include` on a driver without includes. Params are appended after the driver's, so they work with every driver and are not gated by its capabilities:
+
+```typescript
+qb.setParam('status', 'failed');   // Spatie → /users?limit=15&page=1&status=failed
+qb.setParam('ids', 'a,b', 'c');    // ids=a%2Cb,c
+qb.deleteParams('status', 'ids');
+```
+
+The key is emitted verbatim — never build one from user input — and each value is percent-encoded, then joined with a literal `,`. Setting a key again replaces its values. A key that collides with one the driver emits (`page` on Spatie, `page` against JSON:API's `page[number]`) makes `generateUri()` and `uri()` throw `ParamCollisionError` rather than send a duplicate.
 
 Triggers auto-reset.
 
@@ -163,6 +187,7 @@ Several mutations reset `state.page` to `1` automatically because they invalidat
 - `addFilter` / `deleteFilters` (different record set)
 - `addFilterOperator` / `deleteOperatorFilters` (different record set)
 - `addSort` / `deleteSorts` (different ordering)
+- `setParam` / `deleteParams` (different record set)
 
 Methods that change record *shape* (`addFields`, `addIncludes`, `addSelect`, `setBaseUrl`) leave `page` untouched.
 
@@ -170,13 +195,29 @@ Methods that change record *shape* (`addFields`, `addIncludes`, `addSelect`, `se
 
 ### `generateUri()`
 
-Returns an `Observable<string>` that emits the composed URI:
+Returns the composed URI, synchronously, as a `string`:
 
 ```typescript
-qb.generateUri().subscribe(uri => /* … */);
+const uri = qb.generateUri();
 ```
 
-URIs do not auto-emit on state mutations — call `generateUri()` explicitly when you want the next URI.
+Throws when the state cannot be built for the active driver — most commonly before `setResource()` has been called, or `UnselectableModelError` when `addFields` names a model that is neither the resource nor included.
+
+### `uri`
+
+The same URI as a computed signal, re-evaluated on every state change:
+
+```typescript
+qb.uri();                                          // string | undefined
+effect(() => console.log(qb.uri()));                // logs on every mutation
+users = httpResource<RawResponse>(() => qb.uri()); // re-fetches on every mutation
+```
+
+`uri()` is `undefined` until a resource is set — the idle sentinel `httpResource()` understands — and otherwise equals `generateUri()`, including the throw on an invalid state. See [Fetching data](./fetching-data.md).
+
+### `state`
+
+The complete query-builder state as a signal, `Signal<QueryBuilderState>`. The snapshot is deeply frozen: read it freely, mutate it never.
 
 ### `reset()`
 
@@ -188,4 +229,4 @@ qb.reset();
 
 ## Pagination navigation
 
-See [Pagination](./pagination.md) for `nextPage`, `previousPage`, `firstPage`, `lastPage`, `goToPage`, `currentPage`, `totalPages`, `isFirstPage`, `isLastPage`, `hasNextPage`, `hasPreviousPage`, `paginationHeaders`.
+See [Pagination](./pagination.md) for the navigation helpers `nextPage`, `previousPage`, `firstPage`, `lastPage`, `goToPage`, and the signals `currentPage`, `totalPages`, `isFirstPage`, `isLastPage`, `hasNextPage`, `hasPreviousPage`, `paginationHeaders`.

@@ -1,6 +1,6 @@
-# Contributing to NgQubee
+# Contributing to @qubeejs/angular
 
-Thank you for your interest in contributing to NgQubee! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to `@qubeejs/angular`! This document provides guidelines and instructions for contributing.
 
 ## Development Setup
 
@@ -14,8 +14,8 @@ Thank you for your interest in contributing to NgQubee! This document provides g
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/ng-qubee.git
-   cd ng-qubee
+   git clone https://github.com/YOUR_USERNAME/qubeejs-angular.git
+   cd qubeejs-angular
    ```
 3. Install dependencies:
    ```bash
@@ -39,7 +39,7 @@ Thank you for your interest in contributing to NgQubee! This document provides g
 
 - **Files**: kebab-case (e.g., `query-builder.service.ts`)
 - **Classes**: PascalCase (e.g., `QueryBuilderService`)
-- **Interfaces**: PascalCase with `I` prefix or descriptive suffix (e.g., `IConfig` or `PaginationConfig`)
+- **Interfaces**: PascalCase with `I` prefix only when a class implements them (e.g., `IRequestStrategy`); data shapes are `type`s without a prefix (e.g., `QubeeConfig`)
 - **Variables/Functions**: camelCase (e.g., `buildQuery`)
 - **Constants**: UPPER_SNAKE_CASE (e.g., `DEFAULT_PAGE_SIZE`)
 
@@ -147,7 +147,7 @@ docs: update README with new API examples
 
 When reporting bugs, please include:
 
-- NgQubee version
+- Qubee version
 - Angular version
 - Node.js version
 - Steps to reproduce

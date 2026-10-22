@@ -10,10 +10,10 @@ Targets [@nestjsx/crud](https://github.com/nestjsx/crud) — the popular CRUD fr
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { NESTJSX_CRUD_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.NESTJSX_CRUD })]
+  providers: [provideQubee({ driver: NESTJSX_CRUD_DRIVER })]
 });
 ```
 
@@ -34,7 +34,7 @@ bootstrapApplication(AppComponent, {
 `FilterOperatorEnum` translates to @nestjsx/crud's `$`-prefixed condition operators:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('rating', FilterOperatorEnum.GTE, 4);            // filter=rating||$gte||4
 qb.addFilterOperator('title', FilterOperatorEnum.CONTAINS, 'world');  // filter=title||$cont||world
@@ -102,7 +102,7 @@ Other operators leave shape validation to the server.
 }
 ```
 
-`NestjsxCrudResponseStrategy` reads the flat `{ data, count, total, page, pageCount }` envelope and computes `from`/`to` from `(page - 1) * count + 1` and `min(page * count, total)`. The envelope carries no navigation links, so `firstPageUrl` / `prevPageUrl` / `nextPageUrl` / `lastPageUrl` resolve to `undefined` unless you override their paths via `IConfig.response`.
+`NestjsxCrudResponseStrategy` reads the flat `{ data, count, total, page, pageCount }` envelope and computes `from`/`to` from `(page - 1) * count + 1` and `min(page * count, total)`. The envelope carries no navigation links, so `firstPageUrl` / `prevPageUrl` / `nextPageUrl` / `lastPageUrl` resolve to `undefined` unless you override their paths via `QubeeConfig.response`.
 
 :::note
 `count` is the number of entities **on the current page**, not the requested page size — on a partial last page the derived `from`/`to` underestimate. Compute exact indices from your requested limit if you need them on the last page.
@@ -111,8 +111,8 @@ Other operators leave shape validation to the server.
 ## Customising response paths
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.NESTJSX_CRUD,
+provideQubee({
+  driver: NESTJSX_CRUD_DRIVER,
   response: {
     data: 'items',
     total: 'totalCount'
