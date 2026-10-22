@@ -5,7 +5,12 @@
     "outDir": "./out-tsc/spec",
     "types": [
       "jasmine"
-    ]
+    ],
+    "paths": {
+      "@qubeejs/angular": [
+        "./src/public-api.ts"
+      ]
+    }
   },
   "files": [
     "src/test.ts"
