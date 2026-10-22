@@ -205,6 +205,28 @@ describe('qubeeHttpResource', () => {
     expect(articles.value()?.page).toBe(2);
   });
 
+  it('should place a short last page on the page that was asked for', async () => {
+    // A one-row last page: the Content-Range span (1) is not the page size (15).
+    const articles = TestBed.runInInjectionContext(() =>
+      qubeeHttpResource<Article>(() =>
+        buildListRequest(rangeList, readListState(rangeList, '?page=3'))
+      )
+    );
+
+    await settle();
+
+    const call = http.expectOne('https://api.dev/articles');
+
+    expect(call.request.headers.get('Range')).toBe('30-44');
+
+    call.flush([{ id: 31 }], { headers: { 'Content-Range': '30-30/31' } });
+    await settle();
+
+    expect(articles.value()?.page).toBe(3);
+    expect(articles.value()?.perPage).toBe(15);
+    expect(articles.value()?.lastPage).toBe(3);
+  });
+
   it('should merge into HttpHeaders and pass the other init options through', async () => {
     const token = new HttpContextToken(() => '');
 
