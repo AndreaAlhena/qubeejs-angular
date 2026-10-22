@@ -102,17 +102,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Floor of the declared peer range
+          # Floor of the declared peer range; @qubeejs/angular/http needs 19.2, so it is left out here
           - angular: '17'
             node: '20'
           - angular: '20'
             node: '22'
+            http: true
           # Current stable major
           - angular: '22'
             node: '24'
+            http: true
           # Angular's next prerelease — early warning for the coming major, never blocks the build
           - angular: 'next'
             node: '24'
+            http: true
             experimental: true
 
     env:
@@ -159,6 +162,7 @@ jobs:
             provideQubee
           } from '@qubeejs/angular';
           import { provideQubeeRouterAdapter } from '@qubeejs/angular/router';
+          /* HTTP_IMPORTS */
 
           const userList = defineList({
             params: { page: integerParam('page', { default: 1, min: 1 }) },
@@ -173,11 +177,13 @@ jobs:
               <pre>{{ qb.uri() }}</pre>
               <pre>{{ list.request().uri }}</pre>
               <button (click)="list.setPage(2)">2</button>
+              <!-- HTTP_TEMPLATE -->
             `
           })
           export class AppRoot {
             protected readonly qb = inject(QubeeQueryBuilder);
             protected readonly list = injectQubeeList(userList);
+            /* HTTP_FIELD */
 
             constructor() {
               this.qb
@@ -193,9 +199,21 @@ jobs:
               provideQubee({ driver: SPATIE_DRIVER }),
               provideRouter([]),
               provideQubeeRouterAdapter()
+              /* HTTP_PROVIDER */
             ]
           });
           TS
+        working-directory: consumer
+
+      - name: Use @qubeejs/angular/http too
+        if: matrix.http
+        run: |
+          sed -i \
+            -e "s#/\* HTTP_IMPORTS \*/#import { provideHttpClient } from '@angular/common/http'; import { qubeeHttpResource } from '@qubeejs/angular/http';#" \
+            -e "s#<!-- HTTP_TEMPLATE -->#<pre>{{ users.value()?.total }}</pre>#" \
+            -e "s#/\* HTTP_FIELD \*/#protected readonly users = qubeeHttpResource(this.list.request);#" \
+            -e "s#/\* HTTP_PROVIDER \*/#, provideHttpClient()#" \
+            src/main.ts
         working-directory: consumer
 
       - name: Build the consumer application
