@@ -89,17 +89,21 @@ export class QubeeQueryBuilder {
    * `httpResource()` understands, so `httpResource(() => qb.uri())` stays idle
    * until `setResource()` is called and re-fetches on every mutation after.
    *
+   * Always equal to {@link generateUri}: both go through the core builder,
+   * which appends the parameters set with {@link setParam} after the driver's
+   * own.
+   *
    * @throws The same errors as {@link generateUri} when the state is invalid
-   * for the active driver (e.g. `UnselectableModelError`)
+   * for the active driver (e.g. `UnselectableModelError`, `ParamCollisionError`)
    */
   public readonly uri: Signal<string | undefined> = computed(() => {
-    const state = this.state();
-
-    if (!state.resource) {
+    // Reading the signal is what makes this computed track the state; the
+    // core builder reads the same snapshot from the store.
+    if (!this.state().resource) {
       return undefined;
     }
 
-    return this._requestStrategy.buildUri(state, this._options);
+    return this._builder.generateUri();
   });
 
   /**

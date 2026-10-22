@@ -164,6 +164,13 @@ describe('QubeeQueryBuilder (Spatie)', () => {
 
       expect(service.uri()).toContain('fields[settings]=field1');
     });
+
+    it('should carry the params set with setParam(), as generateUri() does', () => {
+      service.setResource('users').setParam('status', 'failed');
+
+      expect(service.uri()).toBe('/users?limit=15&page=1&status=failed');
+      expect(service.uri()).toBe(service.generateUri());
+    });
   });
 
   describe('setParam / deleteParams', () => {
@@ -193,6 +200,7 @@ describe('QubeeQueryBuilder (Spatie)', () => {
       service.setResource('users').setParam('page', 4);
 
       expect(() => service.generateUri()).toThrowError(ParamCollisionError);
+      expect(() => service.uri()).toThrowError(ParamCollisionError);
     });
 
     it('should be cleared by reset()', () => {
