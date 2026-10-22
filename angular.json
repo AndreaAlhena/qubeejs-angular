@@ -31,7 +31,8 @@
             "main": "src/test.ts",
             "include": [
               "**/*.spec.ts",
-              "../router/**/*.spec.ts"
+              "../router/**/*.spec.ts",
+              "../http/**/*.spec.ts"
             ],
             "tsConfig": "tsconfig.spec.json",
             "polyfills": [
