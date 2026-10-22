@@ -32,7 +32,7 @@ bootstrapApplication(AppComponent, {
 | `provideQubeeBrowserAdapter()` | `@qubeejs/angular` | Applications without a router: `history.pushState()` and `popstate` |
 | `provideQubeeMemoryAdapter()` / `createQubeeMemoryAdapter()` | `@qubeejs/angular` | State kept out of the address bar — see [Lists in memory](#lists-in-memory) |
 
-Only `@qubeejs/angular/router` imports `@angular/router`, so an application without the router never needs it installed. Without any adapter, `injectQubeeList()` throws `MissingRouterAdapterError`: it never falls back to browser history on its own, because inside a router that would leave the router out of step.
+Only `@qubeejs/angular/router` imports `@angular/router`, so an application without the router never needs it installed. To fetch with [`qubeeHttpResource()`](#fetching), add `provideHttpClient()` as well. Without any adapter, `injectQubeeList()` throws `MissingRouterAdapterError`: it never falls back to browser history on its own, because inside a router that would leave the router out of step.
 
 ## 2. Declare the list
 
@@ -81,10 +81,10 @@ A list carries its own `qubee` configuration and builds every request on a fresh
 ## 3. Use it in a component
 
 ```typescript title="articles.component.ts"
-import { Component, computed, inject } from '@angular/core';
-import { httpResource } from '@angular/common/http';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { RawResponse, getAriaSort, injectQubeeList } from '@qubeejs/angular';
+import { getAriaSort, injectQubeeList } from '@qubeejs/angular';
+import { qubeeHttpResource } from '@qubeejs/angular/http';
 
 import { articleList } from './article-list';
 
@@ -108,7 +108,7 @@ type Article = { id: number; title: string };
         </tr>
       </thead>
       <tbody>
-        @for (article of page()?.data; track article.id) {
+        @for (article of articles.value()?.data; track article.id) {
           <tr><td>{{ article.title }}</td></tr>
         }
       </tbody>
@@ -123,21 +123,11 @@ export class ArticlesComponent {
   protected readonly list = injectQubeeList(articleList);
 
   // Fetches once per navigation — never per keystroke — and aborts a stale request.
-  protected readonly articles = httpResource<RawResponse>(() => {
-    const { headers, uri } = this.list.request();
-
-    return { headers: headers ?? undefined, url: uri };
-  });
-
-  protected readonly page = computed(() =>
-    this.articles.hasValue()
-      ? this.list.request().paginate<Article>(this.articles.value(), this.articles.headers())
-      : undefined
-  );
+  protected readonly articles = qubeeHttpResource<Article>(this.list.request);
 }
 ```
 
-The component names no router: the adapter decides where the URL lives.
+The component names no router: the adapter decides where the URL lives. Fetching is covered [below](#fetching).
 
 ### What the handle gives you
 
@@ -184,9 +174,67 @@ To know whether a link points at the state on screen — for an active page numb
 
 A list navigation is an ordinary router navigation, so it follows your router's scrolling configuration. Angular's default (`scrollPositionRestoration: 'disabled'`) keeps the scroll position; with `withInMemoryScrolling({ scrollPositionRestoration: 'top' })` every page change scrolls to the top.
 
-## Fetching on Angular 17 to 19.1
+## Fetching
 
-`httpResource()` ships with Angular 19.2. Before it, fetch in an `effect()` that reads `request()`:
+`qubeeHttpResource()`, from the `@qubeejs/angular/http` entry point, fetches the page a list's `request` asks for and parses it with the list's own paginator:
+
+```typescript
+import { qubeeHttpResource } from '@qubeejs/angular/http';
+
+protected readonly list = injectQubeeList(articleList);
+protected readonly articles = qubeeHttpResource<Article>(this.list.request);
+```
+
+It is built on Angular's `httpResource()`, so it needs **Angular 19.2** and `provideHttpClient()`, and goes through `HttpClient` and your interceptors — authentication included.
+
+- It fetches again only when `request` changes: once per navigation, never per keystroke. A request made stale by a newer one is aborted.
+- It sends the request's headers — PostgREST's `Range` in `RANGE` mode — and hands the response headers to `paginate()`, so PostgREST, WordPress and Ransack read their totals from headers with no extra code.
+- The previous page stays on screen while the next one loads; pass `keepPreviousData: false` to clear it instead.
+- A `null` request — a list whose [input](#lists-that-need-more-than-the-url) is not ready — fetches nothing.
+
+| Member | Type | What it is |
+|---|---|---|
+| `value` | `Signal<PaginatedCollection<T> \| undefined>` | The parsed page: rows in `data`, plus `page`, `lastPage`, `total`, `from`, `to`… `undefined` before the first answer, after a failure, and while the request is `null` |
+| `isLoading` | `Signal<boolean>` | A request is in flight |
+| `error` | `Signal<unknown>` | An `HttpErrorResponse` for a status that is not ok, else what the parser threw |
+| `reload()` | | Fetch the current request again |
+| `resource` | `HttpResourceRef` | The underlying `httpResource()`: `statusCode`, `headers`, `progress`, the raw body |
+
+Options go in the second argument:
+
+```typescript
+qubeeHttpResource<Article>(this.list.request, {
+  init: { headers: { Prefer: 'count=exact' }, withCredentials: true }, // added to every request
+  keepPreviousData: false,
+  injector: this._injector                                           // outside an injection context
+});
+```
+
+`init` takes the `httpResource()` request options except the URL, method, body and params; the list's own headers win over yours on a clash, since paging depends on them.
+
+### By hand
+
+`qubeeHttpResource()` is a thin layer. When you need something it does not do, the same thing by hand is:
+
+```typescript
+protected readonly response = httpResource<RawResponse>(() => {
+  const { headers, uri } = this.list.request();
+
+  return { headers: headers ?? undefined, url: uri };
+});
+
+protected readonly page = computed(() =>
+  this.response.hasValue()
+    ? this.list.request().paginate<Article>(this.response.value(), this.response.headers())
+    : undefined
+);
+```
+
+…minus keeping the previous page while the next one loads, which `httpResource()` does not do.
+
+### On Angular 17 to 19.1
+
+`httpResource()` ships with Angular 19.2, and so does `qubeeHttpResource()`. Before it, fetch in an `effect()` that reads `request()`:
 
 ```typescript
 export class ArticlesComponent {
@@ -244,7 +292,7 @@ export class TasksComponent {
 
 - The input is **required** for a list that declares one, and refused for a list that declares none — both are compile errors.
 - It reaches `request`, never the URL. An equal input keeps the same `request`, so nothing re-fetches.
-- `null` means "not ready yet": `request()` is `null`, and an `httpResource()` that returns `undefined` for it stays idle:
+- `null` means "not ready yet": `request()` is `null`, and `qubeeHttpResource()` fetches nothing until it is not:
 
 ```typescript
 public readonly projectId = input<string>();  // optional this time
@@ -257,11 +305,7 @@ protected readonly tasks = injectQubeeList(taskList, {
   }
 });
 
-protected readonly response = httpResource<RawResponse>(() => {
-  const request = this.tasks.request();
-
-  return request ? { headers: request.headers ?? undefined, url: request.uri } : undefined;
-});
+protected readonly page = qubeeHttpResource<Task>(this.tasks.request);
 ```
 
 `input()` signals need Angular 17.1; on 17.0, read the route parameter from `ActivatedRoute` instead.
