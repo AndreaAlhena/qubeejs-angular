@@ -1,4 +1,4 @@
-import type { Signal} from '@angular/core';
+import type { Signal } from '@angular/core';
 import type { QueryBuilderState } from '@qubeejs/core';
 
 import { inject, Injectable, signal } from '@angular/core';
@@ -33,7 +33,6 @@ import { deepEqual } from '../utils/deep-equal';
  */
 @Injectable()
 export class QubeeSignalStore extends QubeeStore {
-
   /**
    * Writable mirror of the core snapshot, updated from the store's own
    * `subscribe()` notifications
@@ -43,7 +42,9 @@ export class QubeeSignalStore extends QubeeStore {
    * changed. Structural equality keeps a no-op write — `paginate()` syncing
    * the page that was already current — from notifying anyone.
    */
-  private readonly _stateSignal = signal<QueryBuilderState>(this.getSnapshot(), { equal: deepEqual });
+  private readonly _stateSignal = signal<QueryBuilderState>(this.getSnapshot(), {
+    equal: deepEqual,
+  });
 
   /**
    * The current query-builder state as a read-only signal

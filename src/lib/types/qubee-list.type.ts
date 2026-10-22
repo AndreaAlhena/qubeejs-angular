@@ -5,7 +5,7 @@ import type {
   ListRequest,
   ListState,
   SortParam,
-  ToggleSortOptions
+  ToggleSortOptions,
 } from '@qubeejs/core';
 
 import type { QubeeListAdapter } from './qubee-list-adapter.type';
@@ -78,7 +78,9 @@ export type QubeeListArgs<TList> = [ListInput<TList>] extends [never]
  *
  * @typeParam TList - The list, as `defineList()` returned it
  */
-export type QubeeListRequest<TList> = [ListInput<TList>] extends [never] ? ListRequest : ListRequest | null;
+export type QubeeListRequest<TList> = [ListInput<TList>] extends [never]
+  ? ListRequest
+  : ListRequest | null;
 
 /**
  * The keys of a list's params whose param is a `sortParam`
@@ -93,14 +95,18 @@ type SortKeys<TParams> = {
 type Single<K, TAll = K> = [K] extends [never]
   ? never
   : K extends unknown
-    ? [Exclude<TAll, K>] extends [never] ? K : never
+    ? [Exclude<TAll, K>] extends [never]
+      ? K
+      : never
     : never;
 
 /**
  * The API fields the `sortParam` at `K` allows
  */
 type SortFields<TParams, K> = K extends keyof TParams
-  ? TParams[K] extends SortParam<infer F> ? F : never
+  ? TParams[K] extends SortParam<infer F>
+    ? F
+    : never
   : never;
 
 /**
@@ -109,20 +115,21 @@ type SortFields<TParams, K> = K extends keyof TParams
  *
  * @typeParam TList - The list, as `defineList()` returned it
  */
-export type QubeeListSortToggle<TList> = TList extends ListDefinition<infer TParams, NonNullable<unknown>>
-  ? [Single<SortKeys<TParams>>] extends [never]
-    ? Record<never, never>
-    : {
-      /**
-       * Sort by `field` ascending, or flip it when it is already the primary
-       * sort; with `multiple`, keep the other sorts. At most one navigation.
-       */
-      readonly toggleSort: (
-        field: SortFields<TParams, Single<SortKeys<TParams>>>,
-        options?: QubeeListSetOptions & ToggleSortOptions
-      ) => void;
-    }
-  : Record<never, never>;
+export type QubeeListSortToggle<TList> =
+  TList extends ListDefinition<infer TParams, NonNullable<unknown>>
+    ? [Single<SortKeys<TParams>>] extends [never]
+      ? Record<never, never>
+      : {
+          /**
+           * Sort by `field` ascending, or flip it when it is already the primary
+           * sort; with `multiple`, keep the other sorts. At most one navigation.
+           */
+          readonly toggleSort: (
+            field: SortFields<TParams, Single<SortKeys<TParams>>>,
+            options?: QubeeListSetOptions & ToggleSortOptions
+          ) => void;
+        }
+    : Record<never, never>;
 
 /**
  * What `injectQubeeList()` returns for a list definition `TList`

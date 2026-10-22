@@ -32,6 +32,8 @@ export function parseHref(href: string): ListLocation {
  * @returns `true` when the paths match and the queries serialise alike
  */
 export function isSameLocation(a: ListLocation, b: ListLocation): boolean {
-  return a.pathname === b.pathname
-    && toSearchParams(a.search).toString() === toSearchParams(b.search).toString();
+  return (
+    a.pathname === b.pathname &&
+    toSearchParams(a.search).toString() === toSearchParams(b.search).toString()
+  );
 }

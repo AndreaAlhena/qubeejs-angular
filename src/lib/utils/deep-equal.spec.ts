@@ -31,7 +31,7 @@ describe('deepEqual', () => {
 
   it('should distinguish arrays from objects', () => {
     expect(deepEqual([], {})).toBeFalse();
-     
+
     expect(deepEqual({ 0: 'a', length: 1 }, ['a'])).toBeFalse();
   });
 
@@ -47,8 +47,16 @@ describe('deepEqual', () => {
   });
 
   it('should recurse into nested structures', () => {
-    const left = { filters: { status: ['active', 'pending'] }, sorts: [{ field: 'name', order: 'asc' }], page: 1 };
-    const right = { filters: { status: ['active', 'pending'] }, sorts: [{ field: 'name', order: 'asc' }], page: 1 };
+    const left = {
+      filters: { status: ['active', 'pending'] },
+      sorts: [{ field: 'name', order: 'asc' }],
+      page: 1,
+    };
+    const right = {
+      filters: { status: ['active', 'pending'] },
+      sorts: [{ field: 'name', order: 'asc' }],
+      page: 1,
+    };
 
     expect(deepEqual(left, right)).toBeTrue();
     expect(deepEqual(left, { ...right, sorts: [{ field: 'name', order: 'desc' }] })).toBeFalse();

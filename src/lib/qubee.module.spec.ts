@@ -9,7 +9,7 @@ import { QUBEE_DRIVER } from './tokens/qubee.tokens';
 describe('QubeeModule', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [QubeeModule.forRoot({ driver: SPATIE_DRIVER, request: { limit: 'per_page' } })]
+      imports: [QubeeModule.forRoot({ driver: SPATIE_DRIVER, request: { limit: 'per_page' } })],
     });
   });
 
@@ -26,7 +26,6 @@ describe('QubeeModule', () => {
   it('should provide a QubeePaginator sharing the same store', () => {
     const qb = TestBed.inject(QubeeQueryBuilder);
 
-     
     TestBed.inject(QubeePaginator).paginate({ data: [], current_page: 1, last_page: 3 });
 
     expect(qb.totalPages()).toBe(3);

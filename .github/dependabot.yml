@@ -1,45 +1,45 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     open-pull-requests-limit: 10
     commit-message:
-      prefix: "chore(deps)"
+      prefix: 'chore(deps)'
     labels:
-      - "dependencies"
+      - 'dependencies'
     groups:
       angular:
         patterns:
-          - "@angular/*"
-          - "@angular-devkit/*"
-          - "@angular-eslint/*"
+          - '@angular/*'
+          - '@angular-devkit/*'
+          - '@angular-eslint/*'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       typescript-eslint:
         patterns:
-          - "@typescript-eslint/*"
+          - '@typescript-eslint/*'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       testing:
         patterns:
-          - "karma*"
-          - "jasmine*"
+          - 'karma*'
+          - 'jasmine*'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     commit-message:
-      prefix: "chore(ci)"
+      prefix: 'chore(ci)'
     labels:
-      - "ci"
-      - "dependencies"
+      - 'ci'
+      - 'dependencies'

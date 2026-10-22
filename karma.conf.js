@@ -13,21 +13,17 @@ module.exports = function (config) {
         // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
         // for example, you can disable the random execution with `random: false`
         // or set a specific seed with `seed: 4321`
-      }
+      },
     },
     colors: true,
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/qubeejs-angular'),
-      reporters: [
-        { type: 'html' },
-        { type: 'text-summary' },
-        { type: 'lcov' }
-      ],
-      subdir: '.'
+      reporters: [{ type: 'html' }, { type: 'text-summary' }, { type: 'lcov' }],
+      subdir: '.',
     },
     frameworks: ['jasmine'],
     jasmineHtmlReporter: {
-      suppressAll: true // removes the duplicated traces
+      suppressAll: true, // removes the duplicated traces
     },
     logLevel: config.LOG_INFO,
     plugins: [
@@ -35,11 +31,11 @@ module.exports = function (config) {
       require('karma-chrome-launcher'),
       require('karma-firefox-launcher'),
       require('karma-jasmine-html-reporter'),
-      require('karma-coverage')
+      require('karma-coverage'),
     ],
     port: 9876,
     reporters: ['progress', 'kjhtml'],
     restartOnFileChange: true,
-    singleRun: false
+    singleRun: false,
   });
 };

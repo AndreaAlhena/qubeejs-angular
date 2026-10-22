@@ -1,4 +1,4 @@
-import type { ModuleWithProviders} from '@angular/core';
+import type { ModuleWithProviders } from '@angular/core';
 import type { QubeeConfig } from '@qubeejs/core';
 
 import { NgModule } from '@angular/core';
@@ -14,7 +14,6 @@ import { buildQubeeProviders } from './provide-qubee';
  */
 @NgModule({})
 export class QubeeModule {
-
   /**
    * Configure Qubee for the root module
    *
@@ -27,7 +26,7 @@ export class QubeeModule {
   public static forRoot(config: QubeeConfig): ModuleWithProviders<QubeeModule> {
     return {
       ngModule: QubeeModule,
-      providers: buildQubeeProviders(config)
+      providers: buildQubeeProviders(config),
     };
   }
 }

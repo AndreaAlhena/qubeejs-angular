@@ -1,10 +1,14 @@
-import type { Signal} from '@angular/core';
+import type { Signal } from '@angular/core';
 import type { Fields, FilterOperatorEnum, QueryBuilderState, SortEnum } from '@qubeejs/core';
 
 import { computed, inject, Injectable } from '@angular/core';
 import { QueryBuilder } from '@qubeejs/core';
 
-import { QUBEE_DRIVER, QUBEE_REQUEST_OPTIONS, QUBEE_REQUEST_STRATEGY } from '../tokens/qubee.tokens';
+import {
+  QUBEE_DRIVER,
+  QUBEE_REQUEST_OPTIONS,
+  QUBEE_REQUEST_STRATEGY,
+} from '../tokens/qubee.tokens';
 import { deepEqual } from '../utils/deep-equal';
 import { QubeeSignalStore } from './qubee-signal-store';
 
@@ -50,7 +54,6 @@ import { QubeeSignalStore } from './qubee-signal-store';
  */
 @Injectable()
 export class QubeeQueryBuilder {
-
   /**
    * Resolved query parameter key name options
    */
@@ -243,7 +246,11 @@ export class QubeeQueryBuilder {
    * @throws {UnsupportedFilterOperatorError} If the active driver does not support filter operators, or this operator
    * @throws {InvalidFilterOperatorValueError} If the values do not fit the operator (e.g. `BTW` without exactly two)
    */
-  public addFilterOperator(field: string, operator: FilterOperatorEnum, ...values: (string | number | boolean)[]): this {
+  public addFilterOperator(
+    field: string,
+    operator: FilterOperatorEnum,
+    ...values: (string | number | boolean)[]
+  ): this {
     this._builder.addFilterOperator(field, operator, ...values);
 
     return this;

@@ -1,4 +1,4 @@
-import type { EnvironmentProviders} from '@angular/core';
+import type { EnvironmentProviders } from '@angular/core';
 
 import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -11,7 +11,7 @@ import {
   SPATIE_DRIVER,
   SpatieRequestStrategy,
   SpatieResponseStrategy,
-  StrapiResponseOptions
+  StrapiResponseOptions,
 } from '@qubeejs/core';
 
 import { createQubeeInstance } from './create-qubee-instance';
@@ -25,7 +25,7 @@ import {
   QUBEE_REQUEST_OPTIONS,
   QUBEE_REQUEST_STRATEGY,
   QUBEE_RESPONSE_OPTIONS,
-  QUBEE_RESPONSE_STRATEGY
+  QUBEE_RESPONSE_STRATEGY,
 } from './tokens/qubee.tokens';
 
 /**
@@ -47,7 +47,9 @@ describe('provideQubee', () => {
   });
 
   it('should provide the DI tokens for driver, strategies and options', () => {
-    const provides = providersOf(provideQubee({ driver: SPATIE_DRIVER })).map(p => (p as { provide?: unknown })?.provide);
+    const provides = providersOf(provideQubee({ driver: SPATIE_DRIVER })).map(
+      (p) => (p as { provide?: unknown })?.provide
+    );
 
     expect(provides).toContain(QUBEE_DRIVER);
     expect(provides).toContain(QUBEE_REQUEST_STRATEGY);
@@ -66,7 +68,9 @@ describe('provideQubee', () => {
   });
 
   it('should accept a definition looked up in the registry at runtime', () => {
-    TestBed.configureTestingModule({ providers: [provideQubee({ driver: DRIVERS[DriverEnum.STRAPI] })] });
+    TestBed.configureTestingModule({
+      providers: [provideQubee({ driver: DRIVERS[DriverEnum.STRAPI] })],
+    });
 
     expect(TestBed.inject(QUBEE_DRIVER).id).toBe('strapi');
     expect(TestBed.inject(QUBEE_RESPONSE_OPTIONS)).toBeInstanceOf(StrapiResponseOptions);
@@ -74,7 +78,7 @@ describe('provideQubee', () => {
 
   it('should pass the pagination mode to the request strategy', () => {
     TestBed.configureTestingModule({
-      providers: [provideQubee({ driver: POSTGREST_DRIVER, pagination: PaginationModeEnum.RANGE })]
+      providers: [provideQubee({ driver: POSTGREST_DRIVER, pagination: PaginationModeEnum.RANGE })],
     });
 
     const qb = TestBed.inject(QubeeQueryBuilder);
@@ -84,7 +88,7 @@ describe('provideQubee', () => {
 
   it('should pass request key overrides to the options', () => {
     TestBed.configureTestingModule({
-      providers: [provideQubee({ driver: SPATIE_DRIVER, request: { filters: 'where' } })]
+      providers: [provideQubee({ driver: SPATIE_DRIVER, request: { filters: 'where' } })],
     });
 
     expect(TestBed.inject(QUBEE_REQUEST_OPTIONS).filters).toBe('where');
@@ -92,17 +96,18 @@ describe('provideQubee', () => {
 
   it('should prefix every URI with the configured base URL', () => {
     TestBed.configureTestingModule({
-      providers: [provideQubee({ baseUrl: 'https://api.example.com/', driver: SPATIE_DRIVER })]
+      providers: [provideQubee({ baseUrl: 'https://api.example.com/', driver: SPATIE_DRIVER })],
     });
 
     expect(TestBed.inject(QUBEE_BASE_URL)).toBe('https://api.example.com/');
-    expect(TestBed.inject(QubeeQueryBuilder).setResource('users').uri())
-      .toBe('https://api.example.com/users?limit=15&page=1');
+    expect(TestBed.inject(QubeeQueryBuilder).setResource('users').uri()).toBe(
+      'https://api.example.com/users?limit=15&page=1'
+    );
   });
 
   it('should start every instance from the base URL, and let reset() clear it as the core does', () => {
     TestBed.configureTestingModule({
-      providers: [provideQubee({ baseUrl: 'https://api.example.com', driver: SPATIE_DRIVER })]
+      providers: [provideQubee({ baseUrl: 'https://api.example.com', driver: SPATIE_DRIVER })],
     });
 
     const { builder } = TestBed.runInInjectionContext(() => createQubeeInstance());
@@ -117,7 +122,9 @@ describe('provideQubee', () => {
   it('should leave the base URL empty when the config names none', () => {
     TestBed.configureTestingModule({ providers: [provideQubee({ driver: SPATIE_DRIVER })] });
 
-    expect(TestBed.inject(QubeeQueryBuilder).setResource('users').uri()).toBe('/users?limit=15&page=1');
+    expect(TestBed.inject(QubeeQueryBuilder).setResource('users').uri()).toBe(
+      '/users?limit=15&page=1'
+    );
   });
 
   it('should share one store between the service and the paginator', () => {
@@ -125,7 +132,6 @@ describe('provideQubee', () => {
 
     const qb = TestBed.inject(QubeeQueryBuilder);
 
-     
     TestBed.inject(QubeePaginator).paginate({ data: [], current_page: 2, last_page: 9 });
 
     expect(qb.currentPage()).toBe(2);
@@ -142,7 +148,7 @@ describe('provideQubeeInstance', () => {
     @Component({
       selector: 'lib-dedicated',
       template: '',
-      providers: [...provideQubeeInstance()]
+      providers: [...provideQubeeInstance()],
     })
     class DedicatedComponent {
       public readonly pagination = inject(QubeePaginator);
@@ -152,7 +158,7 @@ describe('provideQubeeInstance', () => {
 
     TestBed.configureTestingModule({
       imports: [DedicatedComponent],
-      providers: [provideQubee({ driver: SPATIE_DRIVER })]
+      providers: [provideQubee({ driver: SPATIE_DRIVER })],
     });
 
     const rootQb = TestBed.inject(QubeeQueryBuilder);
@@ -170,7 +176,7 @@ describe('provideQubeeInstance', () => {
     @Component({
       selector: 'lib-isolated',
       template: '',
-      providers: [...provideQubeeInstance()]
+      providers: [...provideQubeeInstance()],
     })
     class IsolatedComponent {
       public readonly pagination = inject(QubeePaginator);
@@ -179,7 +185,7 @@ describe('provideQubeeInstance', () => {
 
     TestBed.configureTestingModule({
       imports: [IsolatedComponent],
-      providers: [provideQubee({ driver: SPATIE_DRIVER })]
+      providers: [provideQubee({ driver: SPATIE_DRIVER })],
     });
 
     const rootQb = TestBed.inject(QubeeQueryBuilder);
@@ -187,7 +193,7 @@ describe('provideQubeeInstance', () => {
 
     const component = TestBed.createComponent(IsolatedComponent).componentInstance;
     component.qb.setResource('component-resource').setLimit(10);
-     
+
     component.pagination.paginate({ data: [], current_page: 1, last_page: 7 });
 
     expect(rootQb.uri()).toBe('/root-resource?limit=50&page=1');
@@ -200,7 +206,7 @@ describe('provideQubeeInstance', () => {
     @Component({
       selector: 'lib-inherited',
       template: '',
-      providers: [...provideQubeeInstance()]
+      providers: [...provideQubeeInstance()],
     })
     class InheritedComponent {
       public readonly qb = inject(QubeeQueryBuilder);
@@ -208,12 +214,14 @@ describe('provideQubeeInstance', () => {
 
     TestBed.configureTestingModule({
       imports: [InheritedComponent],
-      providers: [provideQubee({ driver: POSTGREST_DRIVER, pagination: PaginationModeEnum.RANGE })]
+      providers: [provideQubee({ driver: POSTGREST_DRIVER, pagination: PaginationModeEnum.RANGE })],
     });
 
     const component = TestBed.createComponent(InheritedComponent).componentInstance;
 
-     
-    expect(component.qb.setResource('users').paginationHeaders()).toEqual({ 'Range-Unit': 'items', Range: '0-14' });
+    expect(component.qb.setResource('users').paginationHeaders()).toEqual({
+      'Range-Unit': 'items',
+      Range: '0-14',
+    });
   });
 });

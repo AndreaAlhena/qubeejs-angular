@@ -29,7 +29,6 @@ describe('QubeePaginator (Spatie)', () => {
   });
 
   it('should paginate with the minimum required data', () => {
-     
     const collection = service.paginate({ data: [], current_page: 1 });
 
     expect(collection).toBeInstanceOf(PaginatedCollection);
@@ -38,7 +37,6 @@ describe('QubeePaginator (Spatie)', () => {
   });
 
   it('should paginate a full Laravel-style envelope', () => {
-     
     const collection = service.paginate<User>({
       data: [{ id: 1, name: 'Ada' }],
       current_page: 1,
@@ -51,9 +49,8 @@ describe('QubeePaginator (Spatie)', () => {
       per_page: 15,
       prev_page_url: null,
       to: 15,
-      total: 30
+      total: 30,
     });
-     
 
     expect(collection.data[0].name).toBe('Ada');
     expect(collection.page).toBe(1);
@@ -73,7 +70,6 @@ describe('QubeePaginator (Spatie)', () => {
       const store = TestBed.inject(QubeeSignalStore);
       const qb = TestBed.inject(QubeeQueryBuilder);
 
-       
       service.paginate({ data: [], current_page: 2, last_page: 4 });
 
       expect(store.state().page).toBe(2);
@@ -87,7 +83,6 @@ describe('QubeePaginator (Spatie)', () => {
     it('should leave the bounds unknown when lastPage is absent', () => {
       const qb = TestBed.inject(QubeeQueryBuilder);
 
-       
       service.paginate({ data: [], current_page: 1 });
 
       expect(qb.totalPages()).toBeUndefined();
@@ -96,7 +91,6 @@ describe('QubeePaginator (Spatie)', () => {
     it('should leave the bounds unknown when lastPage is 0', () => {
       const qb = TestBed.inject(QubeeQueryBuilder);
 
-       
       service.paginate({ data: [], current_page: 1, last_page: 0 });
 
       expect(qb.totalPages()).toBeUndefined();
@@ -106,7 +100,7 @@ describe('QubeePaginator (Spatie)', () => {
       const qb = TestBed.inject(QubeeQueryBuilder);
 
       qb.setResource('users');
-       
+
       service.paginate({ data: [], current_page: 1, last_page: 3 });
 
       expect(qb.lastPage().generateUri()).toContain('page=3');
@@ -125,7 +119,7 @@ describe('QubeePaginator (NestJS)', () => {
     const collection = service.paginate<User>({
       data: [{ id: 1, name: 'Ada' }],
       meta: { currentPage: 2, totalItems: 50, itemsPerPage: 10, totalPages: 5 },
-      links: { first: 'http://api.com/users?page=1', next: 'http://api.com/users?page=3' }
+      links: { first: 'http://api.com/users?page=1', next: 'http://api.com/users?page=3' },
     });
 
     expect(collection.page).toBe(2);
@@ -134,20 +128,22 @@ describe('QubeePaginator (NestJS)', () => {
     expect(collection.lastPage).toBe(5);
     expect(collection.nextPageUrl).toBe('http://api.com/users?page=3');
   });
-
 });
 
 describe('QubeePaginator (NestJS, response key overrides)', () => {
   let service: QubeePaginator;
 
   beforeEach(() => {
-    service = setup({ driver: NESTJS_DRIVER, response: { data: 'items', currentPage: 'paging.current' } });
+    service = setup({
+      driver: NESTJS_DRIVER,
+      response: { data: 'items', currentPage: 'paging.current' },
+    });
   });
 
   it('should honour the overridden key paths', () => {
     const collection = service.paginate<User>({
       items: [{ id: 7, name: 'Grace' }],
-      paging: { current: 3 }
+      paging: { current: 3 },
     });
 
     expect(collection.data[0].id).toBe(7);
@@ -163,7 +159,6 @@ describe('QubeePaginator (WordPress, header-driven)', () => {
   });
 
   it('should read the totals from Angular HttpHeaders', () => {
-     
     const headers = new HttpHeaders({ 'X-WP-Total': '57', 'X-WP-TotalPages': '4' });
 
     const collection = service.paginate<User>([{ id: 1, name: 'Ada' }], headers);
@@ -175,7 +170,6 @@ describe('QubeePaginator (WordPress, header-driven)', () => {
   });
 
   it('should read the totals from a plain header record', () => {
-     
     const collection = service.paginate([{ id: 1 }], { 'X-WP-Total': '3', 'X-WP-TotalPages': '1' });
 
     expect(collection.total).toBe(3);

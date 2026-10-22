@@ -42,28 +42,28 @@ npm i @qubeejs/angular @qubeejs/core
 
 A driver **must** be specified in the configuration, as its exported definition:
 
-| Driver | Definition | Backend | Wire format snapshot |
-|---|---|---|---|
-| **API Platform** | `API_PLATFORM_DRIVER` | [API Platform](https://api-platform.com/) for PHP/Symfony | `field=value`, `price[between]=10..50`, `order[field]=desc`, `page=N&itemsPerPage=N` |
-| **Directus** | `DIRECTUS_DRIVER` | [Directus](https://directus.io/) headless CMS / data platform | `filter[field][_eq]=value`, `sort=-field`, `fields=col,rel.col`, `limit=N&page=N` |
-| **DRF** | `DRF_DRIVER` | [Django REST Framework](https://www.django-rest-framework.org/) + [django-filter](https://django-filter.readthedocs.io/) | `field=value`, `field__gte=N`, `ordering=-field`, `page=N&page_size=M` |
-| **FastAPI** | `FASTAPI_DRIVER` | [FastAPI](https://fastapi.tiangolo.com/) + [fastapi-filter](https://github.com/arthurio/fastapi-filter) + [fastapi-pagination](https://github.com/uriyyo/fastapi-pagination) | `field=value`, `field__gte=N`, `order_by=-field`, `search=term`, `page=N&size=N` |
-| **Feathers** | `FEATHERS_DRIVER` | [FeathersJS](https://feathersjs.com/) database adapters | `field=value`, `field[$gte]=N`, `$sort[field]=-1`, `$select[0]=col`, `$limit=N&$skip=M` |
-| **JSON:API** | `JSON_API_DRIVER` | Any [JSON:API](https://jsonapi.org/format/)-compliant backend | `filter[field]=value`, `sort=-field`, `page[number]=N&page[size]=N` |
-| **json-server** | `JSON_SERVER_DRIVER` | [json-server](https://github.com/typicode/json-server) mock REST API | `field=value`, `field:gt=N`, `_sort=-field`, `q=term`, `_page=N&_per_page=N` |
-| **Laravel** | `LARAVEL_DRIVER` | Plain Laravel pagination | `limit=N&page=N` (pagination only) |
-| **Spatie** | `SPATIE_DRIVER` | [Spatie Laravel Query Builder](https://spatie.be/docs/laravel-query-builder) | `filter[field]=value`, `sort=-field` |
-| **NestJS** | `NESTJS_DRIVER` | [`nestjs-paginate`](https://github.com/ppetzold/nestjs-paginate) | `filter.field=$op:value`, `sortBy=field:DESC` |
-| **@nestjsx/crud** | `NESTJSX_CRUD_DRIVER` | [@nestjsx/crud](https://github.com/nestjsx/crud) for NestJS | `filter=field\|\|$eq\|\|value`, `sort=field,ASC`, `join=relation`, `page=N&limit=N` |
-| **OData** | `ODATA_DRIVER` | [OData v4](https://www.odata.org/) (ASP.NET Core OData, SAP, Microsoft Graph) | `$filter=field eq 'value'`, `$orderby=field desc`, `$expand=rel($select=col)`, `$top=N&$skip=M` |
-| **Payload** | `PAYLOAD_DRIVER` | [Payload CMS](https://payloadcms.com/) / `mongoose-paginate-v2` backends | `where[field][equals]=value`, `sort=-field`, `select[col]=true`, `page=N&limit=M` |
-| **PocketBase** | `POCKETBASE_DRIVER` | [PocketBase](https://pocketbase.io/) single-binary backend | `filter=(field='value' && other>10)`, `sort=-field`, `expand=rel`, `fields=col`, `page=N&perPage=M` |
-| **PostgREST** | `POSTGREST_DRIVER` | [PostgREST](https://postgrest.org/) / [Supabase](https://supabase.com/) | `col=eq.value`, `order=col.asc`, `select=col,rel(*)`, `limit=N&offset=M` |
-| **Ransack** | `RANSACK_DRIVER` | [Ransack](https://activerecord-hackery.github.io/ransack/) for Rails (Pagy or Kaminari pagination) | `q[field_eq]=value`, `q[field_gteq]=N`, `q[s][]=field+desc`, `page=N&limit=N` |
-| **Sieve** | `SIEVE_DRIVER` | [Sieve](https://github.com/Biarity/Sieve) for ASP.NET Core | `filters=Field==Value,Other>=N`, `sorts=-field`, `page=N&pageSize=N` |
-| **Spring** | `SPRING_DRIVER` | [Spring Data REST](https://spring.io/projects/spring-data-rest) (HAL) | `sort=field,asc` (repeatable), `page=N&size=N` (0-indexed page) |
-| **Strapi** | `STRAPI_DRIVER` | [Strapi](https://strapi.io/) v4 / v5 headless CMS | `filters[field][$eq]=value`, `sort[0]=field:asc`, `pagination[page]=N&pagination[pageSize]=N` |
-| **WordPress** | `WORDPRESS_DRIVER` | [WordPress REST API](https://developer.wordpress.org/rest-api/) | `field=value`, `orderby=field&order=desc`, `_fields=col`, `_embed=rel`, `search=term`, `page=N&per_page=M` |
+| Driver            | Definition            | Backend                                                                                                                                                                      | Wire format snapshot                                                                                       |
+| ----------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **API Platform**  | `API_PLATFORM_DRIVER` | [API Platform](https://api-platform.com/) for PHP/Symfony                                                                                                                    | `field=value`, `price[between]=10..50`, `order[field]=desc`, `page=N&itemsPerPage=N`                       |
+| **Directus**      | `DIRECTUS_DRIVER`     | [Directus](https://directus.io/) headless CMS / data platform                                                                                                                | `filter[field][_eq]=value`, `sort=-field`, `fields=col,rel.col`, `limit=N&page=N`                          |
+| **DRF**           | `DRF_DRIVER`          | [Django REST Framework](https://www.django-rest-framework.org/) + [django-filter](https://django-filter.readthedocs.io/)                                                     | `field=value`, `field__gte=N`, `ordering=-field`, `page=N&page_size=M`                                     |
+| **FastAPI**       | `FASTAPI_DRIVER`      | [FastAPI](https://fastapi.tiangolo.com/) + [fastapi-filter](https://github.com/arthurio/fastapi-filter) + [fastapi-pagination](https://github.com/uriyyo/fastapi-pagination) | `field=value`, `field__gte=N`, `order_by=-field`, `search=term`, `page=N&size=N`                           |
+| **Feathers**      | `FEATHERS_DRIVER`     | [FeathersJS](https://feathersjs.com/) database adapters                                                                                                                      | `field=value`, `field[$gte]=N`, `$sort[field]=-1`, `$select[0]=col`, `$limit=N&$skip=M`                    |
+| **JSON:API**      | `JSON_API_DRIVER`     | Any [JSON:API](https://jsonapi.org/format/)-compliant backend                                                                                                                | `filter[field]=value`, `sort=-field`, `page[number]=N&page[size]=N`                                        |
+| **json-server**   | `JSON_SERVER_DRIVER`  | [json-server](https://github.com/typicode/json-server) mock REST API                                                                                                         | `field=value`, `field:gt=N`, `_sort=-field`, `q=term`, `_page=N&_per_page=N`                               |
+| **Laravel**       | `LARAVEL_DRIVER`      | Plain Laravel pagination                                                                                                                                                     | `limit=N&page=N` (pagination only)                                                                         |
+| **Spatie**        | `SPATIE_DRIVER`       | [Spatie Laravel Query Builder](https://spatie.be/docs/laravel-query-builder)                                                                                                 | `filter[field]=value`, `sort=-field`                                                                       |
+| **NestJS**        | `NESTJS_DRIVER`       | [`nestjs-paginate`](https://github.com/ppetzold/nestjs-paginate)                                                                                                             | `filter.field=$op:value`, `sortBy=field:DESC`                                                              |
+| **@nestjsx/crud** | `NESTJSX_CRUD_DRIVER` | [@nestjsx/crud](https://github.com/nestjsx/crud) for NestJS                                                                                                                  | `filter=field\|\|$eq\|\|value`, `sort=field,ASC`, `join=relation`, `page=N&limit=N`                        |
+| **OData**         | `ODATA_DRIVER`        | [OData v4](https://www.odata.org/) (ASP.NET Core OData, SAP, Microsoft Graph)                                                                                                | `$filter=field eq 'value'`, `$orderby=field desc`, `$expand=rel($select=col)`, `$top=N&$skip=M`            |
+| **Payload**       | `PAYLOAD_DRIVER`      | [Payload CMS](https://payloadcms.com/) / `mongoose-paginate-v2` backends                                                                                                     | `where[field][equals]=value`, `sort=-field`, `select[col]=true`, `page=N&limit=M`                          |
+| **PocketBase**    | `POCKETBASE_DRIVER`   | [PocketBase](https://pocketbase.io/) single-binary backend                                                                                                                   | `filter=(field='value' && other>10)`, `sort=-field`, `expand=rel`, `fields=col`, `page=N&perPage=M`        |
+| **PostgREST**     | `POSTGREST_DRIVER`    | [PostgREST](https://postgrest.org/) / [Supabase](https://supabase.com/)                                                                                                      | `col=eq.value`, `order=col.asc`, `select=col,rel(*)`, `limit=N&offset=M`                                   |
+| **Ransack**       | `RANSACK_DRIVER`      | [Ransack](https://activerecord-hackery.github.io/ransack/) for Rails (Pagy or Kaminari pagination)                                                                           | `q[field_eq]=value`, `q[field_gteq]=N`, `q[s][]=field+desc`, `page=N&limit=N`                              |
+| **Sieve**         | `SIEVE_DRIVER`        | [Sieve](https://github.com/Biarity/Sieve) for ASP.NET Core                                                                                                                   | `filters=Field==Value,Other>=N`, `sorts=-field`, `page=N&pageSize=N`                                       |
+| **Spring**        | `SPRING_DRIVER`       | [Spring Data REST](https://spring.io/projects/spring-data-rest) (HAL)                                                                                                        | `sort=field,asc` (repeatable), `page=N&size=N` (0-indexed page)                                            |
+| **Strapi**        | `STRAPI_DRIVER`       | [Strapi](https://strapi.io/) v4 / v5 headless CMS                                                                                                                            | `filters[field][$eq]=value`, `sort[0]=field:asc`, `pagination[page]=N&pagination[pageSize]=N`              |
+| **WordPress**     | `WORDPRESS_DRIVER`    | [WordPress REST API](https://developer.wordpress.org/rest-api/)                                                                                                              | `field=value`, `orderby=field&order=desc`, `_fields=col`, `_embed=rel`, `search=term`, `page=N&per_page=M` |
 
 Per-driver guides — wire format, supported operators, response parsing, customisation — live on the [docs site](https://qubeejs-angular.andreatantimonaco.me/docs/getting-started). For a backend chosen at runtime, `provideQubee({ driver: DRIVERS[id] })` looks the definition up by its `DriverEnum` member or string id.
 
@@ -76,10 +76,10 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { QubeeQueryBuilder, STRAPI_DRIVER, SortEnum, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideQubee({ driver: STRAPI_DRIVER })]
+  providers: [provideQubee({ driver: STRAPI_DRIVER })],
 });
 
-@Component({ /* … */ })
+@Component({/* … */})
 export class ArticlesComponent {
   private readonly _qb = inject(QubeeQueryBuilder);
 
@@ -104,7 +104,13 @@ export class ArticlesComponent {
 Declare a list once with the core's `defineList()`, and `injectQubeeList()` keeps its state in the address bar — it survives a reload, can be shared, and works with Back:
 
 ```typescript
-import { STRAPI_DRIVER, defineList, injectQubeeList, integerParam, stringParam } from '@qubeejs/angular';
+import {
+  STRAPI_DRIVER,
+  defineList,
+  injectQubeeList,
+  integerParam,
+  stringParam,
+} from '@qubeejs/angular';
 import { qubeeHttpResource } from '@qubeejs/angular/http';
 import { provideQubeeRouterAdapter } from '@qubeejs/angular/router';
 
@@ -118,14 +124,14 @@ export const articleList = defineList({
   },
   params: { page: integerParam('page', { default: 1, min: 1 }), q: stringParam('q') },
   qubee: { driver: STRAPI_DRIVER },
-  resource: 'articles'
+  resource: 'articles',
 });
 
 bootstrapApplication(AppComponent, {
-  providers: [provideHttpClient(), provideRouter(routes), provideQubeeRouterAdapter()]
+  providers: [provideHttpClient(), provideRouter(routes), provideQubeeRouterAdapter()],
 });
 
-@Component({ /* … */ })
+@Component({/* … */})
 export class ArticlesComponent {
   protected readonly list = injectQubeeList(articleList);
 

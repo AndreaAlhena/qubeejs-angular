@@ -47,12 +47,12 @@ export function createQubeeInstance(injector?: Injector): QubeeInstance {
   const scope = Injector.create({
     name: 'QubeeInstance',
     parent: injector ?? inject(Injector),
-    providers: provideQubeeInstance()
+    providers: provideQubeeInstance(),
   });
 
   return {
     builder: scope.get(QubeeQueryBuilder),
     paginator: scope.get(QubeePaginator),
-    store: scope.get(QubeeSignalStore)
+    store: scope.get(QubeeSignalStore),
   };
 }

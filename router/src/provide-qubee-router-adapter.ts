@@ -1,8 +1,15 @@
-import type { Provider} from '@angular/core';
+import type { Provider } from '@angular/core';
 import type { ListLocation, QubeeListAdapter, QubeeListNavigateOptions } from '@qubeejs/angular';
 
 import { DestroyRef, inject, signal } from '@angular/core';
-import { NavigationCancel, NavigationEnd, NavigationError, NavigationSkipped, ResolveEnd, Router } from '@angular/router';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationSkipped,
+  ResolveEnd,
+  Router,
+} from '@angular/router';
 import { QUBEE_LIST_ADAPTER, toSearchParams } from '@qubeejs/angular';
 
 /**
@@ -47,10 +54,10 @@ function createRouterAdapter(): QubeeListAdapter {
     if (event instanceof ResolveEnd) {
       location.set(parseUrl(event.urlAfterRedirects));
     } else if (
-      event instanceof NavigationEnd
-      || event instanceof NavigationCancel
-      || event instanceof NavigationError
-      || event instanceof NavigationSkipped
+      event instanceof NavigationEnd ||
+      event instanceof NavigationCancel ||
+      event instanceof NavigationError ||
+      event instanceof NavigationSkipped
     ) {
       location.set(parseUrl(router.url));
     }
@@ -61,7 +68,7 @@ function createRouterAdapter(): QubeeListAdapter {
   return {
     location: location.asReadonly(),
     navigate: (href: string, { replace }: QubeeListNavigateOptions): Promise<boolean> =>
-      router.navigateByUrl(href, { replaceUrl: replace })
+      router.navigateByUrl(href, { replaceUrl: replace }),
   };
 }
 
@@ -89,6 +96,8 @@ function parseUrl(url: string): ListLocation {
  * @returns `true` when the paths match and the queries serialise alike
  */
 function isSameLocation(a: ListLocation, b: ListLocation): boolean {
-  return a.pathname === b.pathname
-    && toSearchParams(a.search).toString() === toSearchParams(b.search).toString();
+  return (
+    a.pathname === b.pathname &&
+    toSearchParams(a.search).toString() === toSearchParams(b.search).toString()
+  );
 }

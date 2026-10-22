@@ -16,7 +16,6 @@ import { QubeeSignalStore } from './qubee-signal-store';
  */
 @Injectable()
 export class QubeePaginator {
-
   /**
    * The core paginator, wired to this scope's store and the active driver
    */
@@ -49,7 +48,10 @@ export class QubeePaginator {
    * `Record<string, string>`.
    * @returns A typed PaginatedCollection instance
    */
-  public paginate<T extends PaginatedObject>(response: RawResponse, headers?: HeaderBag): PaginatedCollection<T> {
+  public paginate<T extends PaginatedObject>(
+    response: RawResponse,
+    headers?: HeaderBag
+  ): PaginatedCollection<T> {
     return this._paginator.paginate<T>(response, headers);
   }
 }

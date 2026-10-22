@@ -7,14 +7,27 @@ import type {
   ListRequest,
   ParamsState,
   Sort,
-  ToggleSortOptions
+  ToggleSortOptions,
 } from '@qubeejs/core';
 
 import { DOCUMENT } from '@angular/common';
-import { assertInInjectionContext, computed, DestroyRef, inject, Injector, signal, untracked } from '@angular/core';
+import {
+  assertInInjectionContext,
+  computed,
+  DestroyRef,
+  inject,
+  Injector,
+  signal,
+  untracked,
+} from '@angular/core';
 import { buildListHref, buildListRequest, readListState, toggleSort } from '@qubeejs/core';
 
-import type { QubeeList, QubeeListArgs, QubeeListInput, QubeeListSetOptions } from '../types/qubee-list.type';
+import type {
+  QubeeList,
+  QubeeListArgs,
+  QubeeListInput,
+  QubeeListSetOptions,
+} from '../types/qubee-list.type';
 
 import { MissingRouterAdapterError } from '../errors/missing-router-adapter.error';
 import { QUBEE_LIST_ADAPTER } from '../tokens/qubee.tokens';
@@ -149,10 +162,9 @@ export function injectQubeeList<TList extends ListDefinition<ListParams, NonNull
     return value && value.href !== href && value.own.includes(href) ? value : null;
   });
 
-  const committed = computed(
-    () => readListState(loose, current().location.search),
-    { equal: deepEqual }
-  );
+  const committed = computed(() => readListState(loose, current().location.search), {
+    equal: deepEqual,
+  });
 
   const state = computed(
     () => {
@@ -173,10 +185,13 @@ export function injectQubeeList<TList extends ListDefinition<ListParams, NonNull
 
       // Not redundant: with TList generic, `typeof === 'function'` narrows to a
       // union that is not callable, and dropping the cast makes `value` an error type.
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-      const value = typeof input === 'function' ? (input as () => ListInput<TList> | null)() : input;
+      const value =
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        typeof input === 'function' ? (input as () => ListInput<TList> | null)() : input;
 
-      return value === null || value === undefined ? null : buildListRequest(wide, listState, value);
+      return value === null || value === undefined
+        ? null
+        : buildListRequest(wide, listState, value);
     },
     { equal: isSameRequest }
   );
@@ -314,24 +329,30 @@ export function injectQubeeList<TList extends ListDefinition<ListParams, NonNull
   const params: Readonly<Record<string, ListParam<unknown>>> = list.params;
   const sortNames = Object.keys(params).filter((name) => 'sortFields' in params[name]);
   const handle = {
-    href: (changes: object = {}): string => buildListHref(loose, (liveDraft() ?? current()).location, changes),
+    href: (changes: object = {}): string =>
+      buildListHref(loose, (liveDraft() ?? current()).location, changes),
     isPending,
     request,
     reset: (resetOptions: Omit<QubeeListSetOptions, 'debounce'> = {}): void =>
-      set(Object.fromEntries(Object.keys(params).map((name) => [name, undefined])), { replace: resetOptions.replace }),
+      set(Object.fromEntries(Object.keys(params).map((name) => [name, undefined])), {
+        replace: resetOptions.replace,
+      }),
     set,
     setPage: (page: number, pageOptions: Omit<QubeeListSetOptions, 'debounce'> = {}): void =>
       set({ page }, { replace: pageOptions.replace }),
     state,
     ...(sortNames.length === 1 && {
-      toggleSort: (field: string, sortOptions: QubeeListSetOptions & ToggleSortOptions = {}): void => {
+      toggleSort: (
+        field: string,
+        sortOptions: QubeeListSetOptions & ToggleSortOptions = {}
+      ): void => {
         const [name] = sortNames;
         const sorts = untracked(state)[name] as readonly Sort[];
         const { multiple, ...rest } = sortOptions;
 
         set({ [name]: toggleSort(sorts, field, { multiple }) }, rest);
-      }
-    })
+      },
+    }),
   };
 
   return handle as unknown as QubeeList<TList>;
@@ -345,7 +366,9 @@ export function injectQubeeList<TList extends ListDefinition<ListParams, NonNull
  * @returns `true` when both are `null` or ask for the same page
  */
 function isSameRequest(a: ListRequest | null, b: ListRequest | null): boolean {
-  return a === b || (a !== null && b !== null && a.uri === b.uri && deepEqual(a.headers, b.headers));
+  return (
+    a === b || (a !== null && b !== null && a.uri === b.uri && deepEqual(a.headers, b.headers))
+  );
 }
 
 /**
