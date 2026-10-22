@@ -172,7 +172,7 @@ export class RangeArticlesComponent {
 }
 ```
 
-The first page goes out as `GET …/articles` with `Prefer: count=exact`, `Range-Unit: items` and `Range: 0-19`. A `Content-Range: 0-19/34` answer parses as page 1 of 2, 34 rows. Without `Prefer: count=exact`, PostgREST answers `0-19/*`, and `total` and `lastPage` stay `undefined`. On a clash, the list's own headers win over `init`, since paging depends on them.
+The first page goes out as `GET …/articles` with `Prefer: count=exact`, `Range-Unit: items` and `Range: 0-19`. A `Content-Range: 0-19/34` answer parses as page 1 of 2, 34 rows, and the short last page, `Range: 20-39` answered with `20-33/34`, as page 2 of 2, rows 21–34. (Before `@qubeejs/core` 1.6.1, a short last page was sized by its own row count and parsed as the wrong page.) Without `Prefer: count=exact`, PostgREST answers `0-19/*`, and `total` and `lastPage` stay `undefined`. On a clash, the list's own headers win over `init`, since paging depends on them.
 
 The bootstrap is the usual one for a list: `provideRouter()`, `provideQubeeRouterAdapter()` and `provideHttpClient()`.
 
