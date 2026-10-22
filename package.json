@@ -110,14 +110,14 @@
     "url": "git+https://github.com/AndreaAlhena/qubeejs-angular.git"
   },
   "scripts": {
-    "ng": "ng",
     "build": "ng build",
-    "test": "ng test",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "prepare": "husky",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "ng": "ng",
+    "prepare": "husky",
+    "test": "ng test",
     "test:conventions": "node --test test/conventions.test.mjs"
   },
   "sideEffects": false,
