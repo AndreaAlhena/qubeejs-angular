@@ -4,6 +4,7 @@
 
 // Angular adapter: providers, services, tokens
 export * from './lib/create-qubee-instance';
+export * from './lib/lists/memory-adapter';
 export * from './lib/qubee.module';
 export * from './lib/provide-qubee';
 export * from './lib/services/qubee-query-builder';
