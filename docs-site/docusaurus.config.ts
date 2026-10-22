@@ -17,7 +17,7 @@ const config: Config = {
 
   // GitHub Pages deployment config
   organizationName: 'AndreaAlhena',
-  projectName: 'ng-qubee',
+  projectName: 'qubeejs-angular',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -68,7 +68,7 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           // Edit-this-page link to develop branch (where work-in-progress lives)
-          editUrl: 'https://github.com/AndreaAlhena/ng-qubee/edit/develop/docs-site/',
+          editUrl: 'https://github.com/AndreaAlhena/qubeejs-angular/edit/develop/docs-site/',
           // Versioning: before the first `docusaurus docs:version <v>` snapshot
           // runs, the "current" docs (i.e. develop) serve at /docs/. After
           // snapshotting, the named version takes over /docs/ and "current"
@@ -118,7 +118,7 @@ const config: Config = {
           position: 'right'
         },
         {
-          href: 'https://github.com/AndreaAlhena/ng-qubee',
+          href: 'https://github.com/AndreaAlhena/qubeejs-angular',
           label: 'GitHub',
           position: 'right'
         }
@@ -139,10 +139,10 @@ const config: Config = {
         {
           title: 'Project',
           items: [
-            { label: 'GitHub', href: 'https://github.com/AndreaAlhena/ng-qubee' },
+            { label: 'GitHub', href: 'https://github.com/AndreaAlhena/qubeejs-angular' },
             { label: 'npm', href: 'https://www.npmjs.com/package/ng-qubee' },
-            { label: 'Changelog', href: 'https://github.com/AndreaAlhena/ng-qubee/blob/master/CHANGELOG.md' },
-            { label: 'Issues', href: 'https://github.com/AndreaAlhena/ng-qubee/issues' }
+            { label: 'Changelog', href: 'https://github.com/AndreaAlhena/qubeejs-angular/blob/master/CHANGELOG.md' },
+            { label: 'Issues', href: 'https://github.com/AndreaAlhena/qubeejs-angular/issues' }
           ]
         },
         {

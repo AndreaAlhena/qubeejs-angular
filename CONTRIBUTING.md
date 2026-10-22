@@ -14,8 +14,8 @@ Thank you for your interest in contributing to NgQubee! This document provides g
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/ng-qubee.git
-   cd ng-qubee
+   git clone https://github.com/YOUR_USERNAME/qubeejs-angular.git
+   cd qubeejs-angular
    ```
 3. Install dependencies:
    ```bash

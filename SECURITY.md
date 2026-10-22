@@ -16,7 +16,7 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 
 **Do not open a public issue for security vulnerabilities.**
 
-Instead, please use [GitHub's private vulnerability reporting](https://github.com/AndreaAlhena/ng-qubee/security/advisories/new) to submit your report securely.
+Instead, please use [GitHub's private vulnerability reporting](https://github.com/AndreaAlhena/qubeejs-angular/security/advisories/new) to submit your report securely.
 
 ### What to Include
 
