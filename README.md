@@ -14,8 +14,8 @@
 - **Signals all the way down** — the URI, the query state and every pagination flag are Angular Signals. No RxJS.
 - **Pagination ready** — typed `PaginatedCollection<T>`, fluent navigation (`nextPage`, `lastPage`, `goToPage`), auto-sync from response to state
 - **Lists in the URL** — `injectQubeeList()` keeps filters, sorts and the page in the address bar as typed signals, through the Angular Router
-- **Tree-shakeable drivers** — import the one definition you use and the other seventeen stay out of your bundle
-- **Multi-driver support**: API Platform (Symfony), Directus, Django REST Framework, FeathersJS, JSON:API, json-server, Laravel (pagination-only), Spatie Query Builder, NestJS (`nestjs-paginate`), @nestjsx/crud, OData, Payload CMS, PocketBase, PostgREST / Supabase, Sieve (.NET), Spring Data REST, Strapi, and WordPress REST
+- **Tree-shakeable drivers** — import the one definition you use and the other nineteen stay out of your bundle
+- **Multi-driver support**: API Platform (Symfony), Directus, Django REST Framework, FastAPI (`fastapi-filter` + `fastapi-pagination`), FeathersJS, JSON:API, json-server, Laravel (pagination-only), Spatie Query Builder, NestJS (`nestjs-paginate`), @nestjsx/crud, OData, Payload CMS, PocketBase, PostgREST / Supabase, Ransack (Rails), Sieve (.NET), Spring Data REST, Strapi, and WordPress REST
 
 > Upgrading from `ng-qubee` 3.x? The [changelog](./CHANGELOG.md) has a line-by-line migration table.
 
@@ -47,6 +47,7 @@ A driver **must** be specified in the configuration, as its exported definition:
 | **API Platform** | `API_PLATFORM_DRIVER` | [API Platform](https://api-platform.com/) for PHP/Symfony | `field=value`, `price[between]=10..50`, `order[field]=desc`, `page=N&itemsPerPage=N` |
 | **Directus** | `DIRECTUS_DRIVER` | [Directus](https://directus.io/) headless CMS / data platform | `filter[field][_eq]=value`, `sort=-field`, `fields=col,rel.col`, `limit=N&page=N` |
 | **DRF** | `DRF_DRIVER` | [Django REST Framework](https://www.django-rest-framework.org/) + [django-filter](https://django-filter.readthedocs.io/) | `field=value`, `field__gte=N`, `ordering=-field`, `page=N&page_size=M` |
+| **FastAPI** | `FASTAPI_DRIVER` | [FastAPI](https://fastapi.tiangolo.com/) + [fastapi-filter](https://github.com/arthurio/fastapi-filter) + [fastapi-pagination](https://github.com/uriyyo/fastapi-pagination) | `field=value`, `field__gte=N`, `order_by=-field`, `search=term`, `page=N&size=N` |
 | **Feathers** | `FEATHERS_DRIVER` | [FeathersJS](https://feathersjs.com/) database adapters | `field=value`, `field[$gte]=N`, `$sort[field]=-1`, `$select[0]=col`, `$limit=N&$skip=M` |
 | **JSON:API** | `JSON_API_DRIVER` | Any [JSON:API](https://jsonapi.org/format/)-compliant backend | `filter[field]=value`, `sort=-field`, `page[number]=N&page[size]=N` |
 | **json-server** | `JSON_SERVER_DRIVER` | [json-server](https://github.com/typicode/json-server) mock REST API | `field=value`, `field:gt=N`, `_sort=-field`, `q=term`, `_page=N&_per_page=N` |
@@ -58,6 +59,7 @@ A driver **must** be specified in the configuration, as its exported definition:
 | **Payload** | `PAYLOAD_DRIVER` | [Payload CMS](https://payloadcms.com/) / `mongoose-paginate-v2` backends | `where[field][equals]=value`, `sort=-field`, `select[col]=true`, `page=N&limit=M` |
 | **PocketBase** | `POCKETBASE_DRIVER` | [PocketBase](https://pocketbase.io/) single-binary backend | `filter=(field='value' && other>10)`, `sort=-field`, `expand=rel`, `fields=col`, `page=N&perPage=M` |
 | **PostgREST** | `POSTGREST_DRIVER` | [PostgREST](https://postgrest.org/) / [Supabase](https://supabase.com/) | `col=eq.value`, `order=col.asc`, `select=col,rel(*)`, `limit=N&offset=M` |
+| **Ransack** | `RANSACK_DRIVER` | [Ransack](https://activerecord-hackery.github.io/ransack/) for Rails (Pagy or Kaminari pagination) | `q[field_eq]=value`, `q[field_gteq]=N`, `q[s][]=field+desc`, `page=N&limit=N` |
 | **Sieve** | `SIEVE_DRIVER` | [Sieve](https://github.com/Biarity/Sieve) for ASP.NET Core | `filters=Field==Value,Other>=N`, `sorts=-field`, `page=N&pageSize=N` |
 | **Spring** | `SPRING_DRIVER` | [Spring Data REST](https://spring.io/projects/spring-data-rest) (HAL) | `sort=field,asc` (repeatable), `page=N&size=N` (0-indexed page) |
 | **Strapi** | `STRAPI_DRIVER` | [Strapi](https://strapi.io/) v4 / v5 headless CMS | `filters[field][$eq]=value`, `sort[0]=field:asc`, `pagination[page]=N&pagination[pageSize]=N` |
