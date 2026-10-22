@@ -7,6 +7,7 @@ import { QubeeQueryBuilder } from './services/qubee-query-builder';
 import { QubeeSignalStore } from './services/qubee-signal-store';
 import { QubeePaginator } from './services/qubee-paginator';
 import {
+  QUBEE_BASE_URL,
   QUBEE_DRIVER,
   QUBEE_REQUEST_OPTIONS,
   QUBEE_REQUEST_STRATEGY,
@@ -24,14 +25,15 @@ import {
  * `provideQubeeInstance()` can re-create only the services at a narrower
  * injector while inheriting the driver wiring.
  *
- * @param config - The driver definition, plus optional pagination mode and
- * request / response key overrides
+ * @param config - The driver definition, plus an optional base URL, pagination
+ * mode and request / response key overrides
  * @returns An array of Providers for the environment injector
  */
 export function buildQubeeProviders(config: QubeeConfig): Provider[] {
-  const { driver, pagination = PaginationModeEnum.QUERY, request = {}, response = {} } = config;
+  const { baseUrl = '', driver, pagination = PaginationModeEnum.QUERY, request = {}, response = {} } = config;
 
   return [
+    { provide: QUBEE_BASE_URL, useValue: baseUrl },
     { provide: QUBEE_DRIVER, useValue: driver },
     { provide: QUBEE_REQUEST_STRATEGY, useValue: driver.createRequestStrategy(pagination) },
     { provide: QUBEE_REQUEST_OPTIONS, useValue: new QueryBuilderOptions(request) },
@@ -66,12 +68,13 @@ export function buildQubeeProviders(config: QubeeConfig): Provider[] {
  * provideQubee({ driver: DRIVERS[environment.driver] });
  * ```
  *
- * Request and response key overrides, and the PostgREST pagination mode,
- * are passed alongside the driver:
+ * A base URL, request and response key overrides, and the PostgREST
+ * pagination mode are passed alongside the driver:
  * ```
  * import { PaginationModeEnum, POSTGREST_DRIVER, provideQubee } from '@qubeejs/angular';
  *
  * provideQubee({
+ *   baseUrl: 'https://api.example.com',
  *   driver: POSTGREST_DRIVER,
  *   pagination: PaginationModeEnum.RANGE,
  *   response: { data: 'items' }
@@ -79,8 +82,8 @@ export function buildQubeeProviders(config: QubeeConfig): Provider[] {
  * ```
  *
  * @publicApi
- * @param config - The driver definition, plus optional pagination mode and
- * request / response key overrides
+ * @param config - The driver definition, plus an optional base URL, pagination
+ * mode and request / response key overrides
  * @returns A set of providers to setup Qubee
  */
 export function provideQubee(config: QubeeConfig): EnvironmentProviders {

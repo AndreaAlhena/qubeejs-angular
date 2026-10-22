@@ -9,6 +9,16 @@ import type {
 } from '@qubeejs/core';
 
 /**
+ * Injection token for the base URL every generated URI starts with
+ *
+ * Provided by `provideQubee()` / `QubeeModule.forRoot()` from
+ * `QubeeConfig.baseUrl`; empty when the config names none. Each
+ * `QubeeSignalStore` starts from it, as the core's `createQubee()` does, so
+ * `setBaseUrl()` overrides it for one instance and `reset()` clears it.
+ */
+export const QUBEE_BASE_URL = new InjectionToken<string>('QUBEE_BASE_URL', { factory: () => '' });
+
+/**
  * Injection token for the active driver definition
  *
  * Provided by `provideQubee()` / `QubeeModule.forRoot()` from the

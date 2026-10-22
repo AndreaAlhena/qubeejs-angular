@@ -1,8 +1,9 @@
-import { Injectable, Signal, signal } from '@angular/core';
+import { Injectable, Signal, inject, signal } from '@angular/core';
 import { QubeeStore } from '@qubeejs/core';
 
 import type { QueryBuilderState } from '@qubeejs/core';
 
+import { QUBEE_BASE_URL } from '../tokens/qubee.tokens';
 import { deepEqual } from '../utils/deep-equal';
 
 /**
@@ -57,5 +58,13 @@ export class QubeeSignalStore extends QubeeStore {
     // The listener lives exactly as long as this store, so there is nothing
     // to tear down: both are collected together.
     this.subscribe(() => this._stateSignal.set(this.getSnapshot()));
+
+    // Starts from the configured base URL, as the core's createQubee() does;
+    // set after subscribing so the signal sees it.
+    const baseUrl = inject(QUBEE_BASE_URL);
+
+    if (baseUrl) {
+      this.baseUrl = baseUrl;
+    }
   }
 }

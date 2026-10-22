@@ -12,11 +12,13 @@ import {
   StrapiResponseOptions
 } from '@qubeejs/core';
 
+import { createQubeeInstance } from './create-qubee-instance';
 import { provideQubee, provideQubeeInstance } from './provide-qubee';
 import { QubeeQueryBuilder } from './services/qubee-query-builder';
 import { QubeeSignalStore } from './services/qubee-signal-store';
 import { QubeePaginator } from './services/qubee-paginator';
 import {
+  QUBEE_BASE_URL,
   QUBEE_DRIVER,
   QUBEE_REQUEST_OPTIONS,
   QUBEE_REQUEST_STRATEGY,
@@ -84,6 +86,36 @@ describe('provideQubee', () => {
     });
 
     expect(TestBed.inject(QUBEE_REQUEST_OPTIONS).filters).toBe('where');
+  });
+
+  it('should prefix every URI with the configured base URL', () => {
+    TestBed.configureTestingModule({
+      providers: [provideQubee({ baseUrl: 'https://api.example.com/', driver: SPATIE_DRIVER })]
+    });
+
+    expect(TestBed.inject(QUBEE_BASE_URL)).toBe('https://api.example.com/');
+    expect(TestBed.inject(QubeeQueryBuilder).setResource('users').uri())
+      .toBe('https://api.example.com/users?limit=15&page=1');
+  });
+
+  it('should start every instance from the base URL, and let reset() clear it as the core does', () => {
+    TestBed.configureTestingModule({
+      providers: [provideQubee({ baseUrl: 'https://api.example.com', driver: SPATIE_DRIVER })]
+    });
+
+    const { builder } = TestBed.runInInjectionContext(() => createQubeeInstance());
+
+    expect(builder.state().baseUrl).toBe('https://api.example.com');
+
+    builder.reset();
+
+    expect(builder.state().baseUrl).toBe('');
+  });
+
+  it('should leave the base URL empty when the config names none', () => {
+    TestBed.configureTestingModule({ providers: [provideQubee({ driver: SPATIE_DRIVER })] });
+
+    expect(TestBed.inject(QubeeQueryBuilder).setResource('users').uri()).toBe('/users?limit=15&page=1');
   });
 
   it('should share one store between the service and the paginator', () => {
