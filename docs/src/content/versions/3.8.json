@@ -1,0 +1,136 @@
+{
+  "sidebar": [
+    {
+      "label": "Guide",
+      "items": [
+        {
+          "label": "Getting started",
+          "slug": "guide/getting-started"
+        },
+        {
+          "label": "Fetching data",
+          "slug": "guide/fetching-data"
+        },
+        {
+          "label": "Query Builder API",
+          "slug": "guide/query-builder"
+        },
+        {
+          "label": "Pagination",
+          "slug": "guide/pagination"
+        },
+        {
+          "label": "Per-component instances",
+          "slug": "guide/per-component-instances"
+        },
+        {
+          "label": "Migrating to 4.0",
+          "slug": "guide/migrating"
+        }
+      ]
+    },
+    {
+      "label": "Drivers",
+      "items": [
+        "drivers/json-api",
+        "drivers/laravel",
+        "drivers/spatie",
+        "drivers/nestjs",
+        "drivers/postgrest",
+        "drivers/strapi",
+        "drivers/drf",
+        "drivers/nestjsx-crud",
+        "drivers/spring",
+        "drivers/sieve",
+        "drivers/odata",
+        "drivers/directus",
+        "drivers/json-server",
+        "drivers/api-platform",
+        "drivers/feathers",
+        "drivers/pocketbase",
+        "drivers/payload",
+        "drivers/wordpress"
+      ]
+    },
+    {
+      "label": "API",
+      "collapsed": true,
+      "items": [
+        {
+          "label": "Overview",
+          "slug": "api"
+        },
+        {
+          "label": "Classes",
+          "collapsed": true,
+          "items": [
+            {
+              "autogenerate": {
+                "directory": "api/classes"
+              }
+            }
+          ]
+        },
+        {
+          "label": "Enumerations",
+          "collapsed": true,
+          "items": [
+            {
+              "autogenerate": {
+                "directory": "api/enumerations"
+              }
+            }
+          ]
+        },
+        {
+          "label": "Functions",
+          "collapsed": true,
+          "items": [
+            {
+              "autogenerate": {
+                "directory": "api/functions"
+              }
+            }
+          ]
+        },
+        {
+          "label": "Interfaces",
+          "collapsed": true,
+          "items": [
+            {
+              "autogenerate": {
+                "directory": "api/interfaces"
+              }
+            }
+          ]
+        },
+        {
+          "label": "Type aliases",
+          "collapsed": true,
+          "items": [
+            {
+              "autogenerate": {
+                "directory": "api/type-aliases"
+              }
+            }
+          ]
+        },
+        {
+          "label": "Variables",
+          "collapsed": true,
+          "items": [
+            {
+              "autogenerate": {
+                "directory": "api/variables"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "excluded": [
+    "changelog",
+    "guide/migrating"
+  ]
+}
