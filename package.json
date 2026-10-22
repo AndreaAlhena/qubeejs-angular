@@ -76,6 +76,9 @@
     "*": {
       "router": [
         "types/qubeejs-angular-router.d.ts"
+      ],
+      "http": [
+        "types/qubeejs-angular-http.d.ts"
       ]
     }
   },
