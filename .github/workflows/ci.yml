@@ -150,7 +150,10 @@ jobs:
             --package-manager=npm
 
       - name: Install the packed library
-        run: npm install "$GITHUB_WORKSPACE"/qubeejs-angular-*.tgz
+        # npm never matches a prerelease (22.3.0-next.2) against `>=17.0.0`, so
+        # the `next` leg skips the peer check to test the code, not the range.
+        # Stable legs keep it: there it is what catches a range regression.
+        run: npm install "$GITHUB_WORKSPACE"/qubeejs-angular-*.tgz ${{ matrix.experimental && '--legacy-peer-deps' || '' }}
         working-directory: consumer
 
       - name: Consume the library for real
