@@ -29,6 +29,8 @@ The next release is **4.0.0**. The package is renamed, the framework-agnostic ha
 
 ### Added
 
+- **`setParam(key, ...values)` / `deleteParams(...keys)`** on `QubeeQueryBuilder`: parameters no driver models, appended after the driver's own on every driver; a key the driver already emits throws `ParamCollisionError`.
+- **`QubeeConfig.baseUrl`**: `provideQubee({ baseUrl, driver })` prefixes every URI. Each store starts from it (exposed as the `QUBEE_BASE_URL` token), `setBaseUrl()` overrides it per instance and `reset()` clears it, as with the core's `createQubee()`.
 - **`uri: Signal<string | undefined>`** on `QubeeQueryBuilder`: the URI for the current state, recomputed on every mutation, `undefined` until a resource is set. `undefined` is the idle sentinel `httpResource()` understands, so `httpResource(() => qb.uri())` stays idle until `setResource()` and re-fetches on every filter, sort or page change with no glue code.
 - **`state: Signal<QueryBuilderState>`** on both `QubeeSignalStore` and `QubeeQueryBuilder`.
 - **`createQubeeInstance(injector?)`** (#69): a factory returning an isolated `{ builder, paginator, store }` — the Angular counterpart of the core's `createQubee()` — for root-scoped services that cannot use `provideQubeeInstance()`. The three objects are created in a child injector, so they inherit the driver, strategies and options from `provideQubee()` while owning private state; two root services that each call it never see each other's filters or pages. Defaults to the current injection context, accepts an explicit `Injector` from anywhere else, and needs no teardown. The return type is exported as `QubeeInstance`.
@@ -64,6 +66,7 @@ The next release is **4.0.0**. The package is renamed, the framework-agnostic ha
 | `IFields`, `IFilters`, `ISort`, `IOperatorFilter`, `IQueryBuilderState`, `IQueryBuilderConfig`, `IPaginationConfig`, `INormalized`, `IPaginatedObject`, `IStrategyCapabilities` | the same names without the `I` |
 | `rxjs` in `peerDependencies` | not required by the library (Angular itself still peers it) |
 | `addFilter('q', encodeURIComponent(term))` | `addFilter('q', term)` — values are encoded for you |
+| `setBaseUrl()` after every `reset()` or in every instance | `provideQubee({ baseUrl, driver })` |
 
 Everything else — the fluent mutators, `paginate()`, `PaginatedCollection`, the enums, the errors and the strategies — keeps its name and behaviour.
 
