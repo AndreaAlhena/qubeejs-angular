@@ -1,0 +1,463 @@
+/*
+ * Qubee Angular design tokens.
+ *
+ * Unlayered on purpose: Starlight puts its own rules inside
+ * `@layer starlight.*`, and unlayered declarations beat layered ones no matter
+ * the order — so this file wins without a single `!important`, and without
+ * overriding a single component.
+ *
+ * Same family as the core docs (qubeejs.andreatantimonaco.me), with Angular
+ * red in place of honey and IBM Plex Sans as the body face.
+ */
+
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/ibm-plex-sans';
+@import '@fontsource-variable/jetbrains-mono';
+
+:root {
+  /* Brand — "honey" keeps the core's token names; here it is Angular red. */
+  --qb-honey: #dd0031;
+  --qb-honey-hi: #f4123f;
+
+  /* Surfaces that do not change with the theme */
+  --qb-code-bg: #0c0e12;
+
+  /* Type */
+  --qb-font-display: 'Space Grotesk Variable', system-ui, sans-serif;
+  --qb-font-body: 'IBM Plex Sans Variable', system-ui, sans-serif;
+  --qb-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --sl-font: var(--qb-font-body);
+  --sl-font-mono: var(--qb-font-mono);
+}
+
+/* Dark is the design's native mode. */
+:root,
+:root[data-theme='dark'] {
+  --qb-ink: #ff6a80;
+  --qb-honey-soft: rgba(221, 0, 49, 0.16);
+  --qb-honey-line: rgba(221, 0, 49, 0.4);
+  --qb-bg: #16181c;
+  --qb-alt: #101216;
+  --qb-surface: #1c1f24;
+  --qb-border: #2b3038;
+  --qb-hover: rgba(255, 255, 255, 0.05);
+  --qb-text: #e9eaee;
+  --qb-muted: #98a0ac;
+
+  --sl-color-accent: var(--qb-honey);
+  --sl-color-accent-high: var(--qb-ink);
+  --sl-color-accent-low: #3a0b16;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: var(--qb-text);
+  --sl-color-gray-2: #c7ccd4;
+  --sl-color-gray-3: var(--qb-muted);
+  --sl-color-gray-4: #6b7280;
+  --sl-color-gray-5: var(--qb-border);
+  --sl-color-gray-6: var(--qb-surface);
+  --sl-color-gray-7: #23262b;
+  --sl-color-black: var(--qb-bg);
+
+  --sl-color-bg: var(--qb-bg);
+  --sl-color-bg-nav: rgba(22, 24, 28, 0.86);
+  --sl-color-bg-sidebar: var(--qb-bg);
+  --sl-color-bg-inline-code: var(--qb-surface);
+  --sl-color-hairline: var(--qb-border);
+  --sl-color-hairline-light: var(--qb-border);
+  --sl-color-hairline-shade: var(--qb-border);
+  --sl-color-text: var(--qb-text);
+  --sl-color-text-accent: var(--qb-ink);
+  --sl-color-text-invert: #ffffff;
+}
+
+/* The design's light palette: warm, faintly red-tinted whites. */
+:root[data-theme='light'] {
+  --qb-ink: #c00029;
+  --qb-honey-soft: rgba(221, 0, 49, 0.09);
+  --qb-honey-line: rgba(221, 0, 49, 0.3);
+  --qb-bg: #ffffff;
+  --qb-alt: #fdf6f6;
+  --qb-surface: #fffbfb;
+  --qb-border: #ece0e1;
+  --qb-hover: rgba(0, 0, 0, 0.045);
+  --qb-text: #191b1f;
+  --qb-muted: #5f6570;
+
+  --sl-color-accent: var(--qb-honey);
+  --sl-color-accent-high: #8f0020;
+  --sl-color-accent-low: #fde3e8;
+
+  --sl-color-white: #191b1f;
+  --sl-color-gray-1: #191b1f;
+  --sl-color-gray-2: #2b3038;
+  --sl-color-gray-3: var(--qb-muted);
+  --sl-color-gray-4: #8a93a1;
+  --sl-color-gray-5: var(--qb-border);
+  --sl-color-gray-6: #f6eeef;
+  --sl-color-gray-7: var(--qb-alt);
+  --sl-color-black: #ffffff;
+
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: rgba(255, 255, 255, 0.88);
+  --sl-color-bg-sidebar: #ffffff;
+  --sl-color-hairline: var(--qb-border);
+  --sl-color-hairline-light: var(--qb-border);
+  --sl-color-hairline-shade: var(--qb-border);
+  --sl-color-text: #2b3038;
+  --sl-color-text-accent: var(--qb-ink);
+  --sl-color-text-invert: #ffffff;
+}
+
+::selection {
+  background: rgba(221, 0, 49, 0.32);
+}
+
+/* Headings carry the display face. */
+.sl-markdown-content :is(h1, h2, h3, h4),
+.site-title,
+h1 {
+  font-family: var(--qb-font-display);
+  letter-spacing: -0.01em;
+}
+
+/* Code blocks sit on the design's deeper background. Expressive Code redefines
+   these for its light theme, so light mode keeps readable light code blocks. */
+:root {
+  --ec-frm-edBg: var(--qb-code-bg);
+  --ec-frm-trmBg: var(--qb-code-bg);
+  --ec-brdCol: var(--qb-border);
+  --ec-codeFontFml: var(--qb-font-mono);
+}
+
+/* --- Components the design specifies ---------------------------------- */
+
+/* "Bee aware" — the branded admonition, mapped onto Starlight's caution aside
+   so it works from plain markdown with no component override. */
+.starlight-aside--caution {
+  background: var(--qb-honey-soft);
+  border: 1px solid var(--qb-honey-line);
+  border-radius: 12px;
+}
+
+.starlight-aside--caution .starlight-aside__title {
+  color: var(--qb-ink);
+  font-family: var(--qb-font-display);
+}
+
+/* The design puts the bee mark in the callout. Swapping the icon for a
+   background image keeps that without overriding the Aside component. */
+.starlight-aside--caution .starlight-aside__icon {
+  background: url('/mark.png') left center / contain no-repeat;
+  height: 1.9em;
+  width: 2.8em;
+}
+
+.starlight-aside--caution .starlight-aside__icon > * {
+  display: none;
+}
+
+/* Notes and tips: the design's neutral surface with a red rule, instead of
+   Starlight's blue and purple. */
+.starlight-aside--note,
+.starlight-aside--tip {
+  background: var(--qb-surface);
+  border: 1px solid var(--sl-color-hairline);
+  border-inline-start: 3px solid var(--qb-honey);
+  border-radius: 12px;
+}
+
+.starlight-aside--note .starlight-aside__title,
+.starlight-aside--tip .starlight-aside__title {
+  color: var(--qb-ink);
+  font-family: var(--qb-font-display);
+}
+
+/* The design's pointer to the core docs: a muted paragraph on a red rule.
+   Written as a plain markdown blockquote. */
+.sl-markdown-content blockquote {
+  border-inline-start: 2px solid var(--qb-honey-line);
+  color: var(--sl-color-gray-3);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  padding-inline-start: 0.875rem;
+}
+
+/* Meta chips on API pages: kind, entry point, member count, source file. */
+.qb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.75rem;
+}
+
+.qb-chip {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 6px;
+  color: var(--sl-color-gray-3);
+  font-family: var(--qb-font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  text-decoration: none;
+}
+
+a.qb-chip:hover {
+  border-color: var(--qb-honey);
+  color: var(--qb-ink);
+}
+
+.qb-chip:first-child {
+  background: var(--qb-honey);
+  border-color: var(--qb-honey);
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Signature and option tables. */
+.sl-markdown-content table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.sl-markdown-content :is(th, td) {
+  border-color: var(--sl-color-hairline);
+}
+
+.sl-markdown-content th {
+  font-family: var(--qb-font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ======================================================================
+ * Doc-page chrome, matched to the design.
+ *
+ * All of this targets Starlight's own DOM through public class names —
+ * no component overrides, so nothing here breaks on a Starlight upgrade.
+ * ====================================================================== */
+
+/* --- sidebar ---------------------------------------------------------- */
+
+.sidebar-content .group-label .large {
+  color: var(--sl-color-gray-3);
+  font-family: var(--qb-font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* The design draws one hairline down the group, with the active item's
+   2px marker sitting on top of it. */
+.sidebar-content ul ul,
+.sidebar-content .top-level > li > ul {
+  border-inline-start: 1px solid var(--sl-color-hairline);
+  gap: 1px;
+  margin-inline-start: 0.625rem;
+  padding-inline-start: 0;
+}
+
+.sidebar-content a {
+  border-inline-start: 2px solid transparent;
+  font-size: 0.8625rem;
+  margin-inline-start: -1px;
+  padding-block: 0.375rem;
+  padding-inline: 0.875rem 0.625rem;
+}
+
+.sidebar-content a:hover {
+  color: var(--sl-color-white);
+}
+
+.sidebar-content a[aria-current='page'] {
+  background: transparent;
+  border-inline-start-color: var(--qb-honey);
+  color: var(--qb-ink);
+  font-weight: 600;
+}
+
+/* API entries are symbols: the design sets them in the mono face, small
+   enough that provideQubeeBrowserAdapter() fits a nested group. */
+.sidebar-content a.qb-api-link {
+  font-family: var(--qb-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  padding-inline-end: 0;
+}
+
+/* --- table of contents ------------------------------------------------ */
+
+starlight-toc nav > h2,
+mobile-starlight-toc .toggle {
+  color: var(--sl-color-gray-3);
+  font-family: var(--qb-font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+starlight-toc nav > ul {
+  border-inline-start: 1px solid var(--sl-color-hairline);
+}
+
+starlight-toc nav ul a {
+  border-inline-start: 2px solid transparent;
+  font-size: 0.825rem;
+  margin-inline-start: -1px;
+  padding-block: 0.3125rem;
+  padding-inline-start: 0.875rem;
+}
+
+starlight-toc nav ul a[aria-current='true'] {
+  border-inline-start-color: var(--qb-honey);
+  color: var(--qb-ink);
+}
+
+/* --- previous / next -------------------------------------------------- */
+
+.pagination-links {
+  border-top: 1px solid var(--sl-color-hairline);
+  gap: 0.875rem;
+  padding-top: 1.625rem;
+}
+
+.pagination-links a {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 11px;
+  box-shadow: none;
+  gap: 0.25rem;
+  padding: 1rem 1.125rem;
+}
+
+.pagination-links a:hover {
+  border-color: var(--qb-honey);
+}
+
+.pagination-links a > span:first-of-type {
+  color: var(--sl-color-gray-3);
+  font-size: 0.75rem;
+}
+
+.pagination-links a .link-title {
+  color: var(--qb-ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.pagination-links svg {
+  display: none;
+}
+
+/* --- content ---------------------------------------------------------- */
+
+.sl-markdown-content h1,
+.content-panel h1 {
+  font-family: var(--qb-font-display);
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  letter-spacing: -0.032em;
+  line-height: 1.1;
+}
+
+.sl-markdown-content h2 {
+  font-size: 1.5625rem;
+  letter-spacing: -0.02em;
+}
+
+/* The design rules a line above each section. Starlight wraps an h2 with its
+   anchor link, so the rule goes on the wrapper to span the whole column. */
+.sl-markdown-content .sl-heading-wrapper.level-h2,
+.sl-markdown-content > h2 {
+  border-top: 1px solid var(--sl-color-hairline);
+  padding-top: 0.625rem;
+}
+
+.sl-markdown-content h3 {
+  font-size: 1.1875rem;
+  letter-spacing: -0.01em;
+}
+
+/* The lede — the first paragraph of a page reads larger and muted. */
+.content-panel .sl-markdown-content > p:first-child {
+  color: var(--sl-color-gray-3);
+  font-size: 1.09375rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+/* Inline code is red-tinted, as in the design. */
+.sl-markdown-content :not(pre, astro-code) > code {
+  background: var(--qb-honey-soft);
+  border-radius: 4px;
+  color: var(--qb-ink);
+  font-size: 0.85em;
+  padding: 2px 5px;
+}
+
+/* Links in prose take the accent ink, underlined on hover only. */
+.sl-markdown-content a:not(.qb-chip) {
+  color: var(--qb-ink);
+  text-decoration: none;
+}
+
+.sl-markdown-content a:not(.qb-chip):hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- breadcrumb and archived-version notice --------------------------- */
+
+.qb-crumb {
+  align-items: center;
+  color: var(--sl-color-gray-3);
+  display: flex;
+  font-family: var(--qb-font-mono);
+  font-size: 0.8125rem;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.qb-crumb .sep {
+  opacity: 0.5;
+}
+
+.qb-crumb .current {
+  color: var(--qb-ink);
+}
+
+.qb-archived {
+  align-items: center;
+  border: 1px dashed var(--qb-honey-line);
+  border-radius: 12px;
+  color: var(--sl-color-gray-3);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.qb-archived strong {
+  color: var(--qb-ink);
+  font-family: var(--qb-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.qb-archived a {
+  color: var(--qb-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.qb-archived a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

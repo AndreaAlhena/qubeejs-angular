@@ -1,0 +1,72 @@
+---
+/**
+ * PageTitle override — adds the breadcrumb the design shows above each title,
+ * and, on an archived version, a notice pointing at the current one.
+ *
+ * Starlight has no breadcrumb of its own, so this is the one thing on a doc
+ * page that CSS alone cannot produce. The notice stands in for
+ * starlight-versions' own, whose "latest version" link assumes every page
+ * exists in every version; here it goes through counterpart(), as the header's
+ * version menu does. Everything else — sidebar, table of contents,
+ * pagination, content — is styled through public class names, so it survives
+ * Starlight upgrades untouched.
+ */
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import { getCollection } from 'astro:content';
+
+import type { SidebarEntry } from '@astrojs/starlight/schema';
+
+import { CURRENT, counterpart, versionOf } from '../versions.mjs';
+
+const { entry, id, sidebar } = Astro.locals.starlightRoute;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+/** Every href reachable from a sidebar entry, flattened. */
+function hrefs(item: SidebarEntry): string[] {
+  return item.type === 'group' ? item.entries.flatMap(hrefs) : [item.href];
+}
+
+const here = Astro.url.pathname.replace(/\/$/, '');
+
+const section = sidebar.find(
+  (item) => item.type === 'group' && hrefs(item).some((h) => h.replace(/\/$/, '') === here)
+)?.label;
+
+const archived = versionOf(id);
+const latest = archived
+  ? counterpart(id, undefined, new Set((await getCollection('docs')).map((doc) => doc.id)))
+  : undefined;
+---
+
+{
+  section && (
+    <div class="qb-crumb">
+      {archived && (
+        <>
+          <span>{archived.label}</span>
+          <span class="sep">/</span>
+        </>
+      )}
+      <span>{section}</span>
+      <span class="sep">/</span>
+      <span class="current">{entry.data.title}</span>
+    </div>
+  )
+}
+
+<Default><slot /></Default>
+
+{
+  archived && (
+    <p class="qb-archived">
+      <strong>Archived</strong>
+      <span>
+        These are the docs for <code>{archived.name}</code> {archived.label}.{' '}
+        <a href={`${base}${latest}`}>
+          Read the {CURRENT.label} docs for <code>{CURRENT.name}</code>
+        </a>
+        .
+      </span>
+    </p>
+  )
+}

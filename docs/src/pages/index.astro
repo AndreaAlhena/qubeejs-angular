@@ -1,0 +1,622 @@
+---
+// Imported here rather than with @import in the <style> below: Vite resolves
+// the font files only for stylesheets imported from script.
+import '@fontsource-variable/ibm-plex-sans';
+import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/space-grotesk';
+
+import { CURRENT } from '../versions.mjs';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const CORE = 'https://qubeejs.andreatantimonaco.me';
+
+const features = [
+  {
+    body: 'The URI, the query state and every page flag — <code>uri()</code>, <code>state()</code>, <code>hasNextPage()</code> — are computed signals. No RxJS, no subscriptions.',
+    title: 'Signals all the way down',
+  },
+  {
+    body: '<code>injectQubeeList()</code> keeps filters, sorts and the page in the address bar as typed signals, through the Angular Router, the History API or memory.',
+    title: 'Lists in the URL',
+  },
+  {
+    body: '<code>qubeeHttpResource()</code> is built on <code>httpResource()</code>: your <code>HttpClient</code>, your interceptors, stale requests aborted.',
+    title: 'HttpClient-native fetching',
+  },
+  {
+    body: 'Pass a driver definition — <code>STRAPI_DRIVER</code>, <code>LARAVEL_DRIVER</code>, … — and the other nineteen tree-shake out of your bundle.',
+    title: 'One driver in the bundle',
+  },
+];
+
+const entryPoints = [
+  { name: '@qubeejs/angular', note: 'providers, services, lists' },
+  { name: '@qubeejs/angular/router', note: 'the Angular Router adapter' },
+  { name: '@qubeejs/angular/http', note: 'qubeeHttpResource(), Angular 19.2+' },
+];
+
+const coreLinks = [
+  { body: 'Resources, sorting, field selection, includes, search and extra params.', href: '/guide/building-a-query/', title: 'Building a query' },
+  { body: 'The operators, how values are encoded, and how each driver spells them.', href: '/guide/filters/', title: 'Filters and operators' },
+  { body: 'All twenty backends, what each emits and which features it supports.', href: '/drivers/', title: 'Drivers' },
+  { body: 'Query-string and header pagination, syncing, page windows.', href: '/guide/pagination/', title: 'Pagination' },
+  { body: 'defineList(), its params, and how a hand-edited URL falls back.', href: '/guide/lists/', title: 'Lists and URL state' },
+  { body: 'Request and response strategies, capabilities, contributing a driver.', href: '/extending/writing-a-driver/', title: 'Writing a driver' },
+];
+---
+
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@qubeejs/angular — query state as signals</title>
+    <meta
+      name="description"
+      content="The Angular adapter for @qubeejs/core: query state as signals, lists in the URL, and httpResource() fetching."
+    />
+    <meta property="og:image" content="https://qubeejs-angular.andreatantimonaco.me/logo.png" />
+    <link rel="icon" href={`${base}/mark.png`} />
+  </head>
+
+  <body>
+    <header class="nav">
+      <a class="brand" href={`${base}/`}>
+        <img src={`${base}/mark.png`} alt="" width="39" height="26" />
+        <span>qubeejs<span class="slash">/angular</span></span>
+      </a>
+      <span class="chip">{CURRENT.label}</span>
+      <nav>
+        <a href={`${base}/guide/getting-started/`}>Guide</a>
+        <a href={`${base}/api/`}>API</a>
+        <a href={`${base}/changelog/`}>Changelog</a>
+        <a href={CORE} rel="noopener" target="_blank">Core docs <span class="out">↗</span></a>
+      </nav>
+      <a class="gh" href="https://github.com/AndreaAlhena/qubeejs-angular" aria-label="GitHub">GH</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="glow"></div>
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <div class="pill"><span class="dot"></span>v{CURRENT.label} · Angular 17+ · signals, no RxJS</div>
+            <h1>Query state as signals.<br /><span>Lists in the URL.</span></h1>
+            <p class="lede">
+              <strong>@qubeejs/angular</strong> is the Angular adapter for <strong>@qubeejs/core</strong>. It makes
+              the core's query builder and paginator injectable, reads them as signals, and keeps a list's
+              filters, sorts and page in the address bar.
+            </p>
+            <p class="aside">
+              These pages cover only what the adapter adds. Filters, operators, sorting, drivers and the builder's
+              semantics are documented once, in the <a href={CORE} rel="noopener" target="_blank">core docs ↗</a>.
+            </p>
+            <div class="cta">
+              <a class="btn primary" href={`${base}/guide/getting-started/`}>Get started</a>
+              <a class="btn" href={`${base}/api/`}>Adapter API</a>
+              <code class="install"><span class="prompt">$</span> npm i @qubeejs/angular @qubeejs/core</code>
+            </div>
+          </div>
+          <div class="hero-mark">
+            <img src={`${base}/mark.png`} alt="@qubeejs/angular" width="320" height="216" />
+          </div>
+        </div>
+      </section>
+
+      <section class="features">
+        {
+          features.map((f) => (
+            <article>
+              <span class="hex" />
+              <h3>{f.title}</h3>
+              <p set:html={f.body} />
+            </article>
+          ))
+        }
+      </section>
+
+      <section class="sample">
+        <div class="sample-head">
+          <h2>One provider, then inject</h2>
+          <p>
+            Register a driver once with <code class="ink">provideQubee()</code> — or{' '}
+            <code class="ink">QubeeModule.forRoot()</code> — and inject the query builder anywhere. Everything the
+            core exports comes from the same import.
+          </p>
+          <div class="packages">
+            <div class="packages-head"><span>entry point</span><span>for</span></div>
+            {
+              entryPoints.map((e) => (
+                <div class="packages-row">
+                  <span>{e.name}</span>
+                  <span class="muted">{e.note}</span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="code-frame">
+          <div class="code-bar">
+            <span class="dot-red"></span>
+            <em data-file>app.config.ts</em>
+            <span class="spacer"></span>
+            <div class="tabs" role="tablist" aria-label="Bootstrap style">
+              <button type="button" role="tab" aria-selected="true" data-tab="standalone" data-file-name="app.config.ts">
+                standalone
+              </button>
+              <button type="button" role="tab" aria-selected="false" data-tab="ngmodule" data-file-name="app.module.ts">
+                NgModule
+              </button>
+            </div>
+          </div>
+          <pre class="code" data-panel="standalone"><code><span class="k">import</span> {'{'} ApplicationConfig {'}'} <span class="k">from</span> <span class="s">'@angular/core'</span>;
+<span class="k">import</span> {'{'} provideHttpClient {'}'} <span class="k">from</span> <span class="s">'@angular/common/http'</span>;
+<span class="k">import</span> {'{'} STRAPI_DRIVER, provideQubee {'}'} <span class="k">from</span> <span class="s">'@qubeejs/angular'</span>;
+
+<span class="k">export const</span> appConfig: <span class="t">ApplicationConfig</span> = {'{'}
+  providers: [
+    <span class="f">provideHttpClient</span>(),
+    <span class="f">provideQubee</span>({'{'}
+      baseUrl: <span class="s">'https://api.example.com'</span>,
+      driver: STRAPI_DRIVER
+    {'}'})
+  ]
+{'}'};</code></pre>
+          <pre class="code" data-panel="ngmodule" hidden><code><span class="k">import</span> {'{'} NgModule {'}'} <span class="k">from</span> <span class="s">'@angular/core'</span>;
+<span class="k">import</span> {'{'} QubeeModule, STRAPI_DRIVER {'}'} <span class="k">from</span> <span class="s">'@qubeejs/angular'</span>;
+
+<span class="f">@NgModule</span>({'{'}
+  imports: [
+    QubeeModule.<span class="f">forRoot</span>({'{'}
+      baseUrl: <span class="s">'https://api.example.com'</span>,
+      driver: STRAPI_DRIVER
+    {'}'})
+  ]
+{'}'})
+<span class="k">export class</span> <span class="f">AppModule</span> {'{}'}</code></pre>
+        </div>
+      </section>
+
+      <section class="core">
+        <h2>Everything else lives in the core docs</h2>
+        <p class="core-lede">
+          The adapter documents nothing the core already documents. Query semantics are the same in every framework
+          binding — read them once, over there.
+        </p>
+        <div class="grid">
+          {
+            coreLinks.map((c) => (
+              <a href={`${CORE}${c.href}`} rel="noopener" target="_blank">
+                <span class="hex sm" />
+                <span>
+                  <span class="name">
+                    {c.title} <span class="out">↗</span>
+                  </span>
+                  <span class="desc">{c.body}</span>
+                </span>
+              </a>
+            ))
+          }
+        </div>
+        <div class="rule">
+          <span class="rule-label">Rule of thumb</span>
+          <span class="rule-body">
+            If a symbol also exists in <code>@qubeejs/core</code> — <code>@qubeejs/angular</code> re-exports all of
+            it — its reference page is in the core docs, not here.
+          </span>
+        </div>
+      </section>
+    </main>
+
+    <footer>Released under the MIT License · Copyright © 2026 Andrea Tantimonaco</footer>
+
+    <script>
+      // The standalone / NgModule toggle on the config sample.
+      const tabs = document.querySelectorAll<HTMLButtonElement>('.tabs [data-tab]');
+      const file = document.querySelector('[data-file]');
+
+      for (const tab of tabs) {
+        tab.addEventListener('click', () => {
+          for (const other of tabs) other.setAttribute('aria-selected', String(other === tab));
+          for (const panel of document.querySelectorAll<HTMLElement>('[data-panel]')) {
+            panel.hidden = panel.dataset.panel !== tab.dataset.tab;
+          }
+          if (file) file.textContent = tab.dataset.fileName ?? '';
+        });
+      }
+    </script>
+
+    <style is:global>
+      :root {
+        --honey: #dd0031;
+        --honey-hi: #f4123f;
+        --ink: #ff6a80;
+        --honey-soft: rgba(221, 0, 49, 0.16);
+        --honey-line: rgba(221, 0, 49, 0.4);
+        --bg: #16181c;
+        --alt: #101216;
+        --surface: #1c1f24;
+        --code-bg: #0c0e12;
+        --border: #2b3038;
+        --hover: rgba(255, 255, 255, 0.05);
+        --text: #e9eaee;
+        --muted: #98a0ac;
+        --display: 'Space Grotesk Variable', system-ui, sans-serif;
+        --body: 'IBM Plex Sans Variable', system-ui, sans-serif;
+        --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+        --hexagon: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        -webkit-font-smoothing: antialiased;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--body);
+        margin: 0;
+      }
+
+      ::selection { background: rgba(221, 0, 49, 0.32); }
+
+      a { color: inherit; text-decoration: none; }
+      code { font-family: var(--mono); }
+      code.ink { color: var(--ink); font-size: 0.9em; }
+
+      /* --- header --- */
+      .nav {
+        align-items: center;
+        backdrop-filter: blur(12px);
+        background: rgba(22, 24, 28, 0.86);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 14px;
+        height: 62px;
+        padding: 0 22px;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+      }
+      .brand {
+        align-items: center;
+        display: flex;
+        font-family: var(--display);
+        font-size: 19px;
+        font-weight: 700;
+        gap: 9px;
+        letter-spacing: -0.02em;
+      }
+      .slash { color: var(--ink); }
+      .chip {
+        background: var(--honey-soft);
+        border-radius: 5px;
+        color: var(--ink);
+        font-family: var(--mono);
+        font-size: 10.5px;
+        font-weight: 500;
+        padding: 3px 6px;
+      }
+      .nav nav { display: flex; gap: 4px; margin-left: 8px; }
+      .nav nav a {
+        border-radius: 7px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 500;
+        padding: 7px 11px;
+        white-space: nowrap;
+      }
+      .nav nav a:hover { background: var(--hover); color: var(--text); }
+      .out { font-size: 11px; opacity: 0.7; }
+      .gh {
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--muted);
+        display: flex;
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 700;
+        height: 34px;
+        justify-content: center;
+        margin-left: auto;
+        width: 34px;
+      }
+      .gh:hover { border-color: var(--honey); color: var(--ink); }
+      @media (max-width: 720px) {
+        .nav nav { display: none; }
+      }
+
+      /* --- hero --- */
+      .hero {
+        background: var(--alt);
+        border-bottom: 1px solid var(--border);
+        overflow: hidden;
+        padding: 84px 22px 72px;
+        position: relative;
+      }
+      .glow {
+        background-image:
+          radial-gradient(circle at 18% 12%, rgba(221, 0, 49, 0.2), transparent 42%),
+          radial-gradient(circle at 78% 78%, rgba(255, 176, 32, 0.08), transparent 46%);
+        inset: 0;
+        opacity: 0.55;
+        pointer-events: none;
+        position: absolute;
+      }
+      .hero-inner {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 48px;
+        margin: 0 auto;
+        max-width: 1080px;
+        position: relative;
+      }
+      .hero-copy { flex: 1 1 420px; min-width: 0; }
+      .hero-mark { display: flex; flex: 1 1 220px; justify-content: center; }
+      .hero-mark img {
+        animation: qb-bob 6s ease-in-out infinite;
+        filter: drop-shadow(0 24px 44px rgba(221, 0, 49, 0.28));
+        height: auto;
+        max-width: 320px;
+        width: 100%;
+      }
+      @keyframes qb-bob {
+        0%, 100% { transform: translateY(0) rotate(-2deg); }
+        50% { transform: translateY(-7px) rotate(2deg); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .hero-mark img { animation: none; }
+      }
+      .pill {
+        align-items: center;
+        background: var(--honey-soft);
+        border: 1px solid var(--honey-line);
+        border-radius: 999px;
+        color: var(--ink);
+        display: inline-flex;
+        font-family: var(--mono);
+        font-size: 11.5px;
+        gap: 8px;
+        letter-spacing: 0.04em;
+        margin-bottom: 22px;
+        padding: 5px 11px;
+        text-transform: uppercase;
+      }
+      .dot { background: var(--honey); border-radius: 50%; height: 6px; width: 6px; }
+      .hero h1 {
+        font-family: var(--display);
+        font-size: clamp(38px, 5.4vw, 64px);
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 1.02;
+        margin: 0 0 20px;
+      }
+      .hero h1 span { color: var(--ink); }
+      .lede {
+        color: var(--muted);
+        font-size: 18.5px;
+        line-height: 1.6;
+        margin: 0 0 18px;
+        max-width: 30em;
+        text-wrap: pretty;
+      }
+      .lede strong { color: var(--text); font-weight: 600; }
+      .aside {
+        border-left: 2px solid var(--honey-line);
+        color: var(--muted);
+        font-size: 15.5px;
+        line-height: 1.6;
+        margin: 0 0 30px;
+        max-width: 32em;
+        padding-left: 14px;
+        text-wrap: pretty;
+      }
+      .aside a { color: var(--ink); }
+      .aside a:hover { text-decoration: underline; text-underline-offset: 3px; }
+      .cta { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; }
+      .btn {
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 12px 22px;
+      }
+      .btn:hover { border-color: var(--honey); }
+      .btn.primary { background: var(--honey); border-color: var(--honey); color: #ffffff; }
+      .btn.primary:hover { background: var(--honey-hi); }
+      .install {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        color: #c9cfd8;
+        font-size: 13px;
+        padding: 11px 15px;
+      }
+      .prompt { color: #6b7280; margin-right: 6px; }
+
+      /* --- hexagons --- */
+      .hex {
+        background: var(--honey);
+        clip-path: var(--hexagon);
+        display: block;
+        height: 38px;
+        margin-bottom: 16px;
+        width: 34px;
+      }
+      .hex.sm { flex: none; height: 15px; margin: 4px 0 0; width: 13px; }
+
+      /* --- features --- */
+      .features {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        margin: 0 auto;
+        max-width: 1080px;
+        padding: 64px 22px;
+      }
+      .features article {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 24px;
+        transition: border-color 0.15s;
+      }
+      .features article:hover { border-color: var(--honey-line); }
+      .features h3 {
+        font-family: var(--display);
+        font-size: 17px;
+        letter-spacing: -0.01em;
+        margin: 0 0 8px;
+      }
+      .features p { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin: 0; }
+      .features code { font-size: 13px; }
+
+      /* --- sample --- */
+      .sample {
+        align-items: start;
+        display: grid;
+        gap: 22px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        margin: 0 auto;
+        max-width: 1080px;
+        padding: 0 22px 72px;
+      }
+      .sample-head h2, .core h2 {
+        font-family: var(--display);
+        font-size: 27px;
+        letter-spacing: -0.025em;
+        margin: 0 0 12px;
+      }
+      .sample-head > p { color: var(--muted); font-size: 15.5px; line-height: 1.65; margin: 0 0 20px; max-width: 34em; }
+      .packages { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+      .packages-head, .packages-row {
+        align-items: center;
+        display: flex;
+        font-family: var(--mono);
+        gap: 12px;
+        justify-content: space-between;
+        padding: 12px 14px;
+      }
+      .packages-head {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 12px;
+        padding-block: 9px;
+      }
+      .packages-row { background: var(--bg); font-size: 13px; }
+      .packages-row + .packages-row { border-top: 1px solid var(--border); }
+      .muted { color: var(--muted); text-align: right; }
+      .code-frame {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .code-bar {
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        display: flex;
+        gap: 10px;
+        padding: 9px 12px;
+      }
+      .dot-red { background: var(--honey); border-radius: 50%; flex: none; height: 9px; width: 9px; }
+      .code-bar em { color: #8d949e; font-family: var(--mono); font-size: 12px; font-style: normal; }
+      .spacer { flex: 1; }
+      .tabs { background: rgba(255, 255, 255, 0.05); border-radius: 7px; display: flex; gap: 3px; padding: 3px; }
+      .tabs button {
+        background: transparent;
+        border: 0;
+        border-radius: 5px;
+        color: #8d949e;
+        cursor: pointer;
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 4px 9px;
+      }
+      .tabs button[aria-selected='true'] { background: var(--honey); color: #ffffff; }
+      .code {
+        color: #c9cfd8;
+        font-size: 12.8px;
+        line-height: 1.85;
+        margin: 0;
+        overflow-x: auto;
+        padding: 18px 16px 22px;
+      }
+      .code .k { color: #ff8fa3; }
+      .code .s { color: #b8d97a; }
+      .code .f { color: #7fd7e8; }
+      .code .t { color: #ffd79a; }
+
+      /* --- core links --- */
+      .core { margin: 0 auto; max-width: 1080px; padding: 0 22px 90px; }
+      .core h2 { margin-bottom: 8px; }
+      .core-lede { color: var(--muted); font-size: 15.5px; margin: 0 0 24px; max-width: 46em; text-wrap: pretty; }
+      /* Six links: explicit columns, so they always fill whole rows (3 + 3, 2 + 2 + 2). */
+      .grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 560px) {
+        .grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (min-width: 900px) {
+        .grid { grid-template-columns: repeat(3, 1fr); }
+      }
+      .grid a {
+        align-items: flex-start;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        display: flex;
+        gap: 11px;
+        padding: 16px 16px 17px;
+        transition: border-color 0.15s, transform 0.15s;
+      }
+      .grid a:hover { border-color: var(--honey); transform: translateY(-2px); }
+      .grid .name {
+        color: var(--text);
+        display: block;
+        font-family: var(--display);
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 3px;
+      }
+      .grid .name .out { color: var(--ink); }
+      .grid .desc { color: var(--muted); display: block; font-size: 13.5px; line-height: 1.5; }
+      .rule {
+        align-items: center;
+        border: 1px dashed var(--honey-line);
+        border-radius: 12px;
+        color: var(--muted);
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 14.5px;
+        gap: 12px;
+        margin-top: 22px;
+        padding: 15px 18px;
+      }
+      .rule-label {
+        color: var(--ink);
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .rule-body { flex: 1 1 320px; min-width: 0; }
+      .rule code { color: var(--text); font-size: 13.5px; }
+
+      footer {
+        background: var(--alt);
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 13.5px;
+        padding: 34px 22px;
+        text-align: center;
+      }
+    </style>
+  </body>
+</html>
