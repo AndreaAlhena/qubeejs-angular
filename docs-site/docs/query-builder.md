@@ -23,10 +23,16 @@ Triggers an [auto-reset of `page`](#auto-reset-of-page).
 
 ### `setBaseUrl(url)`
 
-Optional. Prepends a base URL (e.g. `https://api.example.com`) to every generated URI.
+Optional. Prepends a base URL (e.g. `https://api.example.com`) to every generated URI. Exactly one slash joins it to the resource, whatever trailing or leading slashes either carries.
 
 ```typescript
 qb.setBaseUrl('https://api.example.com');     // → https://api.example.com/users…
+```
+
+To give every instance the same base URL, pass it to the config instead — each `QubeeQueryBuilder` starts from it, `setBaseUrl()` overrides it for one instance, and `reset()` clears it:
+
+```typescript
+provideQubee({ baseUrl: 'https://api.example.com', driver: STRAPI_DRIVER });
 ```
 
 Does not trigger auto-reset (URL prefix only).
