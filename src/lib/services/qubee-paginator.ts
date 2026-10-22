@@ -40,10 +40,11 @@ export class QubeePaginator {
    * treated as "no useful info" and leave `isLastPageKnown: false`.
    *
    * @param response - The raw API response body. For drivers that emit a
-   * bare array (PostgREST, WordPress), pass the array.
-   * @param headers - Optional HTTP response headers. Required by the
-   * PostgREST driver (reads `Content-Range`) and the WordPress driver
-   * (reads `X-WP-Total` / `X-WP-TotalPages`); body-only drivers ignore it.
+   * bare array (PostgREST, WordPress, Ransack), pass the array.
+   * @param headers - Optional HTTP response headers. Required by the drivers
+   * that report pagination in headers: PostgREST (reads `Content-Range`),
+   * WordPress (reads `X-WP-Total` / `X-WP-TotalPages` and `Link`) and Ransack
+   * (reads Pagy's or Kaminari's headers and `Link`); body-only drivers ignore it.
    * Accepts Angular's `HttpHeaders`, the native `Headers` class, or a plain
    * `Record<string, string>`.
    * @returns A typed PaginatedCollection instance
