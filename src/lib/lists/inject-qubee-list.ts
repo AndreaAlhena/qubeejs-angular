@@ -88,10 +88,9 @@ type Draft = {
  * export class ArticlesComponent {
  *   protected readonly list = injectQubeeList(articleList);
  *
- *   protected readonly articles = httpResource(
- *     () => ({ url: this.list.request().uri, headers: this.list.request().headers ?? {} }),
- *     { parse: (body) => this.list.request().paginate<Article>(body as RawResponse) }
- *   );
+ *   // qubeeHttpResource() from '@qubeejs/angular/http' sends the list's headers
+ *   // and hands the response headers to paginate(), as header-driven drivers need.
+ *   protected readonly articles = qubeeHttpResource<Article>(this.list.request);
  *
  *   protected search(event: Event): void {
  *     this.list.set({ q: (event.target as HTMLInputElement).value }, { debounce: 300, replace: true });
