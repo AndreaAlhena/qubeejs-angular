@@ -155,6 +155,22 @@ qb.deleteSearch();
 
 Triggers auto-reset.
 
+## Extra parameters — all drivers
+
+### `setParam(key, ...values)` / `deleteParams(...keys)`
+
+For what a backend accepts beyond the driver's own parameters — a top-level `status`, an `include` on a driver without includes. Params are appended after the driver's, so they work with every driver and are not gated by its capabilities:
+
+```typescript
+qb.setParam('status', 'failed');   // Spatie → /users?limit=15&page=1&status=failed
+qb.setParam('ids', 'a,b', 'c');    // ids=a%2Cb,c
+qb.deleteParams('status', 'ids');
+```
+
+The key is emitted verbatim — never build one from user input — and each value is percent-encoded, then joined with a literal `,`. Setting a key again replaces its values. A key that collides with one the driver emits (`page` on Spatie, `page` against JSON:API's `page[number]`) makes `generateUri()` and `uri()` throw `ParamCollisionError` rather than send a duplicate.
+
+Triggers auto-reset.
+
 ## Auto-reset of `page`
 
 Several mutations reset `state.page` to `1` automatically because they invalidate the current page position:
@@ -165,6 +181,7 @@ Several mutations reset `state.page` to `1` automatically because they invalidat
 - `addFilter` / `deleteFilters` (different record set)
 - `addFilterOperator` / `deleteOperatorFilters` (different record set)
 - `addSort` / `deleteSorts` (different ordering)
+- `setParam` / `deleteParams` (different record set)
 
 Methods that change record *shape* (`addFields`, `addIncludes`, `addSelect`, `setBaseUrl`) leave `page` untouched.
 
