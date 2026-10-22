@@ -8,6 +8,8 @@ import type {
   ResponseOptions
 } from '@qubeejs/core';
 
+import type { QubeeListAdapter } from '../types/qubee-list-adapter.type';
+
 /**
  * Injection token for the base URL every generated URI starts with
  *
@@ -61,3 +63,14 @@ export const QUBEE_RESPONSE_STRATEGY = new InjectionToken<IResponseStrategy>('QU
  */
 export const QUBEE_RESPONSE_OPTIONS = new InjectionToken<ResponseOptions>('QUBEE_RESPONSE_OPTIONS');
 
+/**
+ * Injection token for the adapter `injectQubeeList()` reads and writes the
+ * URL through
+ *
+ * Provided by `provideQubeeRouterAdapter()` (from `@qubeejs/angular/router`),
+ * `provideQubeeBrowserAdapter()` or `provideQubeeMemoryAdapter()` — at the
+ * root, or in a component's `providers` to give its subtree a different one.
+ * Nothing is provided by default: a list never falls back to browser history
+ * by itself, since inside a router that would leave the router out of step.
+ */
+export const QUBEE_LIST_ADAPTER = new InjectionToken<QubeeListAdapter>('QUBEE_LIST_ADAPTER');
