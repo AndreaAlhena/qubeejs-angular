@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [master, develop]
   pull_request:
-    branches: [ master, develop ]
+    branches: [master, develop]
 
 jobs:
   lint:
@@ -24,8 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Run ESLint
         run: npm run lint
+
+      - name: Check repository conventions
+        run: npm run test:conventions
 
   test:
     name: Test
@@ -51,9 +57,9 @@ jobs:
         uses: codecov/codecov-action@v4
         if: success()
         with:
-          files: ./coverage/ng-qubee/lcov.info
+          files: ./coverage/qubeejs-angular/lcov.info
           flags: unittests
-          name: ng-qubee-coverage
+          name: qubeejs-angular-coverage
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -79,36 +85,44 @@ jobs:
 
       - name: Check build artifacts
         run: |
-          if [ ! -d "dist/ng-qubee" ]; then
-            echo "Build failed: dist/ng-qubee directory not found"
+          if [ ! -d "dist/qubeejs/angular" ]; then
+            echo "Build failed: dist/qubeejs/angular directory not found"
             exit 1
           fi
-          echo "Build successful: dist/ng-qubee directory exists"
+          echo "Build successful: dist/qubeejs/angular directory exists"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: dist/ng-qubee
+          path: dist/qubeejs/angular
           retention-days: 7
 
   compat:
     name: Angular ${{ matrix.angular }} compat
     runs-on: ubuntu-latest
     needs: build
+    continue-on-error: ${{ matrix.experimental == true }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Floor of the declared peer range
+          # Floor of the declared peer range; @qubeejs/angular/http needs 19.2, so it is left out here
           - angular: '17'
             node: '20'
           - angular: '20'
             node: '22'
-          # Ceiling of the declared peer range
+            http: true
+          # Current stable major
           - angular: '22'
             node: '24'
+            http: true
+          # Angular's next prerelease — early warning for the coming major, never blocks the build
+          - angular: 'next'
+            node: '24'
+            http: true
+            experimental: true
 
     env:
       NG_CLI_ANALYTICS: 'false'
@@ -123,11 +137,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
-          path: ng-qubee-dist
+          path: qubeejs-angular-dist
 
       - name: Pack the built library
         run: npm pack --pack-destination "$GITHUB_WORKSPACE"
-        working-directory: ng-qubee-dist
+        working-directory: qubeejs-angular-dist
 
       - name: Scaffold an Angular ${{ matrix.angular }} application
         run: |
@@ -136,7 +150,16 @@ jobs:
             --package-manager=npm
 
       - name: Install the packed library
-        run: npm install "$GITHUB_WORKSPACE"/ng-qubee-*.tgz
+        # The core is installed explicitly, as the README says to, at the range
+        # the built package.json declares (this job has no checkout, only the
+        # build artifact). npm never matches a prerelease (22.3.0-next.2)
+        # against `>=17.0.0`, so the `next` leg skips the peer check to test the
+        # code, not the range; that also stops npm auto-installing peers, which
+        # is why the core cannot be left to it. Stable legs keep the check:
+        # there it is what catches a range regression.
+        run: |
+          core="@qubeejs/core@$(node -p "require('$GITHUB_WORKSPACE/qubeejs-angular-dist/package.json').peerDependencies['@qubeejs/core']")"
+          npm install "$GITHUB_WORKSPACE"/qubeejs-angular-*.tgz "$core" ${{ matrix.experimental && '--legacy-peer-deps' || '' }}
         working-directory: consumer
 
       - name: Consume the library for real
@@ -144,33 +167,68 @@ jobs:
           cat > src/main.ts <<'TS'
           import { Component, inject } from '@angular/core';
           import { bootstrapApplication } from '@angular/platform-browser';
-          import { DriverEnum, NgQubeeService, provideNgQubee } from 'ng-qubee';
+          import { provideRouter } from '@angular/router';
+          import {
+            QubeeQueryBuilder,
+            SPATIE_DRIVER,
+            defineList,
+            injectQubeeList,
+            integerParam,
+            provideQubee
+          } from '@qubeejs/angular';
+          import { provideQubeeRouterAdapter } from '@qubeejs/angular/router';
+          /* HTTP_IMPORTS */
+
+          const userList = defineList({
+            params: { page: integerParam('page', { default: 1, min: 1 }) },
+            qubee: { driver: SPATIE_DRIVER },
+            resource: 'users'
+          });
 
           @Component({
             selector: 'app-root',
             standalone: true,
-            template: '<pre>{{ uri }}</pre>'
+            template: `
+              <pre>{{ qb.uri() }}</pre>
+              <pre>{{ list.request().uri }}</pre>
+              <button (click)="list.setPage(2)">2</button>
+              <!-- HTTP_TEMPLATE -->
+            `
           })
           export class AppRoot {
-            private readonly _queryBuilder = inject(NgQubeeService);
-
-            public uri = '';
+            protected readonly qb = inject(QubeeQueryBuilder);
+            protected readonly list = injectQubeeList(userList);
+            /* HTTP_FIELD */
 
             constructor() {
-              this._queryBuilder
+              this.qb
                 .setResource('users')
                 .addFilter('status', 'active')
                 .setLimit(15)
                 .setPage(2);
-
-              this._queryBuilder.generateUri().subscribe(uri => (this.uri = uri));
             }
           }
 
           bootstrapApplication(AppRoot, {
-            providers: [provideNgQubee({ driver: DriverEnum.SPATIE })]
+            providers: [
+              provideQubee({ driver: SPATIE_DRIVER }),
+              provideRouter([]),
+              provideQubeeRouterAdapter()
+              /* HTTP_PROVIDER */
+            ]
           });
           TS
+        working-directory: consumer
+
+      - name: Use @qubeejs/angular/http too
+        if: matrix.http
+        run: |
+          sed -i \
+            -e "s#/\* HTTP_IMPORTS \*/#import { provideHttpClient } from '@angular/common/http'; import { qubeeHttpResource } from '@qubeejs/angular/http';#" \
+            -e "s#<!-- HTTP_TEMPLATE -->#<pre>{{ users.value()?.total }}</pre>#" \
+            -e "s#/\* HTTP_FIELD \*/#protected readonly users = qubeeHttpResource(this.list.request);#" \
+            -e "s#/\* HTTP_PROVIDER \*/#, provideHttpClient()#" \
+            src/main.ts
         working-directory: consumer
 
       - name: Build the consumer application
@@ -181,10 +239,16 @@ jobs:
         run: |
           BUNDLE=$(find dist -name '*.js' -print0 | xargs -0 grep -l 'spatie' 2>/dev/null | head -1 || true)
           if [ -z "$BUNDLE" ]; then
-            echo "ng-qubee was tree-shaken out — the build proved nothing"
+            echo "@qubeejs/angular was tree-shaken out — the build proved nothing"
             exit 1
           fi
           echo "Library code present in $BUNDLE"
+
+          if ! grep -rq 'found no adapter' dist; then
+            echo "injectQubeeList was tree-shaken out — the lists API was not exercised"
+            exit 1
+          fi
+          echo "Lists API and the router entry point present"
 
           if grep -rq 'ngDeclare' dist; then
             echo "Residual partial declarations found — the Angular ${{ matrix.angular }} linker did not process them"

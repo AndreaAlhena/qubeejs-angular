@@ -4,6 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 4.x     | :white_check_mark: |
 | 3.x     | :white_check_mark: |
 | 2.x     | :white_check_mark: |
 | 1.x     | :x:                |
@@ -16,7 +17,7 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 
 **Do not open a public issue for security vulnerabilities.**
 
-Instead, please use [GitHub's private vulnerability reporting](https://github.com/AndreaAlhena/ng-qubee/security/advisories/new) to submit your report securely.
+Instead, please use [GitHub's private vulnerability reporting](https://github.com/AndreaAlhena/qubeejs-angular/security/advisories/new) to submit your report securely.
 
 ### What to Include
 
@@ -42,17 +43,18 @@ Instead, please use [GitHub's private vulnerability reporting](https://github.co
 
 This security policy applies to:
 
-- The ng-qubee npm package
+- The `@qubeejs/angular` npm package (and `ng-qubee`, its name before 4.0)
 - This GitHub repository
 
 ### Out of Scope
 
 - Vulnerabilities in dependencies (report to the respective maintainers)
-- Issues in applications using ng-qubee (unless caused by ng-qubee itself)
+- Issues in applications using `@qubeejs/angular` (unless caused by the library itself)
+- Issues in `@qubeejs/core` — report them to [qubeejs-core](https://github.com/AndreaAlhena/qubeejs-core/security)
 
 ## Security Best Practices
 
-When using NgQubee:
+When using Qubee:
 
 - Keep the package updated to the latest version
 - Review query parameters before sending to your API

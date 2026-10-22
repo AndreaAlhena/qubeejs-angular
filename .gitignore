@@ -3,3 +3,5 @@ out-tsc
 dist
 coverage
 .angular
+# macOS
+.DS_Store

@@ -1,6 +1,6 @@
-# Contributing to NgQubee
+# Contributing to @qubeejs/angular
 
-Thank you for your interest in contributing to NgQubee! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to `@qubeejs/angular`! This document provides guidelines and instructions for contributing.
 
 ## Development Setup
 
@@ -14,8 +14,8 @@ Thank you for your interest in contributing to NgQubee! This document provides g
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/ng-qubee.git
-   cd ng-qubee
+   git clone https://github.com/YOUR_USERNAME/qubeejs-angular.git
+   cd qubeejs-angular
    ```
 3. Install dependencies:
    ```bash
@@ -28,31 +28,28 @@ Thank you for your interest in contributing to NgQubee! This document provides g
 
 ## Code Style
 
-### General Guidelines
+This package follows the coding standards of `@qubeejs/core` —
+[CODING-STANDARDS.md](https://github.com/AndreaAlhena/qubeejs-core/blob/develop/CODING-STANDARDS.md)
+is the reference. In short:
 
-- Use TypeScript strict mode
-- Follow Angular style guide conventions
-- Use meaningful variable and function names
-- Keep functions small and focused
+- **Files**: kebab-case, with a suffix that states the kind (`*.type.ts`, `*.error.ts`, `*.spec.ts`); one kind of declaration per file
+- **Types**: data shapes are `type`s without a prefix (e.g., `QubeeConfig`); an `I`-prefixed `interface` only when a class implements it
+- **Members**: `private` members carry a leading `_` (`_store`); `protected` and `public` members never do
+- **Constants**: UPPER_SNAKE_CASE for literal values and `InjectionToken`s (`QUBEE_DRIVER`), camelCase for anything computed at runtime
+- **Types are explicit**: no `any`, explicit return types, `import type` for type-only imports
+- **Ordering**: imports and class members alphabetical — ESLint sorts them, never reorder by hand
+- **JSDoc** on every exported class, function, method and type
+- Angular specifics: signals over RxJS, `inject()` over constructor injection, `Qubee`-prefixed injectables without a `Service` suffix
 
-### Naming Conventions
-
-- **Files**: kebab-case (e.g., `query-builder.service.ts`)
-- **Classes**: PascalCase (e.g., `QueryBuilderService`)
-- **Interfaces**: PascalCase with `I` prefix or descriptive suffix (e.g., `IConfig` or `PaginationConfig`)
-- **Variables/Functions**: camelCase (e.g., `buildQuery`)
-- **Constants**: UPPER_SNAKE_CASE (e.g., `DEFAULT_PAGE_SIZE`)
-
-### Linting
-
-ESLint is configured for this project. Run linting before committing:
+### Checking your work
 
 ```bash
-npm run lint        # Check for issues
-npm run lint:fix    # Auto-fix issues
+npm run format            # Prettier, including sorted JSON keys
+npm run lint              # ESLint (lint:fix applies the auto-fixes)
+npm run test:conventions  # File-layout rules ESLint cannot express
 ```
 
-A pre-commit hook runs lint-staged automatically on staged files.
+CI runs all three. A pre-commit hook runs Prettier and ESLint on staged files.
 
 ## Testing Requirements
 
@@ -112,6 +109,7 @@ type(scope): description
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation only
@@ -121,6 +119,7 @@ type(scope): description
 - `chore`: Maintenance tasks
 
 **Examples:**
+
 ```
 feat(pagination): add support for cursor-based pagination
 fix(filters): handle empty array values correctly
@@ -147,7 +146,7 @@ docs: update README with new API examples
 
 When reporting bugs, please include:
 
-- NgQubee version
+- Qubee version
 - Angular version
 - Node.js version
 - Steps to reproduce

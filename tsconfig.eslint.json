@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "extends": "./tsconfig.spec.json",
+  "include": ["src/**/*.ts", "router/**/*.ts", "http/**/*.ts"]
+}
