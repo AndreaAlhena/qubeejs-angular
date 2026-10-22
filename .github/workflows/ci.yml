@@ -136,7 +136,7 @@ jobs:
             --package-manager=npm
 
       - name: Install the packed library
-        run: npm install "$GITHUB_WORKSPACE"/ng-qubee-*.tgz
+        run: npm install "$GITHUB_WORKSPACE"/qubeejs-angular-*.tgz
         working-directory: consumer
 
       - name: Consume the library for real
@@ -144,7 +144,7 @@ jobs:
           cat > src/main.ts <<'TS'
           import { Component, inject } from '@angular/core';
           import { bootstrapApplication } from '@angular/platform-browser';
-          import { DriverEnum, NgQubeeService, provideNgQubee } from 'ng-qubee';
+          import { DriverEnum, NgQubeeService, provideNgQubee } from '@qubeejs/angular';
 
           @Component({
             selector: 'app-root',
@@ -181,7 +181,7 @@ jobs:
         run: |
           BUNDLE=$(find dist -name '*.js' -print0 | xargs -0 grep -l 'spatie' 2>/dev/null | head -1 || true)
           if [ -z "$BUNDLE" ]; then
-            echo "ng-qubee was tree-shaken out — the build proved nothing"
+            echo "@qubeejs/angular was tree-shaken out — the build proved nothing"
             exit 1
           fi
           echo "Library code present in $BUNDLE"
