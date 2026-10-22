@@ -4,10 +4,14 @@ on:
   # Production deploy on every push to master
   push:
     branches: [master]
-    # Skip if the push only touched files outside docs-site / library source
+    # Skip if the push touched nothing the site is built from: its own sources,
+    # the library source the API pages are generated from, or the changelog
     paths:
-      - 'docs-site/**'
+      - 'docs/**'
       - 'src/**'
+      - 'router/**'
+      - 'http/**'
+      - 'CHANGELOG.md'
       - 'tsconfig*.json'
       - '.github/workflows/docs.yml'
 
@@ -40,24 +44,29 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-          cache-dependency-path: docs-site/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            docs/package-lock.json
 
       - name: Install root dependencies
-        # Needed for TypeDoc to resolve library imports during the docs build
+        # TypeDoc resolves @angular/* and @qubeejs/core from the root
+        # node_modules when it generates the API pages
         run: npm ci
 
-      - name: Install docs-site dependencies
-        working-directory: docs-site
+      - name: Install docs dependencies
+        working-directory: docs
         run: npm ci
 
-      - name: Build Docusaurus site
-        working-directory: docs-site
+      - name: Build Astro site
+        # Generates the API pages and the changelog, builds, and fails on a
+        # broken internal link (starlight-links-validator)
+        working-directory: docs
         run: npm run build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs-site/build
+          path: docs/dist
 
   deploy:
     name: Deploy to GitHub Pages
