@@ -19,7 +19,7 @@
     "@angular/platform-browser": "^22.0.0",
     "@angular/router": "^22.1.0",
     "@eslint/js": "^10.0.1",
-    "@qubeejs/core": "^1.6.0",
+    "@qubeejs/core": "^1.6.1",
     "@types/jasmine": "~5.1.0",
     "angular-eslint": "^22.6.0",
     "eslint": "^10.13.0",
@@ -98,7 +98,7 @@
     "@angular/common": ">=17.0.0",
     "@angular/core": ">=17.0.0",
     "@angular/router": ">=17.0.0",
-    "@qubeejs/core": "^1.6.0"
+    "@qubeejs/core": "^1.6.1"
   },
   "peerDependenciesMeta": {
     "@angular/router": {
