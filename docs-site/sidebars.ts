@@ -33,7 +33,9 @@ const sidebars: SidebarsConfig = {
         'drivers/feathers',
         'drivers/pocketbase',
         'drivers/payload',
-        'drivers/wordpress'
+        'drivers/wordpress',
+        'drivers/ransack',
+        'drivers/fastapi'
       ]
     },
     'fetching-data',

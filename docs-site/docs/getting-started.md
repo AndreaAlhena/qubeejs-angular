@@ -5,12 +5,12 @@ title: Getting Started
 
 # Getting Started
 
-`@qubeejs/angular` is the Angular adapter for [`@qubeejs/core`](https://qubeejs.andreatantimonaco.me) — a query builder and paginator that composes API request URIs (filters, sorts, pagination, column selection) and parses paginated responses, with a pluggable driver system that targets eighteen backends.
+`@qubeejs/angular` is the Angular adapter for [`@qubeejs/core`](https://qubeejs.andreatantimonaco.me) — a query builder and paginator that composes API request URIs (filters, sorts, pagination, column selection) and parses paginated responses, with a pluggable driver system that targets twenty backends.
 
 - **Signals all the way down** — the URI, the query state and every pagination flag are Angular Signals. No RxJS.
 - **Pagination ready** — typed `PaginatedCollection<T>`, fluent navigation, auto-sync from response to query state
 - **Lists in the URL** — `injectQubeeList()` keeps filters, sorts and the page in the address bar as typed signals ([Lists in the URL](./lists.md))
-- **Tree-shakeable drivers** — import the one definition you use; the other seventeen stay out of your bundle
+- **Tree-shakeable drivers** — import the one definition you use; the other nineteen stay out of your bundle
 - **Multi-driver:** API Platform (Symfony), Directus, Django REST Framework, FeathersJS, JSON:API, json-server, Laravel (pagination-only), Spatie Query Builder, NestJS (nestjs-paginate), @nestjsx/crud, OData, Payload CMS, PocketBase, PostgREST / Supabase, Sieve (.NET), Spring Data REST, Strapi, WordPress REST
 
 :::tip Upgrading from ng-qubee 3.x?
@@ -107,7 +107,7 @@ The exact URI shape depends on the driver. See the [Drivers](./drivers/json-api.
 
 ## Pick a driver
 
-Eighteen drivers ship out of the box:
+Twenty drivers ship out of the box:
 
 | Driver | Best for |
 |---|---|
@@ -129,6 +129,8 @@ Eighteen drivers ship out of the box:
 | [**PocketBase**](./drivers/pocketbase.md) | [PocketBase](https://pocketbase.io/) single-binary backend (SQLite + realtime + auth) |
 | [**Payload**](./drivers/payload.md) | [Payload CMS](https://payloadcms.com/) and any `mongoose-paginate-v2` backend |
 | [**WordPress**](./drivers/wordpress.md) | [WordPress REST API](https://developer.wordpress.org/rest-api/) (every WP install since 4.7) |
+| [**Ransack**](./drivers/ransack.md) | [Ransack](https://activerecord-hackery.github.io/ransack/) for Ruby on Rails, paginated by Pagy or Kaminari + api-pagination |
+| [**FastAPI**](./drivers/fastapi.md) | [FastAPI](https://fastapi.tiangolo.com/) with [fastapi-filter](https://github.com/arthurio/fastapi-filter) + [fastapi-pagination](https://github.com/uriyyo/fastapi-pagination) |
 
 Each driver page shows its definition constant (`STRAPI_DRIVER`, `LARAVEL_DRIVER`, …), the wire format it emits, and the methods it supports.
 
