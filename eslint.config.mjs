@@ -144,6 +144,15 @@ export default tseslint.config(
   },
 
   {
+    // The repository checks run on node:test, outside the tsconfig project.
+    files: ['test/**/*.mjs'],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      globals: { URL: 'readonly' },
+    },
+  },
+
+  {
     files: ['karma.conf.js'],
     languageOptions: {
       globals: { __dirname: 'readonly', module: 'writable', require: 'readonly' },

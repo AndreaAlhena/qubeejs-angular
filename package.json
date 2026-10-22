@@ -117,7 +117,8 @@
     "lint:fix": "eslint . --fix",
     "prepare": "husky",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:conventions": "node --test test/conventions.test.mjs"
   },
   "sideEffects": false,
   "typesVersions": {
