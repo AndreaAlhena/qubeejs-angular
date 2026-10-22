@@ -10,10 +10,10 @@ Targets [PocketBase](https://pocketbase.io/) — the open-source single-binary b
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { POCKETBASE_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.POCKETBASE })]
+  providers: [provideQubee({ driver: POCKETBASE_DRIVER })]
 });
 ```
 
@@ -40,7 +40,7 @@ String literals are single-quoted with embedded quotes backslash-escaped (`name=
 `FilterOperatorEnum` translates to PocketBase's expression operators:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('views', FilterOperatorEnum.GT, 100);            // filter=(views>100)
 qb.addFilterOperator('title', FilterOperatorEnum.CONTAINS, 'hello');  // filter=(title~'hello')
@@ -107,8 +107,8 @@ Note: with `skipTotal=1` (a server-side optimisation this driver does not emit),
 All key paths are configurable (dot notation supported):
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.POCKETBASE,
+provideQubee({
+  driver: POCKETBASE_DRIVER,
   response: {
     data: 'records',
     total: 'meta.count'

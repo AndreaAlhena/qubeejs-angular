@@ -10,10 +10,10 @@ Targets [PostgREST](https://postgrest.org/) and anything built on it — most no
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { POSTGREST_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.POSTGREST })]
+  providers: [provideQubee({ driver: POSTGREST_DRIVER })]
 });
 ```
 
@@ -34,7 +34,7 @@ bootstrapApplication(AppComponent, {
 Every `FilterOperatorEnum` value maps to PostgREST's prefix syntax:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('age', FilterOperatorEnum.GTE, 18);             // age=gte.18
 qb.addFilterOperator('id', FilterOperatorEnum.IN, 1, 2, 3);           // id=in.(1,2,3)
@@ -103,43 +103,56 @@ Out of scope for now: nested embedding (`author(posts(*))`), filtering on embedd
 PostgREST returns a bare array body and reports the total count in the `Content-Range` HTTP response header. Opt in via `Prefer: count=exact` on the request, then pass the headers to `paginate()`:
 
 ```typescript
-this._http.get<User[]>(uri, {
-  observe: 'response',
-  headers: { 'Prefer': 'count=exact' }
-}).subscribe(response => {
-  const collection = this._pagination.paginate(response.body, response.headers);
-  // collection.total, collection.page, collection.lastPage are populated
+private readonly _response = httpResource<User[]>(() => {
+  const url = this._qb.uri();
+
+  return url === undefined ? undefined : { url, headers: { 'Prefer': 'count=exact' } };
 });
+
+constructor() {
+  effect(() => {
+    if (this._response.hasValue()) {
+      // collection.total, collection.page, collection.lastPage are populated
+      this._page.set(this._pagination.paginate<User>(this._response.value(), this._response.headers()));
+    }
+  });
+}
 ```
+
+[Fetching data → PostgREST](../fetching-data.md#variant-postgrest--supabase) shows the complete service.
 
 The second argument accepts Angular's `HttpHeaders`, the native `Headers` class, or a plain `Record<string, string>`. Omitting the header is tolerated — the collection still populates `data` and `page` but leaves `total` / `lastPage` undefined.
 
 ## RANGE-header pagination
 
-PostgREST also accepts pagination via the `Range` HTTP request header instead of URL query params. Opt in via `IConfig.pagination`:
+PostgREST also accepts pagination via the `Range` HTTP request header instead of URL query params. Opt in via `QubeeConfig.pagination`:
 
 ```typescript
-import { DriverEnum, PaginationModeEnum, provideNgQubee } from 'ng-qubee';
+import { PaginationModeEnum, POSTGREST_DRIVER, provideQubee } from '@qubeejs/angular';
 
-provideNgQubee({
-  driver: DriverEnum.POSTGREST,
+provideQubee({
+  driver: POSTGREST_DRIVER,
   pagination: PaginationModeEnum.RANGE
 });
 ```
 
-When `RANGE` is active, `generateUri()` omits `limit` and `offset` from the URL. `NgQubeeService.paginationHeaders()` returns the headers to apply:
+When `RANGE` is active, `generateUri()` and `uri()` omit `limit` and `offset` from the URL. `QubeeQueryBuilder.paginationHeaders()` is a signal yielding the headers to apply — spread it into the request:
 
 ```typescript
-const uri = await firstValueFrom(qb.generateUri());
-const extraHeaders = qb.paginationHeaders();  // { 'Range-Unit': 'items', 'Range': '0-9' }
+private readonly _response = httpResource<User[]>(() => {
+  const url = this._qb.uri();                       // no limit/offset in RANGE mode
 
-this._http.get<User[]>(uri, {
-  observe: 'response',
-  headers: { 'Prefer': 'count=exact', ...extraHeaders }
-}).subscribe(resp => this._pagination.paginate(resp.body, resp.headers));
+  return url === undefined ? undefined : {
+    url,
+    headers: {
+      'Prefer': 'count=exact',
+      ...(this._qb.paginationHeaders() ?? {})       // { 'Range-Unit': 'items', 'Range': '0-9' }
+    }
+  };
+});
 ```
 
-`paginationHeaders()` returns `null` for any driver that doesn't use header-based pagination — safe to spread unconditionally.
+`paginationHeaders()` yields `null` for any driver that doesn't use header-based pagination — safe to spread unconditionally. It compares by value, so the `lastPage` sync performed by `paginate()` never re-triggers the resource; only a page or limit change does.
 
 ## Feature matrix
 

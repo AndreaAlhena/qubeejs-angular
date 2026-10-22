@@ -10,10 +10,10 @@ Targets [Spatie Laravel Query Builder](https://spatie.be/docs/laravel-query-buil
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { SPATIE_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.SPATIE })]
+  providers: [provideQubee({ driver: SPATIE_DRIVER })]
 });
 ```
 
@@ -39,11 +39,11 @@ bootstrapApplication(AppComponent, {
 
 ## Customising request keys
 
-Each query parameter name is configurable via `IConfig.request`:
+Each query parameter name is configurable via `QubeeConfig.request`:
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.SPATIE,
+provideQubee({
+  driver: SPATIE_DRIVER,
   request: {
     filters: 'custom-filter-key',
     fields: 'custom-fields-key',

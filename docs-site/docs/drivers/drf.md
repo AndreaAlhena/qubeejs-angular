@@ -10,10 +10,10 @@ Targets [Django REST Framework](https://www.django-rest-framework.org/) — the 
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { DRF_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.DRF })]
+  providers: [provideQubee({ driver: DRF_DRIVER })]
 });
 ```
 
@@ -35,7 +35,7 @@ bootstrapApplication(AppComponent, {
 `FilterOperatorEnum` translates to django-filter's double-underscore lookup convention:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('price', FilterOperatorEnum.GTE, 100);             // price__gte=100
 qb.addFilterOperator('name', FilterOperatorEnum.CONTAINS, 'foo');       // name__contains=foo
@@ -124,8 +124,8 @@ When neither URL carries `?page_size` (e.g. a single-page result that fits the s
 ## Customising response paths
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.DRF,
+provideQubee({
+  driver: DRF_DRIVER,
   response: {
     data: 'items',          // override 'results'
     total: 'totalCount',    // override 'count'
@@ -135,4 +135,4 @@ provideNgQubee({
 });
 ```
 
-Defaults are encoded in `DrfResponseOptions`. The `currentPage` / `perPage` / `lastPage` / `from` / `to` slots are ignored by the strategy (it derives them from URL parsing instead), so overriding them in `IConfig.response` has no effect.
+Defaults are encoded in `DrfResponseOptions`. The `currentPage` / `perPage` / `lastPage` / `from` / `to` slots are ignored by the strategy (it derives them from URL parsing instead), so overriding them in `QubeeConfig.response` has no effect.

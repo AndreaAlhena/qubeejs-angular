@@ -10,10 +10,10 @@ Targets any [JSON:API](https://jsonapi.org/format/)-compliant backend (Rails, Dj
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { JSON_API_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.JSON_API })]
+  providers: [provideQubee({ driver: JSON_API_DRIVER })]
 });
 ```
 
@@ -59,4 +59,4 @@ bootstrapApplication(AppComponent, {
 }
 ```
 
-Default key paths are configured in `JsonApiResponseOptions`. Override via `provideNgQubee({ driver: DriverEnum.JSON_API, response: { /* … */ } })`.
+Default key paths are configured in `JsonApiResponseOptions`. Override via `provideQubee({ driver: JSON_API_DRIVER, response: { /* … */ } })`.

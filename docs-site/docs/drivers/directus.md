@@ -10,10 +10,10 @@ Targets [Directus](https://directus.io/) — the popular open-source headless CM
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { DIRECTUS_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.DIRECTUS })]
+  providers: [provideQubee({ driver: DIRECTUS_DRIVER })]
 });
 ```
 
@@ -30,7 +30,7 @@ bootstrapApplication(AppComponent, {
 | Metadata | `meta=total_count,filter_count` (always emitted) |
 | Pagination | `limit=N&page=N` (1-indexed page) |
 
-The `filter` / `sort` / `fields` / `search` / `limit` / `page` keys honour `IConfig.request` overrides (their defaults already match the Directus wire format); `meta` is fixed.
+The `filter` / `sort` / `fields` / `search` / `limit` / `page` keys honour `QubeeConfig.request` overrides (their defaults already match the Directus wire format); `meta` is fixed.
 
 :::note
 `meta=total_count,filter_count` is always emitted: the [response strategy](#response-shape) reads the totals from `meta`, which Directus only includes when the request asks for it.
@@ -41,7 +41,7 @@ The `filter` / `sort` / `fields` / `search` / `limit` / `page` keys honour `ICon
 `FilterOperatorEnum` translates to Directus' underscore operators:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('likeCount', FilterOperatorEnum.GTE, 4);        // filter[likeCount][_gte]=4
 qb.addFilterOperator('title', FilterOperatorEnum.CONTAINS, 'world'); // filter[title][_contains]=world
@@ -122,8 +122,8 @@ With relations but no flat `addSelect`, the flat part defaults to `*` so the bas
 `DirectusResponseStrategy` reads `data` and defaults `total` to **`meta.filter_count`** — the count matching the current filter, which is the relevant total for paging a filtered collection. Point the path at `meta.total_count` if you want the unfiltered collection size:
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.DIRECTUS,
+provideQubee({
+  driver: DIRECTUS_DRIVER,
   response: { total: 'meta.total_count' }
 });
 ```

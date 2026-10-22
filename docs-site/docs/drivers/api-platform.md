@@ -10,10 +10,10 @@ Targets [API Platform](https://api-platform.com/) — the leading REST/GraphQL f
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { API_PLATFORM_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.API_PLATFORM })]
+  providers: [provideQubee({ driver: API_PLATFORM_DRIVER })]
 });
 ```
 
@@ -28,7 +28,7 @@ bootstrapApplication(AppComponent, {
 | Sort | `order[name]=desc&order[id]=asc` (one param per rule) |
 | Pagination | `page=N&itemsPerPage=M` |
 
-`page` honours `IConfig.request` overrides (its default matches the wire format); `order` and `itemsPerPage` are fixed API Platform conventions.
+`page` honours `QubeeConfig.request` overrides (its default matches the wire format); `order` and `itemsPerPage` are fixed API Platform conventions.
 
 :::note
 API Platform filters are **opt-in server-side** — each property only accepts the syntax whose filter (`SearchFilter`, `RangeFilter`, `ExistsFilter`, …) is declared on the resource. The driver emits the standard form; the server must have the matching filter enabled.
@@ -39,7 +39,7 @@ API Platform filters are **opt-in server-side** — each property only accepts t
 `FilterOperatorEnum` translates to API Platform's filter syntax:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('price', FilterOperatorEnum.GT, 100);            // price[gt]=100
 qb.addFilterOperator('price', FilterOperatorEnum.BTW, 10, 50);        // price[between]=10..50
@@ -125,8 +125,8 @@ The body names no current-page or page-size field, so `ApiPlatformResponseStrate
 Relative links (`/books?page=4`) are handled and surfaced as-is on the collection's URL slots. The Hydra key paths are configurable (dot notation supported — the colon-keys are dot-free segments):
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.API_PLATFORM,
+provideQubee({
+  driver: API_PLATFORM_DRIVER,
   response: {
     data: 'member',
     total: 'totalItems'

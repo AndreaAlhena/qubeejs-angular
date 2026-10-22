@@ -10,10 +10,10 @@ Targets [json-server](https://github.com/typicode/json-server) — the de-facto 
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { JSON_SERVER_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.JSON_SERVER })]
+  providers: [provideQubee({ driver: JSON_SERVER_DRIVER })]
 });
 ```
 
@@ -35,7 +35,7 @@ The underscore-prefixed system params (`_page`, `_per_page`, `_sort`) and the `q
 `FilterOperatorEnum` translates to json-server's colon operators:
 
 ```typescript
-import { FilterOperatorEnum } from 'ng-qubee';
+import { FilterOperatorEnum } from '@qubeejs/angular';
 
 qb.addFilterOperator('views', FilterOperatorEnum.GT, 100);            // views:gt=100
 qb.addFilterOperator('title', FilterOperatorEnum.CONTAINS, 'hello');  // title:contains=hello
@@ -109,8 +109,8 @@ Because `first`/`prev`/`next`/`last` are numbers, the `firstPageUrl`/`prevPageUr
 The `data` / `items` / `pages` key paths are configurable:
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.JSON_SERVER,
+provideQubee({
+  driver: JSON_SERVER_DRIVER,
   response: {
     data: 'rows',
     lastPage: 'pageCount',

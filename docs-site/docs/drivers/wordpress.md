@@ -10,10 +10,10 @@ Targets the [WordPress REST API](https://developer.wordpress.org/rest-api/) — 
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { WORDPRESS_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.WORDPRESS })]
+  providers: [provideQubee({ driver: WORDPRESS_DRIVER })]
 });
 ```
 
@@ -76,10 +76,18 @@ Link: <https://example.com/wp-json/wp/v2/posts?page=2>; rel="next"
 Pass the headers to `paginate()` — the same call-site shape as the PostgREST driver:
 
 ```typescript
-this._http.get<IPost[]>(uri, { observe: 'response' }).subscribe(response => {
-  const collection = this._pagination.paginate(response.body, response.headers);
-});
+private readonly _response = httpResource<Post[]>(() => this._qb.uri());
+
+constructor() {
+  effect(() => {
+    if (this._response.hasValue()) {
+      this._page.set(this._pagination.paginate<Post>(this._response.value(), this._response.headers()));
+    }
+  });
+}
 ```
+
+[Fetching data → WordPress](../fetching-data.md#wordpress) shows the complete service.
 
 `WordpressResponseStrategy` maps `X-WP-Total → total` and `X-WP-TotalPages → lastPage`, surfaces the `Link` URLs as `nextPageUrl` / `prevPageUrl`, and derives position from them:
 

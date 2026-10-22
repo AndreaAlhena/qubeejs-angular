@@ -10,10 +10,10 @@ Targets [Spring Data REST](https://spring.io/projects/spring-data-rest) — the 
 ## Configure
 
 ```typescript
-import { DriverEnum, provideNgQubee } from 'ng-qubee';
+import { SPRING_DRIVER, provideQubee } from '@qubeejs/angular';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgQubee({ driver: DriverEnum.SPRING })]
+  providers: [provideQubee({ driver: SPRING_DRIVER })]
 });
 ```
 
@@ -25,7 +25,7 @@ bootstrapApplication(AppComponent, {
 | Pagination | `page=N&size=N` — **`page` is 0-indexed on the wire** |
 
 :::info 0-indexed pages
-Spring's `page` request parameter counts from 0, while `ng-qubee`'s state (and every other driver) counts from 1. The driver converts at the boundary: `setPage(1)` emits `page=0`, and the response strategy adds 1 back when reading `page.number`. You always work 1-indexed — `firstPage()`, `nextPage()`, `goToPage(n)` behave exactly as on other drivers.
+Spring's `page` request parameter counts from 0, while the library's state (and every other driver) counts from 1. The driver converts at the boundary: `setPage(1)` emits `page=0`, and the response strategy adds 1 back when reading `page.number`. You always work 1-indexed — `firstPage()`, `nextPage()`, `goToPage(n)` behave exactly as on other drivers.
 :::
 
 ```typescript
@@ -83,8 +83,8 @@ qb.setResource('users')
 HAL nests the collection under the resource's rel name — `_embedded.users`, `_embedded.articles` — which the library cannot know statically. By default the strategy looks at `_embedded` and picks the **first array** inside it, which is correct for every standard listing endpoint (Spring emits exactly one collection rel). If your payload carries multiple embedded rels, pin the exact path:
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.SPRING,
+provideQubee({
+  driver: SPRING_DRIVER,
   response: {
     data: '_embedded.users'
   }
@@ -96,8 +96,8 @@ When `_embedded` is absent (Spring omits it on empty result sets), `data` resolv
 ## Customising response paths
 
 ```typescript
-provideNgQubee({
-  driver: DriverEnum.SPRING,
+provideQubee({
+  driver: SPRING_DRIVER,
   response: {
     total: 'page.totalElements',
     nextPageUrl: '_links.next.href'
