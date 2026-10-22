@@ -76,12 +76,12 @@
     "ng": "ng",
     "build": "ng build",
     "test": "ng test",
-    "lint": "eslint \"src/**/*.ts\"",
-    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "lint": "eslint \"src/**/*.ts\" \"router/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" \"router/**/*.ts\" --fix",
     "prepare": "husky"
   },
   "lint-staged": {
-    "src/**/*.ts": [
+    "{src,router}/**/*.ts": [
       "eslint --fix"
     ]
   },
