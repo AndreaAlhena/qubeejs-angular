@@ -39,7 +39,7 @@ Thank you for your interest in contributing to `@qubeejs/angular`! This document
 
 - **Files**: kebab-case (e.g., `query-builder.service.ts`)
 - **Classes**: PascalCase (e.g., `QueryBuilderService`)
-- **Interfaces**: PascalCase with `I` prefix or descriptive suffix (e.g., `IConfig` or `PaginationConfig`)
+- **Interfaces**: PascalCase with `I` prefix only when a class implements them (e.g., `IRequestStrategy`); data shapes are `type`s without a prefix (e.g., `QubeeConfig`)
 - **Variables/Functions**: camelCase (e.g., `buildQuery`)
 - **Constants**: UPPER_SNAKE_CASE (e.g., `DEFAULT_PAGE_SIZE`)
 
