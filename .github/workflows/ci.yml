@@ -24,8 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Run ESLint
         run: npm run lint
+
+      - name: Check repository conventions
+        run: npm run test:conventions
 
   test:
     name: Test
