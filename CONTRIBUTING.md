@@ -1,6 +1,6 @@
-# Contributing to NgQubee
+# Contributing to @qubeejs/angular
 
-Thank you for your interest in contributing to NgQubee! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to `@qubeejs/angular`! This document provides guidelines and instructions for contributing.
 
 ## Development Setup
 
@@ -147,7 +147,7 @@ docs: update README with new API examples
 
 When reporting bugs, please include:
 
-- NgQubee version
+- Qubee version
 - Angular version
 - Node.js version
 - Steps to reproduce

@@ -52,7 +52,7 @@ This security policy applies to:
 
 ## Security Best Practices
 
-When using NgQubee:
+When using Qubee:
 
 - Keep the package updated to the latest version
 - Review query parameters before sending to your API
