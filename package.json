@@ -72,6 +72,13 @@
       "optional": true
     }
   },
+  "typesVersions": {
+    "*": {
+      "router": [
+        "types/qubeejs-angular-router.d.ts"
+      ]
+    }
+  },
   "scripts": {
     "ng": "ng",
     "build": "ng build",
