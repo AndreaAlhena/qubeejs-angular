@@ -149,31 +149,27 @@ jobs:
           cat > src/main.ts <<'TS'
           import { Component, inject } from '@angular/core';
           import { bootstrapApplication } from '@angular/platform-browser';
-          import { DriverEnum, NgQubeeService, provideNgQubee } from '@qubeejs/angular';
+          import { QubeeQueryBuilder, provideQubee, SPATIE_DRIVER } from '@qubeejs/angular';
 
           @Component({
             selector: 'app-root',
             standalone: true,
-            template: '<pre>{{ uri }}</pre>'
+            template: '<pre>{{ qb.uri() }}</pre>'
           })
           export class AppRoot {
-            private readonly _queryBuilder = inject(NgQubeeService);
-
-            public uri = '';
+            protected readonly qb = inject(QubeeQueryBuilder);
 
             constructor() {
-              this._queryBuilder
+              this.qb
                 .setResource('users')
                 .addFilter('status', 'active')
                 .setLimit(15)
                 .setPage(2);
-
-              this._queryBuilder.generateUri().subscribe(uri => (this.uri = uri));
             }
           }
 
           bootstrapApplication(AppRoot, {
-            providers: [provideNgQubee({ driver: DriverEnum.SPATIE })]
+            providers: [provideQubee({ driver: SPATIE_DRIVER })]
           });
           TS
         working-directory: consumer
