@@ -39,6 +39,7 @@ const sidebars: SidebarsConfig = {
     'fetching-data',
     'query-builder',
     'pagination',
+    'lists',
     'per-component-instances',
     {
       type: 'category',
